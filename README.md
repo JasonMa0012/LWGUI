@@ -1,7 +1,8 @@
 # LWGUI (Light Weight Shader GUI)
 
+[中文](https://github.com/JasonMa0012/LWGUI/blob/main/README_CN.md) | [English](https://github.com/JasonMa0012/LWGUI)
 
-A lightweight, flexible, powerful, subverting traditional **Unity Shader GUI** system.
+A Lightweight, Flexible, Powerful **Unity Shader GUI** system.
 
 Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a lot of development time, easy to use and expand, effectively improve the user experience of artists.
 
