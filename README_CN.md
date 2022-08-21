@@ -1,9 +1,9 @@
 # LWGUI (Light Weight Shader GUI)
 
 
-A lightweight, flexible, powerful, subverting traditional **Unity Shader GUI** system.
+一个轻量的, 灵活的, 强大的, 颠覆传统的**Unity Shader GUI**系统.
 
-Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a lot of development time, easy to use and expand, effectively improve the user experience of artists.
+使用简洁的MaterialPropertyDrawer语法实现功能复杂的Shader GUI, 节省大量开发时间, 易于使用和扩展, 有效提升美术的使用体验.
 
 ![i-0](README_CN.assets/809c4a1c-ce80-48b1-b415-7e8d4bea716e.jpg)
 
@@ -39,20 +39,20 @@ Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a 
 
 ## Installation
 
-1. Make sure your environment is compatible with LWGUI: **Unity 2017+**
-2. Open your project
-3. `Window > Package Manager > Add > Add package from git URL` , enter: `https://github.com/JasonMa0012/LWGUI.git`
-   - You can also choose to manually download the Zip from Github，then: `Package Manager > Add package from disk`
+1. 确保你的环境兼容LWGUI: **Unity 2017+**
+2. 打开已有工程
+3. （可能需要代理）`Window > Package Manager > Add > Add package from git URL` 输入`https://github.com/JasonMa0012/LWGUI.git`
+   - 你也可以选择手动从Github下载Zip，然后从`Package Manager > Add package from disk`添加Local Package
 
 ## Usage
 
 ### Getting Started
 
-1. Create a newer or use the existing Shader
-2. Open the Shader in the code editor
-3. At the bottom of the Shader, before the last large bracket, add line:`CustomEditor "LWGUI.LWGUI"`
-4. Completed! Start using the following powerful Drawer to easily draw your Shader GUI
-   - MaterialPropertyDrawer is C#-like attribute syntax, it can be used in front of shader properties to change the drawing method, more information can be found in the official documentation: https://docs.unity3d.com/ScriptReference/MaterialPropertyDrawer.html
+1. 新建一个Shader或使用现有的Shader
+2. 在代码编辑器中打开Shader
+3. 在Shader最底部, 最后一个大括号之前, 添加行:`CustomEditor "LWGUI.LWGUI"`
+4. 完成! 开始使用以下功能强大的Drawer轻松绘制你的ShaderGUI吧
+   - MaterialPropertyDrawer是一种类似C# Attribute的语法, 在MaterialProperty前加上Drawer可以更改绘制方式, 更多信息可以查看官方文档:`https://docs.unity3d.com/ScriptReference/MaterialPropertyDrawer.html`
 
 ### LWGUI Drawers
 
@@ -130,7 +130,7 @@ Then change values:
 SubToggleDrawer(string group, string keyWord)
 ```
 
-For usage, please refer to the Main & Sub example
+用法请参考Main & Sub示例
 
 #### SubPower
 
@@ -142,7 +142,7 @@ For usage, please refer to the Main & Sub example
 SubPowerSliderDrawer(string group, float power)
 ```
 
-For usage, please refer to the Main & Sub example
+用法请参考Main & Sub示例
 
 #### KWEnum
 
@@ -155,7 +155,7 @@ For usage, please refer to the Main & Sub example
 KWEnumDrawer(string group, string n1, string k1, string n2, string k2, string n3, string k3, string n4, string k4, string n5, string k5)
 ```
 
-For usage, please refer to the Main & Sub example
+用法请参考Main & Sub示例
 
 #### Tex & Color
 
@@ -226,9 +226,9 @@ New a Ramp Map and edit:
 
 ![image-20220821234658509](README_CN.assets/image-20220821234658509.png)
 
-You **must manually Save the edit results**, if there are unsaved changes, the Save button will display yellow.
+你**必须手动保存编辑结果**, 如果有未保存的修改, Save按钮将显示黄色.
 
-**When you move or copy the Ramp Map, remember to move together with the .meta file, otherwise you will not be able to edit it again!**
+**在你移动或者复制RampMap的时候, 切记要连同.meta文件一起移动, 否则将无法再次编辑!**
 
 #### MinMaxSlider
 
@@ -346,31 +346,31 @@ MaterialToggleUIDrawer(string keyword)
 
 ### Tips
 
-1. SubToggle and SubPower, named 'Sub' + 'built-in Drawer name', have the same Drawer functionality as the built-in version, with the added functionality of being displayed within the fold group.
+1. SubToggle和SubPower这种以”Sub”+”内置Drawer”命名的Drawer功能与内置版本相同, 只增加了在折叠组内显示的功能
 
 ## TODO
 
-- [ ] Support for ShaderGraph or ASE
+- [ ] 支持ShaderGraph or ASE
 
-- [ ] Per material save the Folding Group open state
-- [ ] Support for Unreal Style Revertable GUI
-- [ ] Support for HelpBox
-- [ ] Support to change text format
-- [ ] Support for Tooltip, displays default values and custom content
-- [ ] Support upper right corner menu, can be all expanded or collapsed
-- [ ] Support for Pass switch
-- [ ] Support for Curve
-- [ ] Support for search box
+- [ ] per material保存折叠组打开状态
+- [ ] 支持Unreal风格的Revertable GUI
+- [ ] 支持HelpBox
+- [ ] 支持改文字格式
+- [ ] 支持Tooltip, 显示默认值和自定义内容
+- [ ] 支持右上角菜单全部展开或折叠
+- [ ] 支持Pass开关
+- [ ] 支持Curve
+- [ ] 支持搜索框
 
 
 
 ## Contribution
 
-1. Create multiple empty projects using different versions of Unity
-2. Pull this repo
-3. Use symbolic links to place this repo in the Assets or Packages directory of all projects
-4. Inherit the `Subdrawer` in` shadeerdrawer.cs` to start developing your custom Drawer
-5. Check whether the functionality works in different Unity versions
+1. 使用不同Unity版本创建多个空工程
+2. 拉取repo
+3. 使用符号链接将此repo放到所有工程的Assets或Packages目录内
+4. 在`ShaderDrawer.cs`内继承`SubDrawer`开始开发你的自定义Drawer
+5. 检查功能在不同Unity版本是否正常
 6. Pull requests
 
 ### Tips

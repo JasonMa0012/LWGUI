@@ -1,0 +1,16 @@
+{
+  "name": "com.jasonma.lwgui",
+  "version": "0.1.0",
+  "displayName": "LWGUI",
+  "description": "A Lightweight, Flexible, Powerful and Subversive Shader GUI System for Unity.",
+  "keywords": [
+    "shader",
+    "gui"
+  ],
+  "author": {
+    "name": "Jason Ma",
+    "email": "jasonma0012@foxmail.com",
+    "url": "https://github.com/JasonMa0012/LWGUI"
+  },
+  "type": "tool"
+}

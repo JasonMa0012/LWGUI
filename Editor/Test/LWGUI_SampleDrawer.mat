@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: LWGUI_SampleDrawer
+  m_Shader: {fileID: 4800000, guid: ded91f399f8343d4f9b0cf33eda0088d, type: 3}
+  m_ShaderKeywords: KEY2 _GROUP3_ON _GROUP4_ON _GROUP5_ON _GROUP6_ON _GROUP7_ON _GROUP8_ON
+    _GROUP_ON _KEYWORD
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 936423d97fbdd3c40bd47377240f5c64, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Ramp:
+        m_Texture: {fileID: 2800000, guid: df4a1e363556192459af030f3e1d4e89, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex:
+        m_Texture: {fileID: 2800000, guid: 936423d97fbdd3c40bd47377240f5c64, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _Queue: 2000
+    - _enum: 1
+    - _enum1: 0
+    - _enum2: 0
+    - _enum3: 0
+    - _enum3_range: 0
+    - _enumFloat1: 0
+    - _enumFloat2: 0
+    - _enumFloat3: 0
+    - _enumFloat4_range: 0
+    - _float: 1
+    - _float2: 2
+    - _float3: 2
+    - _float30: 2
+    - _float31: 2
+    - _float32: 2
+    - _float33: 2
+    - _float34: 2
+    - _float35: 2
+    - _float36: 2
+    - _float4: 2
+    - _float_keyword: 0
+    - _group: 1
+    - _group2: 1
+    - _group3: 1
+    - _group4: 1
+    - _group5: 1
+    - _group6: 1
+    - _group7: 1
+    - _group8: 1
+    - _powerSlider: 17.547955
+    - _toggle: 0
+    - _toggle_keyword: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _hdr: {r: 1, g: 1, b: 1, a: 1}
+    - _mColor: {r: 1, g: 1, b: 1, a: 1}
+    - _mColor1: {r: 1, g: 0, b: 0, a: 1}
+    - _mColor2: {r: 0, g: 1, b: 0, a: 1}
+    - _mColor3: {r: 0, g: 0, b: 1, a: 1}

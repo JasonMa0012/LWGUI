@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: LWGUI_SampleDrawer 2
+  m_Shader: {fileID: 4800000, guid: 7ee048c9536c0344bb8b4860595a4d9b, type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - KEY1
+  - _GROUP_ON
+  - _KEY1
+  - _KEY2
+  - _KEY3
+  - _KEYWORD
+  - _TOGGLE_KEYWORD
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Ramp:
+        m_Texture: {fileID: 2800000, guid: df4a1e363556192459af030f3e1d4e89, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _enum: 2
+    - _float: 0
+    - _float1: 0
+    - _float2: 0
+    - _float3: 0
+    - _floatN: 0
+    - _group: 0
+    - _group1: 1
+    - _group2: 0
+    - _key1_Float1: 0
+    - _key2_Float2: 0
+    - _key3_Float3: 0
+    - _key3_Float4_PowerSlider: 0
+    - _minMaxSlider: 1
+    - _rangeEnd: 1
+    - _rangeStart: 0
+    - _toggle: 1
+    m_Colors:
+    - _color: {r: 1, g: 0, b: 0, a: 1}
+    - _color1: {r: 0.7, g: 0.7, b: 1, a: 1}
+    - _mColor: {r: 1, g: 1, b: 1, a: 1}
+    - _mColor1: {r: 1, g: 0, b: 0, a: 1}
+    - _mColor2: {r: 0, g: 1, b: 0, a: 1}
+    - _mColor3: {r: 0, g: 0, b: 1, a: 1}
+    - _textureChannelMask: {r: 0, g: 1, b: 0, a: 0}
+  m_BuildTextureStacks: []
