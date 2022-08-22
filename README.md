@@ -356,9 +356,9 @@ MaterialToggleUIDrawer(string keyword)
 - [ ] Per material save the Folding Group open state
 - [ ] Support for Unreal Style Revertable GUI
 - [ ] Support for HelpBox
-- [ ] Support to change text format
+- [ ] Support for change text format
 - [ ] Support for Tooltip, displays default values and custom content
-- [ ] Support upper right corner menu, can be all expanded or collapsed
+- [ ] Support for upper-right menu, can be all expanded or collapsed
 - [ ] Support for Pass switch
 - [ ] Support for Curve
 - [ ] Support for search box
