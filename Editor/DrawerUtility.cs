@@ -1,13 +1,12 @@
+// Copyright (c) 2022 Jason Ma
 
 using System;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Rendering;
 
 // Obsolete
 namespace JTRP.ShaderDrawer
@@ -38,17 +37,69 @@ namespace LWGUI
     {
 		// Used for access to all props in Drawer
         public MaterialProperty[] props;
-        public MaterialEditor materialEditor;
-		
+        public MaterialEditor     materialEditor;
+
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
         {
             this.props = props;
             this.materialEditor = materialEditor;
+			RevertableHelper.defaultMaterial = new Material((materialEditor.target as Material).shader);
 
-            base.OnGUI(materialEditor, props);
+            // base.OnGUI(materialEditor, props);
+			{
+				// move fields left to make rect for Revert Button
+				materialEditor.SetDefaultGUIWidths();
+				EditorGUIUtility.fieldWidth += RevertableHelper.revertButtonWidth;
+				EditorGUIUtility.labelWidth -= RevertableHelper.revertButtonWidth;
+				RevertableHelper.fieldWidth = EditorGUIUtility.fieldWidth;
+				RevertableHelper.labelWidth = EditorGUIUtility.labelWidth;
+				
+				for (int index = 0; index < props.Length; ++index)
+				{
+					var prop = props[index];
+					if ((prop.flags & MaterialProperty.PropFlags.HideInInspector) == 0)
+					{
+						var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
+						// ignored when in Folding Group
+						if (height <= 0) continue;
+						
+						var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
+						var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, rect);
+						rect.xMax -= RevertableHelper.revertButtonWidth;
+
+						// Process some builtin types display misplaced
+						switch (prop.type)
+						{
+							case MaterialProperty.PropType.Texture:
+							case MaterialProperty.PropType.Range:
+								materialEditor.SetDefaultGUIWidths();
+								break;
+							default:
+								EditorGUIUtility.fieldWidth = RevertableHelper.fieldWidth;
+								EditorGUIUtility.labelWidth = RevertableHelper.labelWidth;
+								break;
+						}
+						
+						RevertableHelper.RevertButton(revertButtonRect, prop, materialEditor);
+						materialEditor.ShaderProperty(rect, prop, prop.displayName);
+					}
+				}
+				materialEditor.SetDefaultGUIWidths();
+
+				EditorGUILayout.Space();
+				EditorGUILayout.Space();
+#if UNITY_2019_1_OR_NEWER
+				if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
+#endif
+				{
+					materialEditor.RenderQueueField();
+				}
+				materialEditor.EnableInstancingField();
+				materialEditor.DoubleSidedGIField();
+			}
         }
-        
-        public static MaterialProperty FindProp(string propertyName, MaterialProperty[] properties, bool propertyIsMandatory = false)
+
+		public static MaterialProperty FindProp(string propertyName, MaterialProperty[] properties, bool propertyIsMandatory = false)
         {
 	        if (properties == null)
 	        {
@@ -60,6 +111,187 @@ namespace LWGUI
         }
     }
 	
+	/// <summary>
+	/// Helpers for drawing Unreal Style Revertable Shader GUI 
+	/// </summary>
+    public class RevertableHelper
+	{
+		public static readonly float    revertButtonWidth = 15f;
+		public static          float    fieldWidth;
+		public static          float    labelWidth;
+		public static          Material defaultMaterial;
+
+		public static Rect GetRevertButtonRect(MaterialProperty prop, Rect rect, bool isCallInDrawer = false)
+		{
+			float defaultHeightWithoutDrawers;
+			switch (prop.type)
+			{
+				case MaterialProperty.PropType.Vector:
+					defaultHeightWithoutDrawers = 18f;
+					break;
+				default:
+					defaultHeightWithoutDrawers = MaterialEditor.GetDefaultPropertyHeight(prop); 
+					break;
+			}
+			if (isCallInDrawer) rect.xMax += revertButtonWidth;
+			var revertButtonRect = new Rect(rect.xMax - revertButtonWidth + 2f, rect.yMax - defaultHeightWithoutDrawers * 0.5f - (revertButtonWidth - 3f) * 0.5f - 
+											#if UNITY_2019_1_OR_NEWER	
+												1f,
+											#else
+												2f,
+											#endif
+											revertButtonWidth - 2f, revertButtonWidth - 3f);
+			return revertButtonRect;
+		}
+		
+		public static void SetPropertyToDefault(MaterialProperty prop)
+		{
+			switch (prop.type)
+			{
+				case MaterialProperty.PropType.Color:
+					prop.colorValue = defaultMaterial.GetColor(prop.name);
+					break;
+				case MaterialProperty.PropType.Vector:
+					prop.vectorValue = defaultMaterial.GetVector(prop.name);
+					break;
+				case MaterialProperty.PropType.Float:
+				case MaterialProperty.PropType.Range:
+					prop.floatValue = defaultMaterial.GetFloat(prop.name);
+					break;
+				case MaterialProperty.PropType.Texture: 
+					prop.textureValue = defaultMaterial.GetTexture(prop.name);
+					break;
+#if UNITY_2021_1_OR_NEWER
+				case MaterialProperty.PropType.Int:
+					prop.intValue = defaultMaterial.GetInt(prop.name);
+					break;
+#endif
+			}
+		}
+		
+
+		// ======================= Draw revert button =======================
+		public static bool RevertButton(Rect position, MaterialProperty prop, MaterialEditor materialEditor)
+		{
+			bool doRevert = false;
+			Rect rect = position;
+			switch (prop.type)
+			{
+				case MaterialProperty.PropType.Color:
+					var color = defaultMaterial.GetColor(prop.name);
+					if (color == prop.colorValue && !prop.hasMixedValue)
+						break;
+					if (DoRevertButton(rect))
+					{
+						AddProperty(prop.targets, prop.name);
+						prop.colorValue = color;
+						doRevert = true;
+					}
+					break;
+
+				case MaterialProperty.PropType.Vector:
+					var vector = defaultMaterial.GetVector(prop.name);
+					if (vector == prop.vectorValue && !prop.hasMixedValue)
+						break;
+					if (DoRevertButton(rect))
+					{
+						AddProperty(prop.targets, prop.name);
+						prop.vectorValue = vector;
+						doRevert = true;
+					}
+					break;
+
+				case MaterialProperty.PropType.Range:
+				case MaterialProperty.PropType.Float:
+					var value = defaultMaterial.GetFloat(prop.name);
+					if (value == prop.floatValue && !prop.hasMixedValue)
+						break;
+					if (DoRevertButton(rect))
+					{
+						AddProperty(prop.targets, prop.name);
+						prop.floatValue = value;
+						doRevert = true;
+						// refresh keywords
+						MaterialEditor.ApplyMaterialPropertyDrawers(materialEditor.targets);
+					}
+					break;
+
+				case MaterialProperty.PropType.Texture:
+					// var tex = defaultMaterial.GetTexture(prop.name);
+					// if (tex == prop.textureValue && !prop.hasMixedValue)
+					// 	break;
+					// if (DoRevertButton(rect))
+					// {
+					// 	AddProperty(prop.targets, prop.name);
+					// 	prop.textureValue = tex;
+					// }
+					break;
+			}
+			return doRevert;
+		}
+
+		private static readonly Texture _icon = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("e7bc1130858d984488bca32b8512ca96"));
+		private static bool DoRevertButton(Rect rect)
+		{
+			if (_icon == null) Debug.LogError("RevertIcon.png + meta is missing!");
+			GUI.DrawTexture(rect, _icon);
+			var e = Event.current;
+			if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
+			{
+				e.Use();
+				return true;
+			}
+			return false;
+		}
+
+		// ========== Call drawers to do revert and refresh keywords ========== 
+		private static Dictionary<UnityEngine.Object, List<string>> _needRevertPropsPool;
+
+		public static void AddProperty(UnityEngine.Object[] materials, string propName)
+		{
+			if (_needRevertPropsPool == null)
+				_needRevertPropsPool = new Dictionary<UnityEngine.Object, List<string>>();
+			foreach (var material in materials)
+			{
+				if (_needRevertPropsPool.ContainsKey(material))
+				{
+					if (!_needRevertPropsPool[material].Contains(propName))
+						_needRevertPropsPool[material].Add(propName);
+				}
+				else
+				{
+					_needRevertPropsPool.Add(material, new List<string> { propName });
+				}
+			}
+		}
+
+		public static void RemoveProperty(UnityEngine.Object[] materials, string propName)
+		{
+			if (_needRevertPropsPool == null) return;
+			foreach (var material in materials)
+			{
+				if (_needRevertPropsPool.ContainsKey(material))
+				{
+					if (_needRevertPropsPool[material].Contains(propName))
+						_needRevertPropsPool[material].Remove(propName);
+				}
+			}
+		}
+
+		public static bool ContainsProperty(UnityEngine.Object material, string propName)
+		{
+			if (_needRevertPropsPool == null) return false;
+			if (_needRevertPropsPool.ContainsKey(material))
+			{
+				return _needRevertPropsPool[material].Contains(propName);
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+
 	/// <summary>
 	/// Misc Function
 	/// </summary>
@@ -117,24 +349,9 @@ namespace LWGUI
 			for (int i = 0; i < keyWords.Length; i++)
 			{
 				SetShaderKeyWord(materials, keyWords[i], index == i);
-				if (GUIData.keyWord.ContainsKey(keyWords[i]))
-				{
-					GUIData.keyWord[keyWords[i]] = index == i;
-				}
-				else
-				{
-					Debug.LogError("KeyWord: "+keyWords[i]+" not exist! Throw a shader error to refresh the instance.");
-				}
 			}
 		}
 
-        //public static float GetDefaultFloatValue(MaterialProperty prop)
-        //{
-        //    var shader = ((Material)prop.targets[0]).shader;
-        //    var propIndex = shader.FindPropertyIndex(prop.name);
-        //    return propIndex >= 0 ? shader.GetPropertyDefaultFloatValue(propIndex) : 0;
-        //}
-        
         public static void TurnColorDraw(Color useColor, UnityAction action)
         {
             var c = GUI.color;
@@ -262,7 +479,7 @@ namespace LWGUI
 			style.fontSize = (int)(style.fontSize * 1.5f);
 			style.contentOffset = new Vector2(30f, -2f);
 
-			var rect = GUILayoutUtility.GetRect(position.width, 24f, style);
+			var rect = position;//GUILayoutUtility.GetRect(position.width, 24f, style);
 
 			GUI.backgroundColor = isFolding ? Color.white : new Color(0.85f, 0.85f, 0.85f);
 			GUI.Box(rect, title, style);
@@ -310,21 +527,23 @@ namespace LWGUI
             var labelWidth = EditorGUIUtility.labelWidth;
             EditorGUIUtility.labelWidth = 0;
 
-            Rect position2 = EditorGUI.PrefixLabel(position, label);
-            position2 = new Rect(position2.x, position2.y, position2.width - EditorGUIUtility.fieldWidth - 5, position2.height);
-
-            if (position2.width >= 50f)
-                value = GUI.Slider(position2, value, 0.0f, start, end, GUI.skin.horizontalSlider, !EditorGUI.showMixedValue ? GUI.skin.horizontalSliderThumb : (GUIStyle)"SliderMixed", true, controlId);
+            var rectAfterLabel = EditorGUI.PrefixLabel(position, label);
+			
+			Rect sliderRect = MaterialEditor.GetFlexibleRectBetweenLabelAndField(position);
+            if (sliderRect.width >= 50f)
+                value = GUI.Slider(sliderRect, value, 0.0f, start, end, GUI.skin.horizontalSlider, !EditorGUI.showMixedValue ? GUI.skin.horizontalSliderThumb : (GUIStyle)"SliderMixed", true, controlId);
 
             if ((double)power != 1.0)
                 value = Helper.PowPreserveSign(value, power);
 
-            position.xMin += position.width - SubDrawer.propRight;
-            value = EditorGUI.FloatField(position, value);
+            position.xMin = Mathf.Max(rectAfterLabel.xMin, sliderRect.xMax - 10f);
+			var floatRect = position;
+            value = EditorGUI.FloatField(floatRect, value);
 
-            EditorGUIUtility.labelWidth = labelWidth;
             if (value != originValue)
                 prop.floatValue = Mathf.Clamp(value, Mathf.Min(left, right), Mathf.Max(left, right));
+			
+            EditorGUIUtility.labelWidth = labelWidth;
         }
 		#endregion
 	}
@@ -476,7 +695,7 @@ namespace LWGUI
 			{
 				var systemPath = projectPath + path;
 				File.WriteAllBytes(systemPath, texture2D.EncodeToPNG());
-				// assetImporter.SaveAndReimport();
+				assetImporter.SaveAndReimport();
 			}
 		}
 
@@ -560,137 +779,5 @@ namespace LWGUI
 	}
 
 
-	/// <summary>
-	/// Helpers for drawing Unreal Style Revertable Shader GUI
-	/// </summary>
-    public class RevertableHelper
-	{
-		// ======================= Draw revert button =======================
-		private static Texture _icon;
-
-		public static void DrawRevertButton(Rect position, MaterialProperty prop, Material defaultMaterial)
-		{
-			// ignore drawer height
-			position.yMin += position.height - MaterialEditor.GetDefaultPropertyHeight(prop);
-			Rect rect = new Rect();
-			var w = EditorGUIUtility.labelWidth;
-			switch (prop.type)
-			{
-				case MaterialProperty.PropType.Color:
-					var c = defaultMaterial.GetColor(prop.name);
-					if (c == prop.colorValue && !prop.hasMixedValue)
-						break;
-					rect = MaterialEditor.GetRectAfterLabelWidth(position);
-					GetButtonRect(ref rect);
-					if (DrawRevertButtonAtRect(rect))
-						prop.colorValue = c;
-					break;
-
-				case MaterialProperty.PropType.Vector:
-					EditorGUIUtility.labelWidth = 0;
-					var v = defaultMaterial.GetVector(prop.name);
-					if (v == prop.vectorValue && !prop.hasMixedValue)
-						break;
-					rect = MaterialEditor.GetRectAfterLabelWidth(position);
-					GetButtonRect(ref rect);
-					if (DrawRevertButtonAtRect(rect))
-						prop.vectorValue = v;
-					break;
-
-				case MaterialProperty.PropType.Range:
-				case MaterialProperty.PropType.Float:
-					if (prop.type == MaterialProperty.PropType.Range)
-						EditorGUIUtility.labelWidth = 0;
-					var f = defaultMaterial.GetFloat(prop.name);
-					if (f == prop.floatValue && !prop.hasMixedValue)
-						break;
-					rect = MaterialEditor.GetRectAfterLabelWidth(position);
-					GetButtonRect(ref rect);
-					if (DrawRevertButtonAtRect(rect))
-					{
-						if (prop.type == MaterialProperty.PropType.Float)
-							AddProperty(prop.targets, prop.name);
-						prop.floatValue = f;
-					}
-					break;
-
-				case MaterialProperty.PropType.Texture:
-					break;
-			}
-			EditorGUIUtility.labelWidth = w;
-		}
-
-		public static bool DrawRevertButtonAtRect(Rect rect)
-		{
-			if (_icon == null)
-				_icon = EditorGUIUtility.IconContent("refresh").image;
-
-			GUI.DrawTexture(rect, _icon);
-			var e = Event.current;
-			if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
-			{
-				e.Use();
-
-				return true;
-			}
-			return false;
-		}
-
-		private static void GetButtonRect(ref Rect rect)
-		{
-			rect.xMin -= 20f;
-			rect.width = 15f;
-			rect.yMin += 2f;
-			rect.height = 14f;
-		}
-
-
-		// ========== Make the drawer know when to refresh the keyword ==========
-		private static Dictionary<UnityEngine.Object, List<string>> _revertablePropPool;
-
-		public static void AddProperty(UnityEngine.Object[] materials, string propName)
-		{
-			if (_revertablePropPool == null)
-				_revertablePropPool = new Dictionary<UnityEngine.Object, List<string>>();
-			foreach (var material in materials)
-			{
-				if (_revertablePropPool.ContainsKey(material))
-				{
-					if (!_revertablePropPool[material].Contains(propName))
-						_revertablePropPool[material].Add(propName);
-				}
-				else
-				{
-					_revertablePropPool.Add(material, new List<string> { propName });
-				}
-			}
-		}
-
-		public static void RemoveProperty(UnityEngine.Object[] materials, string propName)
-		{
-			if (_revertablePropPool == null) return;
-			foreach (var material in materials)
-			{
-				if (_revertablePropPool.ContainsKey(material))
-				{
-					if (_revertablePropPool[material].Contains(propName))
-						_revertablePropPool[material].Remove(propName);
-				}
-			}
-		}
-
-		public static bool ContainsProperty(UnityEngine.Object material, string propName)
-		{
-			if (_revertablePropPool == null) return false;
-			if (_revertablePropPool.ContainsKey(material))
-			{
-				return _revertablePropPool[material].Contains(propName);
-			}
-			else
-			{
-				return false;
-			}
-		}
-	}
 
 } //namespace LWGUI

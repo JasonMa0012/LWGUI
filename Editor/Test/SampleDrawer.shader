@@ -9,10 +9,10 @@ Shader "Hidden"
         [Ramp]_Ramp ("Ramp", 2D) = "white" { }
         
         // use Title on LWGUI attribute
-        [Title(_, Title)]
+        [Title(Title)]
         [Tex(_, _mColor2)] _tex ("tex color", 2D) = "white" { }
         
-        [Title(_, Title on Group)]
+        [Title(Title on Group)]
         // Create a folding group with name "g1"
         [Main(g1)] _group ("Group", float) = 1
         [Sub(g1)]  _float ("float", float) = 2

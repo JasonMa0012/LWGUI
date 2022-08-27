@@ -4,13 +4,11 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
   m_Name: LWGUI_SampleDrawer
   m_Shader: {fileID: 4800000, guid: ded91f399f8343d4f9b0cf33eda0088d, type: 3}
-  m_ShaderKeywords: KEY2 _GROUP3_ON _GROUP4_ON _GROUP5_ON _GROUP6_ON _GROUP7_ON _GROUP8_ON
-    _GROUP_ON _KEYWORD
+  m_ShaderKeywords: KEY2 _KEYWORD
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -28,8 +26,12 @@ Material:
         m_Texture: {fileID: 2800000, guid: df4a1e363556192459af030f3e1d4e89, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _normal:
+    - _Ramp2:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _normal:
+        m_Texture: {fileID: 2800000, guid: 7cfdb589134f93c4abec6de50366e82d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _tex:
@@ -59,7 +61,7 @@ Material:
     - _float36: 2
     - _float4: 2
     - _float_keyword: 0
-    - _group: 1
+    - _group: 0
     - _group2: 1
     - _group3: 1
     - _group4: 1
@@ -75,5 +77,5 @@ Material:
     - _hdr: {r: 1, g: 1, b: 1, a: 1}
     - _mColor: {r: 1, g: 1, b: 1, a: 1}
     - _mColor1: {r: 1, g: 0, b: 0, a: 1}
-    - _mColor2: {r: 0, g: 1, b: 0, a: 1}
+    - _mColor2: {r: 0.68301886, g: 1, b: 0.68301886, a: 1}
     - _mColor3: {r: 0, g: 0, b: 1, a: 1}
