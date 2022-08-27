@@ -6,7 +6,7 @@
 
 使用简洁的MaterialPropertyDrawer语法实现功能复杂的Shader GUI, 节省大量开发时间, 易于使用和扩展, 有效提升美术的使用体验.
 
-![i-0](README_CN.assets/809c4a1c-ce80-48b1-b415-7e8d4bea716e.jpg)
+![809c4a1c-ce80-48b1-b415-7e8d4bea716e](README_CN.assets/809c4a1c-ce80-48b1-b415-7e8d4bea716e-16616214059841.png)
 
 ![LWGUI](README_CN.assets/LWGUI.png)
 

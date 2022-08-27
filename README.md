@@ -6,7 +6,7 @@ A Lightweight, Flexible, Powerful **Unity Shader GUI** system.
 
 Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a lot of development time, easy to use and expand, effectively improve the user experience of artists.
 
-![i-0](README_CN.assets/809c4a1c-ce80-48b1-b415-7e8d4bea716e.jpg)
+![809c4a1c-ce80-48b1-b415-7e8d4bea716e](README_CN.assets/809c4a1c-ce80-48b1-b415-7e8d4bea716e-16616214059841.png)
 
 ![LWGUI](README_CN.assets/LWGUI.png)
 
