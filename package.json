@@ -1,8 +1,8 @@
 {
   "name": "com.jasonma.lwgui",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "displayName": "LWGUI",
-  "description": "A Lightweight, Flexible, Powerful and Subversive Shader GUI System for Unity.",
+  "description": "A Lightweight, Flexible, Powerful Shader GUI System for Unity.",
   "keywords": [
     "shader",
     "gui"

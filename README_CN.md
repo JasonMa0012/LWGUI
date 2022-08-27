@@ -10,7 +10,6 @@
 
 ![LWGUI](README_CN.assets/LWGUI.png)
 
-- [LWGUI (Light Weight Shader GUI)](#lwgui--light-weight-shader-gui-)
   * [Installation](#installation)
   * [Usage](#usage)
     + [Getting Started](#getting-started)
@@ -20,9 +19,9 @@
       - [SubPower](#subpower)
       - [KWEnum](#kwenum)
       - [Tex & Color](#tex---color)
+      - [Channel](#channel)
       - [Ramp](#ramp)
       - [MinMaxSlider](#minmaxslider)
-      - [Channel](#channel)
       - [Title](#title)
     + [Unity Builtin Drawers](#unity-builtin-drawers)
       - [Space](#space)
@@ -78,48 +77,46 @@ SubDrawer(string group)
 
 Example:
 
-```c
-[Title(_, Main Samples)]
-
+```c#
+[Title(Main Samples)]
 [Main(GroupName)]
 _group ("Group", float) = 0
 [Sub(GroupName)] _float ("Float", float) = 0
 
 
-[Main(Group1, _KEYWORD, on)]
-_group1 ("Group - Default Open", float) = 1
+[Main(Group1, _KEYWORD, on)] _group1 ("Group - Default Open", float) = 1
 [Sub(Group1)] _float1 ("Sub Float", float) = 0
-[Sub(Group1)][HDR] _color1 ("Sub HDR Color", color) = (0.7, 0.7, 1, 1)
+[Sub(Group1)] _vector1 ("Sub Vector", vector) = (1, 1, 1, 1)
+[Sub(Group1)] [HDR] _color1 ("Sub HDR Color", color) = (0.7, 0.7, 1, 1)
 
 [Title(Group1, Conditional Display Samples       Enum)]
 [KWEnum(Group1, Name 1, _KEY1, Name 2, _KEY2, Name 3, _KEY3)]
-_enum ("Sub Enum", float) = 0
+_enum ("KWEnum", float) = 0
 
 // Display when the keyword ("group name + keyword") is activated
 [Sub(Group1_KEY1)] _key1_Float1 ("Key1 Float", float) = 0
 [Sub(Group1_KEY2)] _key2_Float2 ("Key2 Float", float) = 0
-[Sub(Group1_KEY3)] _key3_Float3 ("Key3 Float", float) = 0
+[Sub(Group1_KEY3)] _key3_Float3_Range ("Key3 Float Range", Range(0, 1)) = 0
 [SubPowerSlider(Group1_KEY3, 10)] _key3_Float4_PowerSlider ("Key3 Power Slider", Range(0, 1)) = 0
 
 [Title(Group1, Conditional Display Samples       Toggle)]
-[SubToggle(Group1, _TOGGLE_KEYWORD)] _toggle ("Sub Toggle", float) = 0
+[SubToggle(Group1, _TOGGLE_KEYWORD)] _toggle ("SubToggle", float) = 0
 [Tex(Group1_TOGGLE_KEYWORD)][Normal] _normal ("Normal Keyword", 2D) = "bump" { }
 [Sub(Group1_TOGGLE_KEYWORD)] _float2 ("Float Keyword", float) = 0
 
 
-[Main(Group2, _, off, off)]
-_group2 ("Group - Without Toggle", float) = 0
+[Main(Group2, _, off, off)] _group2 ("Group - Without Toggle", float) = 0
 [Sub(Group2)] _float3 ("Float 2", float) = 0
 
 ```
 
 Default result:
 
-![image-20220821235853220](README_CN.assets/image-20220821235853220.png)
+![image-20220828003026556](README_CN.assets/image-20220828003026556.png)
 
 Then change values:
 
-![image-20220821235941896](README_CN.assets/image-20220821235941896.png)
+![image-20220828003129588](README_CN.assets/image-20220828003129588.png)
 
 #### SubToggle
 
@@ -165,7 +162,7 @@ KWEnumDrawer(string group, string n1, string k1, string n2, string k2, string n3
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// extraPropName: extra property name (Unity 2019.2+ only) (Default: none)
 /// Target Property Type: Texture
-/// Extra Property Type: Any
+/// Extra Property Type: Any, except Texture
 TexDrawer(string group, string extraPropName)
 ```
 
@@ -180,14 +177,18 @@ ColorDrawer(string group, string color2, string color3, string color4)
 Example:
 
 ```c#
-[Space(50)]
-[Title(_, Tex and Color Samples)]
-
-[Tex(_, _color)] _tex ("Tex with Color", 2D) = "white" { }
+[Main(Group3, _, on)] _group3 ("Group - Tex and Color Samples", float) = 0
+[Tex(Group3, _color)] _tex_color ("Tex with Color", 2D) = "white" { }
 [HideInInspector] _color (" ", Color) = (1, 0, 0, 1)
+[Tex(Group3, _float4)] _tex_float ("Tex with Float", 2D) = "white" { }
+[HideInInspector] _float4 (" ", float) = 0
+[Tex(Group3, _range)] _tex_range ("Tex with Range", 2D) = "white" { }
+[HideInInspector] _range (" ", Range(0,1)) = 0
+[Tex(Group3, _textureChannelMask1)] _tex_channel ("Tex with Channel", 2D) = "white" { }
+[HideInInspector] _textureChannelMask1(" ", Vector) = (0,0,0,1)
 
 // Display up to 4 colors in a single line (Unity 2019.2+)
-[Color(_, _mColor1, _mColor2, _mColor3)]
+[Color(Group3, _mColor1, _mColor2, _mColor3)]
 _mColor ("Multi Color", Color) = (1, 1, 1, 1)
 [HideInInspector] _mColor1 (" ", Color) = (1, 0, 0, 1)
 [HideInInspector] _mColor2 (" ", Color) = (0, 1, 0, 1)
@@ -197,12 +198,36 @@ _mColor ("Multi Color", Color) = (1, 1, 1, 1)
 
 Result:
 
-![image-20220821233857850](README_CN.assets/image-20220821233857850.png)
+![image-20220828003507825](README_CN.assets/image-20220828003507825.png)
+
+#### Channel
+
+```c#
+/// Draw a R/G/B/A drop menu
+/// group：father group name, support suffix keyword for conditional display (Default: none)
+/// Target Property Type: Vector, used to dot() with Texture Sample Value
+ChannelDrawer(string group)
+```
+
+Example:
+
+```c#
+[Title(_, Channel Samples)]
+[Channel(_)]_textureChannelMask("Texture Channel Mask (Default G)", Vector) = (0,1,0,0)
+
+......
+
+float selectedChannelValue = dot(tex2D(_Tex, uv), _textureChannelMask);
+```
+
+
+
+![image-20220822010511978](README_CN.assets/image-20220822010511978.png)
 
 #### Ramp
 
 ```c#
-/// Draw a Ramp Map Editor (Defaulf Ramp Map Resolution: 2 * 512)
+/// Draw a Ramp Map Editor (Defaulf Ramp Map Resolution: 512 * 2)
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// defaultFileName: default Ramp Map file name when create a new one (Default: RampMap)
 /// defaultWidth: default Ramp Width (Default: 512)
@@ -245,40 +270,16 @@ MinMaxSliderDrawer(string group, string minPropName, string maxPropName)
 Example:
 
 ```c#
-[Title(_, MinMaxSlider Samples)]
-
-[MinMaxSlider(_, _rangeStart, _rangeEnd)] _minMaxSlider("Min Max Slider (0 - 1)", Range(0.0, 1.0)) = 1.0
-[HideInInspector] _rangeStart("Range Start", Range(0.0, 0.5)) = 0.0
-[HideInInspector] _rangeEnd("Range End", Range(0.5, 1.0)) = 1.0
+[Title(MinMaxSlider Samples)]
+[MinMaxSlider(_rangeStart, _rangeEnd)] _minMaxSlider("Min Max Slider (0 - 1)", Range(0.0, 1.0)) = 1.0
+_rangeStart("Range Start", Range(0.0, 0.5)) = 0.0
+[PowerSlider(10)] _rangeEnd("Range End PowerSlider", Range(0.5, 1.0)) = 1.0
 
 ```
 
 Result:
 
-![image-20220822004854392](README_CN.assets/image-20220822004854392.png)
-
-#### Channel
-
-```c#
-/// Draw a R/G/B/A drop menu
-/// group：father group name, support suffix keyword for conditional display (Default: none)
-/// Target Property Type: Vector, used to dot() with Texture Sample Value
-ChannelDrawer(string group)
-```
-Example:
-
-```c#
-[Title(_, Channel Samples)]
-[Channel(_)]_textureChannelMask("Texture Channel Mask (Default G)", Vector) = (0,1,0,0)
-
-......
-
-float selectedChannelValue = dot(tex2D(_Tex, uv), _textureChannelMask);
-```
-
-
-
-![image-20220822010511978](README_CN.assets/image-20220822010511978.png)
+![image-20220828003810353](README_CN.assets/image-20220828003810353.png)
 
 #### Title
 
@@ -324,7 +325,7 @@ MaterialIntRangeDrawer()
 #### KeywordEnum
 
 ```c#
-MaterialKeywordEnumDrawer(string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4, string n5, float v5, string n6, float v6, string n7, float v7)
+MaterialKeywordEnumDrawer(string kw1, string kw2, string kw3, string kw4, string kw5, string kw6, string kw7, string kw8, string kw9)
 ```
 
 
@@ -347,14 +348,16 @@ MaterialToggleUIDrawer(string keyword)
 
 ### Tips
 
-1. SubToggle和SubPower这种以”Sub”+”内置Drawer”命名的Drawer功能与内置版本相同, 只增加了在折叠组内显示的功能
+1. Drawer的第一个参数永远是`group`, 所以在只有一个参数的情况下, 不同Drawer的行为可能不同, 因此如果要在折叠组外使用Drawer, 第一个参数最好赋予“_”
+1. 最好使用Title()替代内置的Header(), 否则会有错位
+1. 如果出现改了Shader但GUI没有更新的情况请手动修改Shader使其报错, 然后再改回来以刷新GUI
 
 ## TODO
 
 - [ ] 支持ShaderGraph or ASE
 
 - [ ] per material保存折叠组打开状态
-- [ ] 支持Unreal风格的Revertable GUI
+- [x] 支持Unreal风格的Revertable GUI
 - [ ] 支持HelpBox
 - [ ] 支持改文字格式
 - [ ] 支持Tooltip, 显示默认值和自定义内容

@@ -1,9 +1,9 @@
 fileFormatVersion: 2
 guid: df4a1e363556192459af030f3e1d4e89
 TextureImporter:
-  internalIDToNameTable: []
+  fileIDToRecycleName: {}
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 4
   mipmaps:
     mipMapMode: 0
     enableMipMap: 1
@@ -21,10 +21,6 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
   isReadable: 1
-  streamingMipmaps: 0
-  streamingMipmapsPriority: 0
-  vTOnly: 0
-  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -55,17 +51,11 @@ TextureImporter:
   spriteTessellationDetail: -1
   textureType: 0
   textureShape: 1
-  singleChannelComponent: 0
-  flipbookRows: 1
-  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
-  ignorePngGamma: 0
-  applyGammaDecoding: 1
   platformSettings:
-  - serializedVersion: 3
-    buildTarget: DefaultTexturePlatform
+  - buildTarget: DefaultTexturePlatform
     maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
@@ -75,9 +65,7 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 1
-  - serializedVersion: 3
-    buildTarget: Standalone
+  - buildTarget: Standalone
     maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
@@ -87,9 +75,7 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 1
-  - serializedVersion: 3
-    buildTarget: iPhone
+  - buildTarget: iPhone
     maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
@@ -99,9 +85,7 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 1
-  - serializedVersion: 3
-    buildTarget: Android
+  - buildTarget: Android
     maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
@@ -111,9 +95,7 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 1
-  - serializedVersion: 3
-    buildTarget: Windows Store Apps
+  - buildTarget: Windows Store Apps
     maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
@@ -123,9 +105,7 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 1
-  - serializedVersion: 3
-    buildTarget: Server
+  - buildTarget: Server
     maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
@@ -135,24 +115,12 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 1
   spriteSheet:
     serializedVersion: 2
     sprites: []
     outline: []
     physicsShape: []
-    bones: []
-    spriteID: 
-    internalID: 0
-    vertices: []
-    indices: 
-    edges: []
-    weights: []
-    secondaryTextures: []
-    nameFileIdTable: {}
   spritePackingTag: 
-  pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
-  userData: '{"MonoBehaviour":{"m_Enabled":true,"m_EditorHideFlags":0,"m_Name":"","m_EditorClassIdentifier":"LWGUI:LWGUI:RampHelper/GradientObject","gradient":{"serializedVersion":"2","key0":{"r":0.0,"g":1.0,"b":0.9728269577026367,"a":1.0},"key1":{"r":0.6437801718711853,"g":0.43921566009521487,"b":1.0,"a":1.0},"key2":{"r":1.0,"g":0.7137255072593689,"b":0.8696789145469666,"a":0.0},"key3":{"r":1.0,"g":0.8751868605613709,"b":0.36226409673690798,"a":0.0},"key4":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key5":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key6":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key7":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"ctime0":0,"ctime1":22359,"ctime2":40092,"ctime3":65535,"ctime4":0,"ctime5":0,"ctime6":0,"ctime7":0,"atime0":0,"atime1":65535,"atime2":0,"atime3":0,"atime4":0,"atime5":0,"atime6":0,"atime7":0,"m_Mode":0,"m_NumColorKeys":4,"m_NumAlphaKeys":2}}}#{"MonoBehaviour":{"m_Enabled":true,"m_EditorHideFlags":0,"m_Name":"","m_EditorClassIdentifier":"LWGUI:LWGUI:RampHelper/GradientObject","gradient":{"serializedVersion":"2","key0":{"r":0.0,"g":1.0,"b":0.9728269577026367,"a":1.0},"key1":{"r":0.6437801718711853,"g":0.43921566009521487,"b":1.0,"a":1.0},"key2":{"r":1.0,"g":0.7137255072593689,"b":0.8696789145469666,"a":0.0},"key3":{"r":1.0,"g":0.8751868605613709,"b":0.36226409673690798,"a":0.0},"key4":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key5":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key6":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key7":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"ctime0":0,"ctime1":22359,"ctime2":40092,"ctime3":65535,"ctime4":0,"ctime5":0,"ctime6":0,"ctime7":0,"atime0":0,"atime1":65535,"atime2":0,"atime3":0,"atime4":0,"atime5":0,"atime6":0,"atime7":0,"m_Mode":0,"m_NumColorKeys":4,"m_NumAlphaKeys":2}}}'
+  userData: '{"MonoBehaviour":{"m_Enabled":true,"m_EditorHideFlags":0,"m_Name":"","m_EditorClassIdentifier":"LWGUI:LWGUI:RampHelper/GradientObject","gradient":{"serializedVersion":"2","key0":{"r":0.0,"g":1.0,"b":0.9728269577026367,"a":1.0},"key1":{"r":0.6437801718711853,"g":0.43921566009521487,"b":1.0,"a":1.0},"key2":{"r":1.0,"g":0.7137255072593689,"b":0.8696789145469666,"a":0.0},"key3":{"r":1.0,"g":0.8751868605613709,"b":0.36226409673690798,"a":0.0},"key4":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key5":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key6":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key7":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"ctime0":0,"ctime1":21588,"ctime2":48380,"ctime3":65535,"ctime4":0,"ctime5":0,"ctime6":0,"ctime7":0,"atime0":0,"atime1":65535,"atime2":0,"atime3":0,"atime4":0,"atime5":0,"atime6":0,"atime7":0,"m_Mode":0,"m_NumColorKeys":4,"m_NumAlphaKeys":2}}}#{"MonoBehaviour":{"m_Enabled":true,"m_EditorHideFlags":0,"m_Name":"","m_EditorClassIdentifier":"LWGUI:LWGUI:RampHelper/GradientObject","gradient":{"serializedVersion":"2","key0":{"r":0.0,"g":1.0,"b":0.9728269577026367,"a":1.0},"key1":{"r":0.6437801718711853,"g":0.43921566009521487,"b":1.0,"a":1.0},"key2":{"r":1.0,"g":0.7137255072593689,"b":0.8696789145469666,"a":0.0},"key3":{"r":1.0,"g":0.8751868605613709,"b":0.36226409673690798,"a":0.0},"key4":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key5":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key6":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"key7":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"ctime0":0,"ctime1":21588,"ctime2":48380,"ctime3":65535,"ctime4":0,"ctime5":0,"ctime6":0,"ctime7":0,"atime0":0,"atime1":65535,"atime2":0,"atime3":0,"atime4":0,"atime5":0,"atime6":0,"atime7":0,"m_Mode":0,"m_NumColorKeys":4,"m_NumAlphaKeys":2}}}'
   assetBundleName: 
   assetBundleVariant: 
