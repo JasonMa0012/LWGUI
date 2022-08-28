@@ -44,6 +44,11 @@ namespace LWGUI
             this.props = props;
             this.materialEditor = materialEditor;
 			RevertableHelper.defaultMaterial = new Material((materialEditor.target as Material).shader);
+			
+			// LWGUI header
+			var headerRect = EditorGUILayout.GetControlRect();
+			headerRect.xMax -= RevertableHelper.revertButtonWidth;
+			EditorGUI.TextField(headerRect, "", "Search", new GUIStyle("ToolbarSeachTextFieldPopup"));
 
             // base.OnGUI(materialEditor, props);
 			{
@@ -81,7 +86,8 @@ namespace LWGUI
 						}
 						
 						RevertableHelper.RevertButton(revertButtonRect, prop, materialEditor);
-						materialEditor.ShaderProperty(rect, prop, prop.displayName);
+						var label = new GUIContent(prop.displayName, "Property Name: " + prop.name);
+						materialEditor.ShaderProperty(rect, prop, label);
 					}
 				}
 				materialEditor.SetDefaultGUIWidths();
@@ -97,7 +103,13 @@ namespace LWGUI
 				materialEditor.EnableInstancingField();
 				materialEditor.DoubleSidedGIField();
 			}
-        }
+			
+			
+			// LWGUI logo
+			EditorGUILayout.Space();
+			Helper.DrawLogo();
+		}
+
 
 		public static MaterialProperty FindProp(string propertyName, MaterialProperty[] properties, bool propertyIsMandatory = false)
         {
@@ -413,7 +425,7 @@ namespace LWGUI
 #endregion
 
 
-#region Draw GUI
+#region Draw GUI for Drawer
 		
 		public static bool IsVisible(string group)
 		{
@@ -545,7 +557,31 @@ namespace LWGUI
 			
             EditorGUIUtility.labelWidth = labelWidth;
         }
-		#endregion
+#endregion
+
+
+#region Draw GUI for Material
+
+
+		private static Texture _logo = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("26b9d845eb7b1a747bf04dc84e5bcc2c"));
+		public static void DrawLogo()
+		{
+			var copyrightRect = EditorGUILayout.GetControlRect(false, _logo.height);
+			var w = copyrightRect.width;
+			copyrightRect.xMin += w * 0.5f - _logo.width * 0.5f;
+			copyrightRect.xMax -= w * 0.5f - _logo.width * 0.5f;
+
+			if (EditorGUIUtility.currentViewWidth >= copyrightRect.width)
+			{
+				var c = GUI.color;
+				GUI.color = new Color(c.r, c.g, c.b, 0.25f);
+				GUI.DrawTexture(copyrightRect, _logo);
+				GUI.color = c;
+			}
+		}
+		
+		
+#endregion
 	}
 
 	// Ramp
