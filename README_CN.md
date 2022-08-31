@@ -355,16 +355,16 @@ MaterialToggleUIDrawer(string keyword)
 ## TODO
 
 - [ ] 支持ShaderGraph or ASE
-
-- [ ] per material保存折叠组打开状态
+- [ ] **per material保存折叠组打开状态**
 - [x] 支持Unreal风格的Revertable GUI
-- [ ] 支持HelpBox
+- [ ] **支持HelpBox**
 - [ ] 支持改文字格式
-- [ ] 支持Tooltip, 显示默认值和自定义内容
-- [ ] 支持右上角菜单全部展开或折叠
+- [ ] **支持Tooltip, 显示默认值和自定义内容**
+- [ ] **支持右上角菜单全部展开或折叠**
 - [ ] 支持Pass开关
 - [ ] 支持Curve
-- [ ] 支持搜索框
+- [ ] **支持搜索框**
+- [ ] **支持仅显示已修改项**
 
 
 

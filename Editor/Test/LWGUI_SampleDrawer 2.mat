@@ -12,7 +12,9 @@ Material:
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _GROUP_ON
+  - _KEY1
   - _KEY3
+  - _KEYWORD
   - _TOGGLE_KEYWORD
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -57,15 +59,15 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _enum: 2
+    - _enum: 0
     - _float: 0.53
-    - _float1: 0.15
+    - _float1: 0
     - _float2: -0.57
     - _float3: 0
-    - _float4: 1
+    - _float4: 0
     - _floatN: 0
-    - _group: 1
-    - _group1: 0
+    - _group: 0
+    - _group1: 1
     - _group2: 0
     - _group3: 0
     - _key1_Float1: 0
@@ -74,19 +76,19 @@ Material:
     - _key3_Float3_Range: 0
     - _key3_Float4_PowerSlider: 0.000088794855
     - _minMaxSlider: 1
-    - _range: 0.305
+    - _range: 0
     - _rangeEnd: 0.7474536
     - _rangeStart: 0.24745372
-    - _toggle: 1
+    - _toggle: 0
     - _toggle1: 0
     m_Colors:
-    - _color: {r: 0.6698113, g: 0.38798502, b: 0.38798502, a: 1}
+    - _color: {r: 1, g: 0, b: 0, a: 1}
     - _color1: {r: 0.7, g: 0.7, b: 1, a: 1}
-    - _mColor: {r: 0.4852941, g: 0.23907872, b: 0.23907872, a: 1}
-    - _mColor1: {r: 0.7264151, g: 0.46189037, b: 0.46189037, a: 1}
+    - _mColor: {r: 1, g: 1, b: 1, a: 1}
+    - _mColor1: {r: 1, g: 0, b: 0, a: 1}
     - _mColor2: {r: 0, g: 1, b: 0, a: 1}
-    - _mColor3: {r: 0.3404414, g: 0.3404414, b: 0.6886792, a: 1}
+    - _mColor3: {r: 0, g: 0, b: 1, a: 1}
     - _textureChannelMask: {r: 0, g: 1, b: 0, a: 0}
-    - _textureChannelMask1: {r: 0, g: 1, b: 0, a: 0}
-    - _vector1: {r: 1, g: 1.47, b: 1.39, a: 1}
+    - _textureChannelMask1: {r: 0, g: 0, b: 0, a: 1}
+    - _vector1: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

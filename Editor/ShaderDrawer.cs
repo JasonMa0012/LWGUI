@@ -488,11 +488,9 @@ namespace LWGUI
 			var colorArray = cProps.ToArray();
 			var rect = position; //EditorGUILayout.GetControlRect();
 
-			var p1 = colorArray[0];
-			EditorGUI.showMixedValue = p1.hasMixedValue;
-			editor.ColorProperty(rect, p1, label.text);
+			EditorGUI.LabelField(rect, label);
 
-			for (int i = 1; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
 				var cProp = colorArray[i];
 				EditorGUI.showMixedValue = cProp.hasMixedValue;
@@ -521,17 +519,15 @@ namespace LWGUI
 			bool[] needRevert = new bool[count];
 			for (int i = 0; i < needRevert.Length; i++)
 			{
-				if (i == 0) needRevert[i] = RevertableHelper.ContainsProperty(prop.targets[0], colorArray[i].name);
-				else needRevert[i] = RevertableHelper.RevertButton(revertButtonRect, colorArray[i], editor);
+				needRevert[i] = RevertableHelper.RevertButton(revertButtonRect, colorArray[i], editor);
 			}
 
 			if (needRevert.Contains(true))
 			{
-				for (int i = 1; i < count; i++)
+				for (int i = 0; i < count; i++)
 				{
 					RevertableHelper.SetPropertyToDefault(colorArray[i]);
 				}
-				RevertableHelper.RemoveProperty(prop.targets, prop.name);
 			}
 
 			EditorGUI.showMixedValue = false;

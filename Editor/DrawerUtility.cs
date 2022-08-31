@@ -566,17 +566,26 @@ namespace LWGUI
 		private static Texture _logo = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("26b9d845eb7b1a747bf04dc84e5bcc2c"));
 		public static void DrawLogo()
 		{
-			var copyrightRect = EditorGUILayout.GetControlRect(false, _logo.height);
-			var w = copyrightRect.width;
-			copyrightRect.xMin += w * 0.5f - _logo.width * 0.5f;
-			copyrightRect.xMax -= w * 0.5f - _logo.width * 0.5f;
+			var logoRect = EditorGUILayout.GetControlRect(false, _logo.height);
+			var w = logoRect.width;
+			logoRect.xMin += w * 0.5f - _logo.width * 0.5f;
+			logoRect.xMax -= w * 0.5f - _logo.width * 0.5f;
 
-			if (EditorGUIUtility.currentViewWidth >= copyrightRect.width)
+			if (EditorGUIUtility.currentViewWidth >= logoRect.width)
 			{
 				var c = GUI.color;
-				GUI.color = new Color(c.r, c.g, c.b, 0.25f);
-				GUI.DrawTexture(copyrightRect, _logo);
+				GUI.color = new Color(c.r, c.g, c.b, 0.4f);
+				if (logoRect.Contains(Event.current.mousePosition))
+				{
+					GUI.color = new Color(c.r, c.g, c.b, 0.8f);
+					if (Event.current.type == EventType.MouseDown)
+						Application.OpenURL("https://github.com/JasonMa0012/LWGUI");
+				}
+				GUI.DrawTexture(logoRect, _logo);
 				GUI.color = c;
+				GUI.Label(logoRect, new GUIContent("", "LWGUI (Light Weight Shader GUI)\n\n"
+													 + "A Lightweight, Flexible, Powerful Unity Shader GUI system.\n\n"
+													 + "Copyright (c) Jason Ma"));
 			}
 		}
 		
