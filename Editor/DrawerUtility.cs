@@ -80,8 +80,7 @@ namespace LWGUI
 								materialEditor.SetDefaultGUIWidths();
 								break;
 							default:
-								EditorGUIUtility.fieldWidth = RevertableHelper.fieldWidth;
-								EditorGUIUtility.labelWidth = RevertableHelper.labelWidth;
+								RevertableHelper.SetRevertableGUIWidths();
 								break;
 						}
 						
@@ -154,6 +153,12 @@ namespace LWGUI
 											#endif
 											revertButtonWidth - 2f, revertButtonWidth - 3f);
 			return revertButtonRect;
+		}
+
+		public static void SetRevertableGUIWidths()
+		{
+			EditorGUIUtility.fieldWidth = RevertableHelper.fieldWidth;
+			EditorGUIUtility.labelWidth = RevertableHelper.labelWidth;
 		}
 		
 		public static void SetPropertyToDefault(MaterialProperty prop)

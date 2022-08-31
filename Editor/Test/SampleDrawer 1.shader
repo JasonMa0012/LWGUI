@@ -6,7 +6,7 @@ Shader "Hidden"
         [Main(GroupName)]
         _group ("Group", float) = 0
         [Sub(GroupName)] _float ("Float", float) = 0
-        [Sub(GroupName)] _Tex ("Tex", 2D) = "white" { }
+        [Sub(GroupName)] _Tex ("Tex", 2D) = "white" {}
 
 
         [Main(Group1, _KEYWORD, on)] _group1 ("Group - Default Open", float) = 1
