@@ -109,8 +109,11 @@ namespace LWGUI
 
 		protected bool IsVisible() { return Helper.IsVisible(group); }
 
-		protected virtual float GetVisibleHeight()   { return 18f; }
-		// protected virtual float GetInvisibleHeight() { return -2; } // Remove the redundant height when invisible
+		protected virtual float GetVisibleHeight(MaterialProperty prop)
+		{
+			var height = MaterialEditor.GetDefaultPropertyHeight(prop);
+			return prop.type == MaterialProperty.PropType.Vector ? EditorGUIUtility.singleLineHeight : height;
+		}
 
 		protected virtual bool IsMatchPropType() { return true; }
 
@@ -135,8 +138,7 @@ namespace LWGUI
 			{
 				if (IsMatchPropType())
 				{
-					EditorGUIUtility.fieldWidth = RevertableHelper.fieldWidth;
-					EditorGUIUtility.labelWidth = RevertableHelper.labelWidth;
+					RevertableHelper.SetRevertableGUIWidths();
 					DrawProp(rect, prop, label, editor);
 				}
 				else
@@ -152,7 +154,7 @@ namespace LWGUI
 
 		public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
 		{
-			return IsVisible() || group == "" || group == "_" ? GetVisibleHeight() : 0;
+			return IsVisible() || group == "" || group == "_" ? GetVisibleHeight(prop) : 0;
 		}
 
 		// Draws a custom style property
@@ -161,11 +163,13 @@ namespace LWGUI
 			// Process some builtin types display misplaced
 			switch (prop.type)
 			{
+				case MaterialProperty.PropType.Texture:
 				case MaterialProperty.PropType.Range:
 					editor.SetDefaultGUIWidths();
-					break;	
+					break;
 			}
 			editor.DefaultShaderProperty(position, prop, label.text);
+			GUI.Label(position, new GUIContent("", label.tooltip));
 		}
 	}
 
@@ -383,7 +387,9 @@ namespace LWGUI
 	{
 		private string        _extraPropName = "";
 		private ChannelDrawer _channelDrawer = new ChannelDrawer("_");
-		
+
+		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight; }
+
 		public TexDrawer() { }
 
 		public TexDrawer(string group) : this(group, "") { }
@@ -559,7 +565,7 @@ namespace LWGUI
 		
 		private static readonly GUIContent _iconMixImage = EditorGUIUtility.IconContent("darkviewbackground");
 
-		protected override float GetVisibleHeight() { return 18f * 2f; }
+		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight * 2f; }
 
 		public RampDrawer() : this("") { }
 		public RampDrawer(string group) : this(group, "RampMap") { }
@@ -836,8 +842,7 @@ namespace LWGUI
 	{
 		private string _header;
 
-		protected override float GetVisibleHeight()   { return 24f; }
-		// protected override float GetInvisibleHeight() { return 0f; }
+		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight + 6f; }
 
 		public TitleDecorator(string header) : this("_", header) {}
 		public TitleDecorator(string group, string header)
