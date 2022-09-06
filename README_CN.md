@@ -18,6 +18,7 @@
       - [SubToggle](#subtoggle)
       - [SubPower](#subpower)
       - [KWEnum](#kwenum)
+      - [SubEnum & SubKeywordEnum](#subenum---subkeywordenum)
       - [Tex & Color](#tex---color)
       - [Channel](#channel)
       - [Ramp](#ramp)
@@ -128,7 +129,7 @@ Then change values:
 SubToggleDrawer(string group, string keyWord)
 ```
 
-用法请参考Main & Sub示例
+
 
 #### SubPower
 
@@ -140,20 +141,34 @@ SubToggleDrawer(string group, string keyWord)
 SubPowerSliderDrawer(string group, float power)
 ```
 
-用法请参考Main & Sub示例
+
 
 #### KWEnum
 
 ```c#
-/// Similar to builtin Enum()
+/// <summary>
+/// Similar to builtin Enum() / KeywordEnum()
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// n(s): display name
 /// k(s): keyword
+/// v(s): value
 /// Target Property Type: FLoat, express current keyword index
+/// </summary>
 KWEnumDrawer(string group, string n1, string k1, string n2, string k2, string n3, string k3, string n4, string k4, string n5, string k5)
 ```
 
-用法请参考Main & Sub示例
+
+
+#### SubEnum & SubKeywordEnum
+
+```c#
+
+SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4, string n5, float v5, string n6, float v6, string n7, float v7)
+
+SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5, string kw6, string kw7, string kw8, string kw9)
+```
+
+
 
 #### Tex & Color
 

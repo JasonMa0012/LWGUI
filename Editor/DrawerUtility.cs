@@ -46,9 +46,9 @@ namespace LWGUI
 			RevertableHelper.defaultMaterial = new Material((materialEditor.target as Material).shader);
 			
 			// LWGUI header
-			var headerRect = EditorGUILayout.GetControlRect();
-			headerRect.xMax -= RevertableHelper.revertButtonWidth;
-			EditorGUI.TextField(headerRect, "", "Search", new GUIStyle("ToolbarSeachTextFieldPopup"));
+			// var headerRect = EditorGUILayout.GetControlRect();
+			// headerRect.xMax -= RevertableHelper.revertButtonWidth;
+			// EditorGUI.TextField(headerRect, "", "Search", new GUIStyle("ToolbarSeachTextFieldPopup"));
 
             // base.OnGUI(materialEditor, props);
 			{
@@ -337,6 +337,8 @@ namespace LWGUI
 
 		public static void SetShaderKeyWord(UnityEngine.Object[] materials, string keyWord, bool isEnable)
 		{
+			if (string.IsNullOrEmpty(keyWord)) return;
+			
 			foreach (Material m in materials)
 			{
 				// delete "_" keywords
@@ -460,6 +462,22 @@ namespace LWGUI
 				}
 				return false;
 			}
+		}
+
+		public static void AddKeywordDisplay(string keyword, bool isDisplay = false)
+		{
+			if (!GUIData.keyWord.ContainsKey(keyword))
+				GUIData.keyWord.Add(keyword, isDisplay);
+		}
+
+		public static void SetKeywordDisplay(string keyword, bool isDisplay)
+		{
+			if (keyword == "" || keyword == "_") return;
+			
+			if (GUIData.keyWord.ContainsKey(keyword))
+				GUIData.keyWord[keyword] = isDisplay;
+			else
+				GUIData.keyWord.Add(keyword, isDisplay);
 		}
 
 		// copy and edit of https://github.com/GucioDevs/SimpleMinMaxSlider/blob/master/Assets/SimpleMinMaxSlider/Scripts/Editor/MinMaxSliderDrawer.cs
