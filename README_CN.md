@@ -19,8 +19,8 @@
       - [SubToggle](#subtoggle)
       - [SubPower](#subpower)
       - [KWEnum](#kwenum)
-      - [SubEnum&SubKeywordEnum](#subenum-subkeywordenum)
-      - [Tex&Color](#tex-color)
+      - [SubEnum - SubKeywordEnum](#subenum---subkeywordenum)
+      - [Tex - Color](#tex---color)
       - [Channel](#channel)
       - [Ramp](#ramp)
       - [MinMaxSlider](#minmaxslider)
@@ -160,7 +160,7 @@ KWEnumDrawer(string group, string n1, string k1, string n2, string k2, string n3
 
 
 
-#### SubEnum&SubKeywordEnum
+#### SubEnum - SubKeywordEnum
 
 ```c#
 
@@ -171,7 +171,7 @@ SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw
 
 
 
-#### Tex&Color
+#### Tex - Color
 
 ```c#
 /// Draw a Texture property in single line with a extra property
