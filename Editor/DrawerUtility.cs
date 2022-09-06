@@ -44,6 +44,11 @@ namespace LWGUI
             this.props = props;
             this.materialEditor = materialEditor;
 			RevertableHelper.defaultMaterial = new Material((materialEditor.target as Material).shader);
+			
+			// LWGUI header
+			// var headerRect = EditorGUILayout.GetControlRect();
+			// headerRect.xMax -= RevertableHelper.revertButtonWidth;
+			// EditorGUI.TextField(headerRect, "", "Search", new GUIStyle("ToolbarSeachTextFieldPopup"));
 
             // base.OnGUI(materialEditor, props);
 			{
@@ -80,7 +85,8 @@ namespace LWGUI
 						}
 						
 						RevertableHelper.RevertButton(revertButtonRect, prop, materialEditor);
-						materialEditor.ShaderProperty(rect, prop, prop.displayName);
+						var label = new GUIContent(prop.displayName, "Property Name: " + prop.name);
+						materialEditor.ShaderProperty(rect, prop, label);
 					}
 				}
 				materialEditor.SetDefaultGUIWidths();
@@ -96,7 +102,13 @@ namespace LWGUI
 				materialEditor.EnableInstancingField();
 				materialEditor.DoubleSidedGIField();
 			}
-        }
+			
+			
+			// LWGUI logo
+			EditorGUILayout.Space();
+			Helper.DrawLogo();
+		}
+
 
 		public static MaterialProperty FindProp(string propertyName, MaterialProperty[] properties, bool propertyIsMandatory = false)
         {
@@ -325,6 +337,8 @@ namespace LWGUI
 
 		public static void SetShaderKeyWord(UnityEngine.Object[] materials, string keyWord, bool isEnable)
 		{
+			if (string.IsNullOrEmpty(keyWord)) return;
+			
 			foreach (Material m in materials)
 			{
 				// delete "_" keywords
@@ -418,7 +432,7 @@ namespace LWGUI
 #endregion
 
 
-#region Draw GUI
+#region Draw GUI for Drawer
 		
 		public static bool IsVisible(string group)
 		{
@@ -448,6 +462,22 @@ namespace LWGUI
 				}
 				return false;
 			}
+		}
+
+		public static void AddKeywordDisplay(string keyword, bool isDisplay = false)
+		{
+			if (!GUIData.keyWord.ContainsKey(keyword))
+				GUIData.keyWord.Add(keyword, isDisplay);
+		}
+
+		public static void SetKeywordDisplay(string keyword, bool isDisplay)
+		{
+			if (keyword == "" || keyword == "_") return;
+			
+			if (GUIData.keyWord.ContainsKey(keyword))
+				GUIData.keyWord[keyword] = isDisplay;
+			else
+				GUIData.keyWord.Add(keyword, isDisplay);
 		}
 
 		// copy and edit of https://github.com/GucioDevs/SimpleMinMaxSlider/blob/master/Assets/SimpleMinMaxSlider/Scripts/Editor/MinMaxSliderDrawer.cs
@@ -550,7 +580,40 @@ namespace LWGUI
 			
             EditorGUIUtility.labelWidth = labelWidth;
         }
-		#endregion
+#endregion
+
+
+#region Draw GUI for Material
+
+
+		private static Texture _logo = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("26b9d845eb7b1a747bf04dc84e5bcc2c"));
+		public static void DrawLogo()
+		{
+			var logoRect = EditorGUILayout.GetControlRect(false, _logo.height);
+			var w = logoRect.width;
+			logoRect.xMin += w * 0.5f - _logo.width * 0.5f;
+			logoRect.xMax -= w * 0.5f - _logo.width * 0.5f;
+
+			if (EditorGUIUtility.currentViewWidth >= logoRect.width)
+			{
+				var c = GUI.color;
+				GUI.color = new Color(c.r, c.g, c.b, 0.4f);
+				if (logoRect.Contains(Event.current.mousePosition))
+				{
+					GUI.color = new Color(c.r, c.g, c.b, 0.8f);
+					if (Event.current.type == EventType.MouseDown)
+						Application.OpenURL("https://github.com/JasonMa0012/LWGUI");
+				}
+				GUI.DrawTexture(logoRect, _logo);
+				GUI.color = c;
+				GUI.Label(logoRect, new GUIContent("", "LWGUI (Light Weight Shader GUI)\n\n"
+													 + "A Lightweight, Flexible, Powerful Unity Shader GUI system.\n\n"
+													 + "Copyright (c) Jason Ma"));
+			}
+		}
+		
+		
+#endregion
 	}
 
 	// Ramp

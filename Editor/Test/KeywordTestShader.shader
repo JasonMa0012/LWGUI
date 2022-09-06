@@ -2,14 +2,25 @@ Shader "Hidden"
 {
     Properties
     {
+        [Enum(Name1, 2, Name2, 1)]
+        _enum ("Enum", float) = 1
+
+        [KeywordEnum(key1, key2)]
+        _keywordEnum ("KeywordEnum", float) = 0
+        
         [KWEnum(_, Name 1, _KWENUM_KEY1, Name 2, _KWENUM_KEY2)]
         _kwenum ("KWEnum", float) = 0
         
-        [KeywordEnum(key1, key2)]
-        _enum ("KeywordEnum", float) = 0
+        [Toggle(_TOGGLE_KEYWORD)] _toggle1 ("Toggle", float) = 0
+        
+        [Main(g1, _, on, on)] _group ("Group", float) = 1
+        [SubToggle(g1, _SUBTOGGLE_KEYWORD)] _toggle ("Sub Toggle", float) = 0
 
-        [SubToggle(_, _SUBTOGGLE_KEYWORD)] _toggle ("Sub Toggle", float) = 0
-        [SubToggle(_, _TOGGLE_KEYWORD)] _toggle1 ("Toggle", float) = 0
+        [SubEnum(g1, Name1, 1, Name2, 0.5)]
+        _subEnum ("SubEnum", float) = 0
+
+        [SubKeywordEnum(g1, key1, key2)]
+        _subKeywordEnum ("SubKeywordEnum", float) = 0
 
     }
     SubShader
@@ -25,7 +36,8 @@ Shader "Hidden"
             // make fog work
             #pragma multi_compile_fog
             #pragma multi_compile _KWENUM_KEY1 _KWENUM_KEY2
-            #pragma multi_compile _ENUM_KEY1 _ENUM_KEY2
+            #pragma multi_compile _KEYWORDENUM_KEY1 _KEYWORDENUM_KEY2
+            #pragma multi_compile _SUBKEYWORDENUM_KEY1 _SUBKEYWORDENUM_KEY2
             #pragma multi_compile _ _SUBTOGGLE_KEYWORD
             #pragma multi_compile _ _TOGGLE_KEYWORD
 
@@ -46,6 +58,9 @@ Shader "Hidden"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            
+            float _enum;
+            float _subEnum;
 
             v2f vert (appdata v)
             {
@@ -66,19 +81,28 @@ Shader "Hidden"
                     col.x = 1;
                 #endif
                 
-                #if _ENUM_KEY1
+                #if _KEYWORDENUM_KEY1
                     col.y = 0;
-                #elif _ENUM_KEY2
+                #elif _KEYWORDENUM_KEY2
                     col.y = 1;
                 #endif
                 
-                #if _SUBTOGGLE_KEYWORD
+                #if _SUBKEYWORDENUM_KEY1
+                    col.z = 0;
+                #elif _SUBKEYWORDENUM_KEY2
                     col.z = 0.5;
+                #endif
+                
+                #if _SUBTOGGLE_KEYWORD
+                    col.z = 0.75;
                 #endif
                 
                 #if _TOGGLE_KEYWORD
                     col.z = 1;
                 #endif
+
+                col.x *= _enum;
+                col.y *= _subEnum;
                 
                 return col;
             }

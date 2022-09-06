@@ -1,5 +1,6 @@
 ﻿// Copyright (c) 2022 Jason Ma
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -115,7 +116,7 @@ namespace LWGUI
 			return prop.type == MaterialProperty.PropType.Vector ? EditorGUIUtility.singleLineHeight : height;
 		}
 
-		protected virtual bool IsMatchPropType() { return true; }
+		protected virtual bool IsMatchPropType(MaterialProperty property) { return true; }
 
 		public SubDrawer() { }
 
@@ -136,7 +137,7 @@ namespace LWGUI
 			
 			if (IsVisible())
 			{
-				if (IsMatchPropType())
+				if (IsMatchPropType(prop))
 				{
 					RevertableHelper.SetRevertableGUIWidths();
 					DrawProp(rect, prop, label, editor);
@@ -192,7 +193,7 @@ namespace LWGUI
 			this._keyWord = keyWord;
 		}
 		
-		protected override bool IsMatchPropType() { return prop.type == MaterialProperty.PropType.Float; }
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Float; }
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
@@ -212,22 +213,14 @@ namespace LWGUI
 			// 		Helper.SetShaderKeyWord(editor.targets, k, value);
 			// }
 
-			if (GUIData.keyWord.ContainsKey(k))
-			{
-				GUIData.keyWord[k] = value;
-			}
-			else
-			{
-				GUIData.keyWord.Add(k, value);
-			}
-
+			Helper.SetKeywordDisplay(k, value);
 			EditorGUI.showMixedValue = false;
 		}
 
 		public override void Apply(MaterialProperty prop)
 		{
 			base.Apply(prop);
-			if (!prop.hasMixedValue && prop.type == MaterialProperty.PropType.Float)
+			if (!prop.hasMixedValue && IsMatchPropType(prop))
 				Helper.SetShaderKeyWord(prop.targets, Helper.GetKeyWord(_keyWord, prop.name), prop.floatValue > 0f);
 		}
 	}
@@ -250,7 +243,7 @@ namespace LWGUI
 			this._power = Mathf.Clamp(power, 0, float.MaxValue);
 		}
 
-		protected override bool IsMatchPropType() { return prop.type == MaterialProperty.PropType.Range; }
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Range; }
 		
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
@@ -263,16 +256,18 @@ namespace LWGUI
 	}
 	
 	/// <summary>
-	/// Similar to builtin Enum()
+	/// Similar to builtin Enum() / KeywordEnum()
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// n(s): display name
 	/// k(s): keyword
+	/// v(s): value
 	/// Target Property Type: FLoat, express current keyword index
 	/// </summary>
 	public class KWEnumDrawer : SubDrawer
 	{
-		private string[] _names, _keyWords;
-		private int[]    _values;
+		private GUIContent[] _names;
+		private string[]     _keyWords;
+		private float[]      _values;
 
 		#region
 
@@ -305,75 +300,129 @@ namespace LWGUI
 
         public KWEnumDrawer(string group, string n1, string k1, string n2, string k2, string n3, string k3, string n4, string k4, string n5, string k5)
             : this(group, new string[5] { n1, n2, n3, n4, n5 }, new string[5] { k1, k2, k3, k4, k5 }) { }
+		#endregion
 
-		public KWEnumDrawer(string group, string[] names, string[] keyWords)
+		public KWEnumDrawer(string group, string[] names, string[] keyWords = null, float[] values = null)
 		{
 			this.group = group;
-			this._names = names;
-			for (int i = 0; i < keyWords.Length; i++)
-			{
-				keyWords[i] = keyWords[i].ToUpperInvariant();
-				if (!GUIData.keyWord.ContainsKey(keyWords[i]))
-				{
-					GUIData.keyWord.Add(keyWords[i], false);
-				}
-			}
+			
+			this._names = new GUIContent[names.Length];
+			for (int index = 0; index < names.Length; ++index)
+				this._names[index] = new GUIContent(names[index]);
 
+			if (keyWords == null)
+			{
+				keyWords = new string[names.Length];
+				for (int i = 0; i < names.Length; i++)
+					keyWords[i] = "";
+			}
 			this._keyWords = keyWords;
-			this._values = new int[keyWords.Length];
-			for (int index = 0; index < keyWords.Length; ++index)
-				this._values[index] = index;
+
+			if (values == null)
+			{
+				values = new float[names.Length];
+				for (int index = 0; index < names.Length; ++index)
+					values[index] = index;
+			}
+			this._values = values;
 		}
 
-		#endregion
-		
-		protected override bool IsMatchPropType() { return prop.type == MaterialProperty.PropType.Float; }
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Float; }
+
+		protected virtual string GetKeywordName(string propName, string name) { return (name).Replace(' ', '_').ToUpperInvariant(); }
+
+		private string[] GetKeywords(MaterialProperty property)
+		{
+			string[] keyWords = new string[_keyWords.Length];
+			for (int i = 0; i < keyWords.Length; i++)
+				keyWords[i] = GetKeywordName(property.name, _keyWords[i]);
+			return keyWords;
+		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			var rect = position; //EditorGUILayout.GetControlRect();
-			int index = (int)prop.floatValue;
-
 			EditorGUI.BeginChangeCheck();
-			EditorGUI.showMixedValue = prop.hasMixedValue;
-			int newIndex = EditorGUI.IntPopup(rect, label.text, index, this._names, this._values);
+        	EditorGUI.showMixedValue = prop.hasMixedValue;
+        	
+			var rect = position; //EditorGUILayout.GetControlRect();
+
+			string[] keyWords = GetKeywords(prop);
+			int index = Array.IndexOf(_values, prop.floatValue);
+			if (index < 0)
+			{
+				index = 0;
+				if (!prop.hasMixedValue)
+				{
+					Debug.LogError("Property: " + prop.displayName + " has unknown Enum Value: '" + prop.floatValue + "' !\n"
+								 + "It will be set to: '" + _values[index] + "'!");
+					prop.floatValue = _values[index];
+					Helper.SetShaderKeyWord(editor.targets, keyWords, index);
+				}
+			}
+
+
+			int newIndex = EditorGUI.Popup(rect, label, index, this._names);
 			EditorGUI.showMixedValue = false;
 			if (EditorGUI.EndChangeCheck())
 			{
-				prop.floatValue = (float)newIndex;
-				Helper.SetShaderKeyWord(editor.targets, _keyWords, newIndex);
+				prop.floatValue = _values[newIndex];
+				Helper.SetShaderKeyWord(editor.targets, keyWords, newIndex);
 			}
 			
 			// set keyword for conditional display
-			for (int i = 0; i < _keyWords.Length; i++)
+			for (int i = 0; i < keyWords.Length; i++)
 			{
-				if (GUIData.keyWord.ContainsKey(_keyWords[i]))
-				{
-					GUIData.keyWord[_keyWords[i]] = newIndex == i;
-				}
-				else
-				{
-					GUIData.keyWord.Add(_keyWords[i], newIndex == i);
-				}
+				Helper.SetKeywordDisplay(keyWords[i], newIndex == i);
 			}
 		}
 
 		public override void Apply(MaterialProperty prop)
 		{
 			base.Apply(prop);
-			if (!prop.hasMixedValue && (prop.type == MaterialProperty.PropType.Float 
-#if UNITY_2021_1_OR_NEWER
-									 || prop.type == MaterialProperty.PropType.Int
-#endif
-				))
-				Helper.SetShaderKeyWord(prop.targets, _keyWords, prop.type == MaterialProperty.PropType.Float ? (int)prop.floatValue : 
-#if UNITY_2021_1_OR_NEWER
-											prop.intValue
-#else
-											(int)prop.floatValue
-#endif
-									   );
+			if (!prop.hasMixedValue && IsMatchPropType(prop)){}
+				Helper.SetShaderKeyWord(prop.targets, GetKeywords(prop), (int)prop.floatValue);
+			Debug.Log(prop.floatValue);
 		}
+	}
+
+	public class SubEnumDrawer : KWEnumDrawer
+	{
+		public SubEnumDrawer(string group, string n1, float v1, string n2, float v2)
+			: base(group, new []{n1, n2}, null, new []{v1, v2}){ }
+		public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3)
+			: base(group, new []{n1, n2, n3}, null, new []{v1, v2, v3}){ }
+		public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4)
+			: base(group, new []{n1, n2, n3, n4}, null, new []{v1, v2, v3, v4}){ }
+		public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4, string n5, float v5)
+			: base(group, new []{n1, n2, n3, n4, n5}, null, new []{v1, v2, v3, v4, v5}){ }
+		public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4, string n5, float v5, string n6, float v6)
+			: base(group, new []{n1, n2, n3, n4, n5, n6}, null, new []{v1, v2, v3, v4, v5, v6}){ }
+		public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4, string n5, float v5, string n6, float v6, string n7, float v7)
+			: base(group, new []{n1, n2, n3, n4, n5, n6, n7}, null, new []{v1, v2, v3, v4, v5, v6, v7}){ }
+
+		protected override string GetKeywordName(string propName, string name) { return "_"; }
+	}
+
+	public class SubKeywordEnumDrawer : KWEnumDrawer
+	{
+		public SubKeywordEnumDrawer(string group, string kw1, string kw2)
+			: base(group, new []{kw1, kw2}, new []{kw1, kw2}) { }
+		public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3)
+			: base(group, new []{kw1, kw2, kw3}, new []{kw1, kw2, kw3}) { }
+		public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4)
+			: base(group, new []{kw1, kw2, kw3, kw4}, new []{kw1, kw2, kw3, kw4}) { }
+		public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5)
+			: base(group, new []{kw1, kw2, kw3, kw4, kw5}, new []{kw1, kw2, kw3, kw4, kw5}) { }
+		public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5, string kw6)
+			: base(group, new []{kw1, kw2, kw3, kw4, kw5, kw6}, new []{kw1, kw2, kw3, kw4, kw5, kw6}) { }
+		public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5, string kw6, string kw7)
+			: base(group, new []{kw1, kw2, kw3, kw4, kw5, kw6, kw7}, new []{kw1, kw2, kw3, kw4, kw5, kw6, kw7}) { }
+		public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5, string kw6, string kw7, string kw8)
+			: base(group, new []{kw1, kw2, kw3, kw4, kw5, kw6, kw7, kw8}, new []{kw1, kw2, kw3, kw4, kw5, kw6, kw7, kw8}) { }
+		public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5, string kw6, string kw7, string kw8, string kw9)
+			: base(group, new []{kw1, kw2, kw3, kw4, kw5, kw6, kw7, kw8, kw9}, new []{kw1, kw2, kw3, kw4, kw5, kw6, kw7, kw8, kw9}) { }
+		protected override string GetKeywordName(string propName, string name) { return (propName + "_" + name).Replace(' ', '_').ToUpperInvariant(); }
+
 	}
 
 	/// <summary>
@@ -400,7 +449,7 @@ namespace LWGUI
 			this._extraPropName = extraPropName;
 		}
 
-		protected override bool IsMatchPropType() { return prop.type == MaterialProperty.PropType.Texture; }
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Texture; }
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
@@ -472,7 +521,7 @@ namespace LWGUI
 			this._colorStrings[2] = color4;
 		}
 		
-		protected override bool IsMatchPropType() { return prop.type == MaterialProperty.PropType.Color; }
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Color; }
 		
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
@@ -494,11 +543,9 @@ namespace LWGUI
 			var colorArray = cProps.ToArray();
 			var rect = position; //EditorGUILayout.GetControlRect();
 
-			var p1 = colorArray[0];
-			EditorGUI.showMixedValue = p1.hasMixedValue;
-			editor.ColorProperty(rect, p1, label.text);
+			EditorGUI.LabelField(rect, label);
 
-			for (int i = 1; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
 				var cProp = colorArray[i];
 				EditorGUI.showMixedValue = cProp.hasMixedValue;
@@ -527,17 +574,15 @@ namespace LWGUI
 			bool[] needRevert = new bool[count];
 			for (int i = 0; i < needRevert.Length; i++)
 			{
-				if (i == 0) needRevert[i] = RevertableHelper.ContainsProperty(prop.targets[0], colorArray[i].name);
-				else needRevert[i] = RevertableHelper.RevertButton(revertButtonRect, colorArray[i], editor);
+				needRevert[i] = RevertableHelper.RevertButton(revertButtonRect, colorArray[i], editor);
 			}
 
 			if (needRevert.Contains(true))
 			{
-				for (int i = 1; i < count; i++)
+				for (int i = 0; i < count; i++)
 				{
 					RevertableHelper.SetPropertyToDefault(colorArray[i]);
 				}
-				RevertableHelper.RemoveProperty(prop.targets, prop.name);
 			}
 
 			EditorGUI.showMixedValue = false;
@@ -578,7 +623,7 @@ namespace LWGUI
 			this._defaultWidth = Mathf.Max(2.0f, defaultWidth);
 		}
 
-		protected override bool IsMatchPropType() { return prop.type == MaterialProperty.PropType.Texture; }
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Texture; }
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
@@ -671,7 +716,7 @@ namespace LWGUI
 			this._maxPropName = maxPropName;
 		}
 
-		protected override bool IsMatchPropType() { return prop.type == MaterialProperty.PropType.Range; }
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Range; }
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
@@ -757,7 +802,7 @@ namespace LWGUI
 			this.group = group;
 		}
 
-		protected override bool IsMatchPropType() { return prop.type == MaterialProperty.PropType.Vector; }
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Vector; }
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
