@@ -15,7 +15,7 @@
   * [Usage](#usage)
     + [Getting Started](#getting-started)
     + [LWGUI Drawers](#lwgui-drawers)
-      - [Main / Sub](#main---sub)
+      - [Main - Sub](#main---sub)
       - [SubToggle](#subtoggle)
       - [SubPower](#subpower)
       - [KWEnum](#kwenum)
@@ -58,7 +58,7 @@
 
 ### LWGUI Drawers
 
-#### Main / Sub
+#### Main - Sub
 
 ```c#
 /// Create a Folding Group
