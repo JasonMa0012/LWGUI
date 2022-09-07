@@ -43,7 +43,7 @@ Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a 
 
 ## Installation
 
-1. Make sure your environment is compatible with LWGUI: **Unity 2019+**
+1. Make sure your environment is compatible with LWGUI: **Unity 2019.2+**
 
    **The Unity 2017-2018 version has stopped maintenance**, if necessary, please download **2017-2018 branch** to use.
 2. Open your project

@@ -381,7 +381,6 @@ namespace LWGUI
 			base.Apply(prop);
 			if (!prop.hasMixedValue && IsMatchPropType(prop)){}
 				Helper.SetShaderKeyWord(prop.targets, GetKeywords(prop), (int)prop.floatValue);
-			Debug.Log(prop.floatValue);
 		}
 	}
 
@@ -558,12 +557,8 @@ namespace LWGUI
 				EditorGUI.BeginChangeCheck();
 				Color src, dst;
 				src = cProp.colorValue;
-				var hdr = (prop.flags & MaterialProperty.PropFlags.HDR) != MaterialProperty.PropFlags.None;
-				dst = EditorGUI.ColorField(r, GUIContent.none, src, true, true, hdr
-#if UNITY_2017
-											, (ColorPickerHDRConfig)null
-#endif
-										  );
+				var isHdr = (prop.flags & MaterialProperty.PropFlags.HDR) != MaterialProperty.PropFlags.None;
+				dst = EditorGUI.ColorField(r, GUIContent.none, src, true, true, isHdr);
 				if (EditorGUI.EndChangeCheck())
 				{
 					cProp.colorValue = dst;
@@ -898,20 +893,9 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			GUIStyle style = new GUIStyle(EditorStyles.boldLabel);
-			style.fontSize = (int)(style.fontSize
-#if UNITY_2019_1_OR_NEWER
-#else
-                                    * 1.5f
-#endif
-				);
-			
-#if UNITY_2019_1_OR_NEWER
 			position.y += 2;
-#else
-			position.y += 4;
-#endif
 			position = EditorGUI.IndentedRect(position);
+			GUIStyle style = new GUIStyle(EditorStyles.boldLabel);
 			GUI.Label(position, _header, style);
 		}
 	}

@@ -99,9 +99,7 @@ namespace LWGUI
 
 				EditorGUILayout.Space();
 				EditorGUILayout.Space();
-#if UNITY_2019_1_OR_NEWER
 				if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
-#endif
 				{
 					materialEditor.RenderQueueField();
 				}
@@ -151,13 +149,10 @@ namespace LWGUI
 					break;
 			}
 			if (isCallInDrawer) rect.xMax += revertButtonWidth;
-			var revertButtonRect = new Rect(rect.xMax - revertButtonWidth + 2f, rect.yMax - defaultHeightWithoutDrawers * 0.5f - (revertButtonWidth - 3f) * 0.5f - 
-											#if UNITY_2019_1_OR_NEWER	
-												1f,
-											#else
-												2f,
-											#endif
-											revertButtonWidth - 2f, revertButtonWidth - 3f);
+			var revertButtonRect = new Rect(rect.xMax - revertButtonWidth + 2f, 
+											rect.yMax - defaultHeightWithoutDrawers * 0.5f - (revertButtonWidth - 3f) * 0.5f - 1f,
+											revertButtonWidth - 2f, 
+											revertButtonWidth - 3f);
 			return revertButtonRect;
 		}
 
@@ -392,7 +387,6 @@ namespace LWGUI
 		/// </summary>
 		public static MaterialProperty[] GetProperties(MaterialEditor editor)
 		{
-#if UNITY_2019_2_OR_NEWER
 			if (editor.customShaderGUI != null && editor.customShaderGUI is LWGUI)
 			{
 				LWGUI gui = editor.customShaderGUI as LWGUI;
@@ -403,9 +397,6 @@ namespace LWGUI
 				Debug.LogWarning("Please add \"CustomEditor \"LWGUI.LWGUI\"\" to the end of your shader!");
 				return null;
 			}
-#else
-			return null;
-#endif
 		}
 
 #endregion
@@ -526,13 +517,7 @@ namespace LWGUI
 			GUI.Box(rect, title, style);
 			GUI.backgroundColor = Color.white;
 
-            var toggleRect = new Rect(rect.x + 8f, 
-#if UNITY_2019_1_OR_NEWER
-									  rect.y + 7f
-#else
-									  rect.y + 5f
-#endif
-									, 13f, 13f);
+            var toggleRect = new Rect(rect.x + 8f, rect.y + 7f, 13f, 13f);
 
             if (hasToggle)
 				toggleValue = GUI.Toggle(toggleRect, toggleValue, "", new GUIStyle(EditorGUI.showMixedValue ? "ToggleMixed" : "Toggle"));
