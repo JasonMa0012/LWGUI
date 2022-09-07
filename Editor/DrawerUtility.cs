@@ -24,6 +24,12 @@ namespace JTRP.ShaderDrawer
 
 namespace LWGUI
 {
+	public enum LwguiEventType
+	{
+		Init,
+		Repaint
+	}
+	
     public class GUIData
     {
 		// key: group name, value: is folding
@@ -46,9 +52,9 @@ namespace LWGUI
 			RevertableHelper.defaultMaterial = new Material((materialEditor.target as Material).shader);
 			
 			// LWGUI header
-			// var headerRect = EditorGUILayout.GetControlRect();
-			// headerRect.xMax -= RevertableHelper.revertButtonWidth;
-			// EditorGUI.TextField(headerRect, "", "Search", new GUIStyle("ToolbarSeachTextFieldPopup"));
+			var headerRect = EditorGUILayout.GetControlRect();
+			headerRect.xMax -= RevertableHelper.revertButtonWidth;
+			EditorGUI.TextField(headerRect, "", "Search", new GUIStyle("ToolbarSeachTextFieldPopup"));
 
             // base.OnGUI(materialEditor, props);
 			{
