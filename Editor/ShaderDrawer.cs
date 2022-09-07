@@ -379,7 +379,7 @@ namespace LWGUI
 		public override void Apply(MaterialProperty prop)
 		{
 			base.Apply(prop);
-			if (!prop.hasMixedValue && IsMatchPropType(prop)){}
+			if (!prop.hasMixedValue && IsMatchPropType(prop))
 				Helper.SetShaderKeyWord(prop.targets, GetKeywords(prop), (int)prop.floatValue);
 			Debug.Log(prop.floatValue);
 		}
