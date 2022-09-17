@@ -8,20 +8,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
 
-// Obsolete
-namespace JTRP.ShaderDrawer
-{
-	public class LWGUI : global::LWGUI.LWGUI
-	{
-		public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
-		{
-			base.OnGUI(materialEditor, props);
-			Debug.LogWarning("Shader: "+ ((Material)(materialEditor.target)).shader.name +" used CustomEditor 'JTRP.ShaderDrawer.LWGUI' is obsoleted!\n"
-						   + "Please use 'LWGUI.LWGUI'!");
-		}
-	}
-}
-
 namespace LWGUI
 {
 	public enum LwguiEventType
@@ -32,10 +18,10 @@ namespace LWGUI
 	
     public class GUIData
     {
-		// key: group name, value: is folding
+		// Used to Folding Group, key: group name, value: is folding
         public static Dictionary<string, bool> group = new Dictionary<string, bool>();
 		
-		// key: keyword, value: is activated
+		// Used to Conditional Display, key: keyword, value: is activated
         public static Dictionary<string, bool> keyWord = new Dictionary<string, bool>();
     }
 	

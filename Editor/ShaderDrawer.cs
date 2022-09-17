@@ -34,13 +34,6 @@ namespace LWGUI
 
 		public MainDrawer(string group, string keyword, string defaultFoldingState) : this(group, keyword, defaultFoldingState, "on") { }
 
-		// Obsolete
-		public MainDrawer(string group, string keyword, float style) : this(group, keyword, (style == 1 || style == 3) ? "on" : "off", (style == 0 || style == 1) ? "on" : "off")
-		{
-			Helper.ObsoleteWarning("MainDrawer(string group, string keyword, float style)",
-								   "MainDrawer(string group, string keyword, string defaultFoldingState, string defaultToggleDisplayed)");
-		}
-
 		public MainDrawer(string group, string keyword, string defaultFoldingState, string defaultToggleDisplayed)
 		{
 			this._group = group;
@@ -865,14 +858,6 @@ namespace LWGUI
 		}
 	}
 	
-	// Obsolete
-	public class RGBAChannelMaskToVec4Drawer : ChannelDrawer
-	{
-		public RGBAChannelMaskToVec4Drawer() { Helper.ObsoleteWarning("RGBAChannelMaskToVec4Drawer()", "ChannelDrawer()"); }
-		public RGBAChannelMaskToVec4Drawer(string group) : base(group) { Helper.ObsoleteWarning("RGBAChannelMaskToVec4Drawer()", "ChannelDrawer()"); }
-	}
-
-
 	/// <summary>
 	/// Similar to Header()
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
