@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace LWGUI
 {
@@ -48,8 +49,8 @@ namespace LWGUI
 
 			var toggleValue = prop.floatValue == 1.0f;
 			string finalGroupName = (_group != "" && _group != "_") ? _group : prop.name;
-			bool isFirstFrame = !GUIData.group.ContainsKey(finalGroupName);
-			_isFolding = isFirstFrame ? !_defaultFoldingState : GUIData.group[finalGroupName];
+			bool isFirstFrame = !GroupStateHelper.ContainsGroup(editor.target, finalGroupName);
+			_isFolding = isFirstFrame ? !_defaultFoldingState : GroupStateHelper.GetGroupFolding(editor.target, finalGroupName);
 
 			EditorGUI.BeginChangeCheck();
 			bool toggleResult = Helper.Foldout(position, ref _isFolding, toggleValue, _defaultToggleDisplayed, label.text);
@@ -60,17 +61,8 @@ namespace LWGUI
 				prop.floatValue = toggleResult ? 1.0f : 0.0f;
 				Helper.SetShaderKeyWord(editor.targets, Helper.GetKeyWord(_keyword, prop.name), toggleResult);
 			}
-			// Sometimes the Toggle is activated but the key is not activated
-			// else
-			// {
-			// 	if (!prop.hasMixedValue)
-			// 		Helper.SetShaderKeyWord(editor.targets, Helper.GetKeyWord(_keyword, prop.name), toggleResult);
-			// }
 
-			if (isFirstFrame)
-				GUIData.group.Add(finalGroupName, _isFolding);
-			else
-				GUIData.group[finalGroupName] = _isFolding;
+			GroupStateHelper.SetGroupFolding(editor.target, finalGroupName, _isFolding);
 		}
 
 		public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
@@ -100,8 +92,8 @@ namespace LWGUI
 		protected string             group = "";
 		protected MaterialProperty   prop;
 		protected MaterialProperty[] props;
+		protected LWGUI              lwgui;
 
-		protected bool IsVisible() { return Helper.IsVisible(group); }
 
 		protected virtual float GetVisibleHeight(MaterialProperty prop)
 		{
@@ -121,14 +113,15 @@ namespace LWGUI
 		public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			this.prop = prop;
-			props = Helper.GetProperties(editor);
+			lwgui = Helper.GetLWGUI(editor);
+			props = lwgui.props;
 			
 			var rect = position;
 			
 			if (group != "" && group != "_")
 				EditorGUI.indentLevel++;
 			
-			if (IsVisible())
+			if (GroupStateHelper.IsSubVisible(editor.target, group))
 			{
 				if (IsMatchPropType(prop))
 				{
@@ -148,7 +141,7 @@ namespace LWGUI
 
 		public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
 		{
-			return IsVisible() || group == "" || group == "_" ? GetVisibleHeight(prop) : 0;
+			return GroupStateHelper.IsSubVisible(editor.target, group) ? GetVisibleHeight(prop) : 0;
 		}
 
 		// Draws a custom style property
@@ -200,13 +193,8 @@ namespace LWGUI
 				prop.floatValue = value ? 1.0f : 0.0f;
 				Helper.SetShaderKeyWord(editor.targets, k, value);
 			}
-			// else
-			// {
-			// 	if (!prop.hasMixedValue)
-			// 		Helper.SetShaderKeyWord(editor.targets, k, value);
-			// }
 
-			Helper.SetKeywordDisplay(k, value);
+			GroupStateHelper.SetKeywordConditionalDisplay(editor.target, k, value);
 			EditorGUI.showMixedValue = false;
 		}
 
@@ -365,7 +353,7 @@ namespace LWGUI
 			// set keyword for conditional display
 			for (int i = 0; i < keyWords.Length; i++)
 			{
-				Helper.SetKeywordDisplay(keyWords[i], newIndex == i);
+				GroupStateHelper.SetKeywordConditionalDisplay(editor.target, keyWords[i], newIndex == i);
 			}
 		}
 

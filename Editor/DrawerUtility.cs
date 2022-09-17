@@ -5,8 +5,8 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.Rendering;
+using Object = UnityEngine.Object;
 
 namespace LWGUI
 {
@@ -16,14 +16,6 @@ namespace LWGUI
 		Repaint
 	}
 	
-    public class GUIData
-    {
-		// Used to Folding Group, key: group name, value: is folding
-        public static Dictionary<string, bool> group = new Dictionary<string, bool>();
-		
-		// Used to Conditional Display, key: keyword, value: is activated
-        public static Dictionary<string, bool> keyWord = new Dictionary<string, bool>();
-    }
 	
     public class LWGUI : ShaderGUI
     {
@@ -111,6 +103,85 @@ namespace LWGUI
 				return FindProperty(propertyName, properties, propertyIsMandatory);
         }
     }
+	
+	public class GroupStateHelper
+    {
+		// Used to Folding Group, key: group name, value: is folding
+		private static Dictionary<Object, Dictionary<string, bool>> _groups = new Dictionary<Object, Dictionary<string, bool>>();
+		
+		// Used to Conditional Display, key: keyword, value: is activated
+		private static Dictionary<Object, Dictionary<string, bool>> _keywords = new Dictionary<Object, Dictionary<string, bool>>();
+
+		private static void InitPoolPerMaterial(Object material)
+		{
+			if (!_groups.ContainsKey(material)) _groups.Add(material, new Dictionary<string, bool>());
+			if (!_keywords.ContainsKey(material)) _keywords.Add(material, new Dictionary<string, bool>());
+		}
+
+		public static bool ContainsGroup(Object material, string group)
+		{
+			InitPoolPerMaterial(material);
+			return _groups[material].ContainsKey(group);
+		}
+		
+		public static void SetGroupFolding(Object material, string group, bool isFolding)
+		{
+			InitPoolPerMaterial(material);
+			if (_groups[material].ContainsKey(group))
+				_groups[material][group] = isFolding;
+			else 
+				_groups[material].Add(group, isFolding);
+		}
+		
+		public static bool GetGroupFolding(Object material, string group)
+		{
+			InitPoolPerMaterial(material);
+			Debug.Assert(_groups[material].ContainsKey(group), "Unknown Group: " + group);
+			return _groups[material][group];
+		}
+		
+		public static bool IsSubVisible(Object material, string group)
+		{
+			if (group == "" || group == "_") return true;
+			InitPoolPerMaterial(material);
+			
+			// common sub
+			if (_groups[material].ContainsKey(group))
+			{
+				return !_groups[material][group];
+			}
+			// existing suffix, may be based on the enum conditions sub
+			else
+			{
+				foreach (var prefix in _groups[material].Keys)
+				{
+					// prefix = group name, suffix = keyWord
+					if (group.Contains(prefix))
+					{
+						string suffix = group.Substring(prefix.Length, group.Length - prefix.Length).ToUpperInvariant();
+						if (_keywords[material].ContainsKey(suffix))
+						{
+							// visible when keyword is activated and group is not folding 
+							return _keywords[material][suffix] && !_groups[material][prefix];
+						}
+					}
+				}
+				return false;
+			}
+		}
+
+		public static void SetKeywordConditionalDisplay(Object material, string keyword, bool isDisplay)
+		{
+			if (keyword == "" || keyword == "_") return;
+			InitPoolPerMaterial(material);
+
+			if (_keywords[material].ContainsKey(keyword))
+				_keywords[material][keyword] = isDisplay;
+			else
+				_keywords[material].Add(keyword, isDisplay);
+		}
+    }
+
 	
 	/// <summary>
 	/// Helpers for drawing Unreal Style Revertable Shader GUI 
@@ -235,6 +306,7 @@ namespace LWGUI
 		}
 
 		private static readonly Texture _icon = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("e7bc1130858d984488bca32b8512ca96"));
+		
 		private static bool DoRevertButton(Rect rect)
 		{
 			if (_icon == null) Debug.LogError("RevertIcon.png + meta is missing!");
@@ -249,12 +321,12 @@ namespace LWGUI
 		}
 
 		// ========== Call drawers to do revert and refresh keywords ========== 
-		private static Dictionary<UnityEngine.Object, List<string>> _needRevertPropsPool;
+		private static Dictionary<Object, List<string>> _needRevertPropsPool;
 
-		public static void AddProperty(UnityEngine.Object[] materials, string propName)
+		public static void AddProperty(Object[] materials, string propName)
 		{
 			if (_needRevertPropsPool == null)
-				_needRevertPropsPool = new Dictionary<UnityEngine.Object, List<string>>();
+				_needRevertPropsPool = new Dictionary<Object, List<string>>();
 			foreach (var material in materials)
 			{
 				if (_needRevertPropsPool.ContainsKey(material))
@@ -269,7 +341,7 @@ namespace LWGUI
 			}
 		}
 
-		public static void RemoveProperty(UnityEngine.Object[] materials, string propName)
+		public static void RemoveProperty(Object[] materials, string propName)
 		{
 			if (_needRevertPropsPool == null) return;
 			foreach (var material in materials)
@@ -282,7 +354,7 @@ namespace LWGUI
 			}
 		}
 
-		public static bool ContainsProperty(UnityEngine.Object material, string propName)
+		public static bool ContainsProperty(Object material, string propName)
 		{
 			if (_needRevertPropsPool == null) return false;
 			if (_needRevertPropsPool.ContainsKey(material))
@@ -322,7 +394,7 @@ namespace LWGUI
 			return k;
 		}
 
-		public static void SetShaderKeyWord(UnityEngine.Object[] materials, string keyWord, bool isEnable)
+		public static void SetShaderKeyWord(Object[] materials, string keyWord, bool isEnable)
 		{
 			if (string.IsNullOrEmpty(keyWord)) return;
 			
@@ -349,7 +421,7 @@ namespace LWGUI
 			}
 		}
 
-		public static void SetShaderKeyWord(UnityEngine.Object[] materials, string[] keyWords, int index)
+		public static void SetShaderKeyWord(Object[] materials, string[] keyWords, int index)
 		{
 			Debug.Assert(keyWords.Length >= 1 && index < keyWords.Length && index >= 0, "KeyWords: "+keyWords+" or Index: "+index+" Error! ");
 			for (int i = 0; i < keyWords.Length; i++)
@@ -358,25 +430,17 @@ namespace LWGUI
 			}
 		}
 
-        public static void TurnColorDraw(Color useColor, UnityAction action)
-        {
-            var c = GUI.color;
-            GUI.color = useColor;
-            if (action != null)
-                action();
-            GUI.color = c;
-        }
 
 		/// <summary>
 		/// make Drawer can get all current Material props by customShaderGUI
 		/// Unity 2019.2+
 		/// </summary>
-		public static MaterialProperty[] GetProperties(MaterialEditor editor)
+		public static LWGUI GetLWGUI(MaterialEditor editor)
 		{
 			if (editor.customShaderGUI != null && editor.customShaderGUI is LWGUI)
 			{
 				LWGUI gui = editor.customShaderGUI as LWGUI;
-				return gui.props;
+				return gui;
 			}
 			else
 			{
@@ -389,22 +453,7 @@ namespace LWGUI
 
 
 #region Math
-
-		public static Color RGBToHSV(Color color)
-		{
-			float h, s, v;
-			Color.RGBToHSV(color, out h, out s, out v);
-			return new Color(h, s, v, color.a);
-		}
-		
-		public static Color HSVToRGB(Color color)
-		{
-			var c = Color.HSVToRGB(color.r, color.g, color.b);
-			c.a = color.a;
-			return c;
-		}
-
-		public static float PowPreserveSign(float f, float p)
+public static float PowPreserveSign(float f, float p)
 		{
 			float num = Mathf.Pow(Mathf.Abs(f), p);
 			if ((double)f < 0.0)
@@ -416,54 +465,8 @@ namespace LWGUI
 
 
 #region Draw GUI for Drawer
-		
-		public static bool IsVisible(string group)
-		{
-			if (group == "" || group == "_")
-				return true;
-			
-			// common sub
-			if (GUIData.group.ContainsKey(group))
-			{
-				return !GUIData.group[group];
-			}
-			// existing suffix, may be based on the enum conditions sub
-			else
-			{
-				foreach (var prefix in GUIData.group.Keys)
-				{
-					// prefix = group name, suffix = keyWord
-					if (group.Contains(prefix))
-					{
-						string suffix = group.Substring(prefix.Length, group.Length - prefix.Length).ToUpperInvariant();
-						if (GUIData.keyWord.ContainsKey(suffix))
-						{
-							// visible when keyword is activated and group is not folding 
-							return GUIData.keyWord[suffix] && !GUIData.group[prefix];
-						}
-					}
-				}
-				return false;
-			}
-		}
 
-		public static void AddKeywordDisplay(string keyword, bool isDisplay = false)
-		{
-			if (!GUIData.keyWord.ContainsKey(keyword))
-				GUIData.keyWord.Add(keyword, isDisplay);
-		}
-
-		public static void SetKeywordDisplay(string keyword, bool isDisplay)
-		{
-			if (keyword == "" || keyword == "_") return;
-			
-			if (GUIData.keyWord.ContainsKey(keyword))
-				GUIData.keyWord[keyword] = isDisplay;
-			else
-				GUIData.keyWord.Add(keyword, isDisplay);
-		}
-
-		// copy and edit of https://github.com/GucioDevs/SimpleMinMaxSlider/blob/master/Assets/SimpleMinMaxSlider/Scripts/Editor/MinMaxSliderDrawer.cs
+// copy and edit of https://github.com/GucioDevs/SimpleMinMaxSlider/blob/master/Assets/SimpleMinMaxSlider/Scripts/Editor/MinMaxSliderDrawer.cs
 		public static Rect[] SplitRect(Rect rectToSplit, int n)
 		{
 			Rect[] rects = new Rect[n];
@@ -777,7 +780,7 @@ namespace LWGUI
 
 			var ramp = CreateGradientTexture(gradientObject.gradient, width, height);
 			var png = ramp.EncodeToPNG();
-			UnityEngine.Object.DestroyImmediate(ramp);
+			Object.DestroyImmediate(ramp);
 
 			var systemPath = projectPath + unityPath;
 			File.WriteAllBytes(systemPath, png);
