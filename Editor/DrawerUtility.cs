@@ -10,6 +10,8 @@ using Object = UnityEngine.Object;
 
 namespace LWGUI
 {
+	/// when LwguiEventType.Init:		get all metadata from drawer
+	/// when LwguiEventType.Repaint:	LWGUI decides how to draw each prop according to metadata
 	public enum LwguiEventType
 	{
 		Init,
@@ -22,17 +24,23 @@ namespace LWGUI
 		// Used for access to all props in Drawer
         public MaterialProperty[] props;
         public MaterialEditor     materialEditor;
+		public string             searchingText = "Search";
+		public LwguiEventType     eventType;
+		public Shader             shader;
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
         {
             this.props = props;
             this.materialEditor = materialEditor;
-			RevertableHelper.defaultMaterial = new Material((materialEditor.target as Material).shader);
+			this.shader = (materialEditor.target as Material).shader;
+
+			RevertableHelper.InitAndHasShaderChanged(shader);
+			
 			
 			// LWGUI header
 			var headerRect = EditorGUILayout.GetControlRect();
 			headerRect.xMax -= RevertableHelper.revertButtonWidth;
-			EditorGUI.TextField(headerRect, "", "Search", new GUIStyle("ToolbarSeachTextFieldPopup"));
+			searchingText = EditorGUI.TextField(headerRect, "", searchingText, new GUIStyle("ToolbarSeachTextFieldPopup"));
 
             // base.OnGUI(materialEditor, props);
 			{
@@ -68,7 +76,7 @@ namespace LWGUI
 								break;
 						}
 						
-						RevertableHelper.RevertButton(revertButtonRect, prop, materialEditor);
+						RevertableHelper.RevertButton(revertButtonRect, prop, materialEditor, shader);
 						var label = new GUIContent(prop.displayName, "Property Name: " + prop.name);
 						materialEditor.ShaderProperty(rect, prop, label);
 					}
@@ -191,7 +199,54 @@ namespace LWGUI
 		public static readonly float    revertButtonWidth = 15f;
 		public static          float    fieldWidth;
 		public static          float    labelWidth;
-		public static          Material defaultMaterial;
+
+		private static Dictionary<Shader /*Shader*/, Dictionary<string /*Prop Name*/, MaterialProperty /*Prop*/>> 
+			_defaultProps = new Dictionary<Shader, Dictionary<string, MaterialProperty>>();
+
+		private static Dictionary<Shader, int> _initTimers     = new Dictionary<Shader, int>();
+		private const  int                     INIT_PER_FRAMES = 30;
+		
+		public static bool InitAndHasShaderChanged(Shader shader)
+		{
+			bool equals = true;
+
+			// Init every few frames
+			if (_initTimers.ContainsKey(shader))
+				_initTimers[shader]++;
+			else
+				_initTimers[shader] = 0;
+			
+			if (_initTimers[shader] > INIT_PER_FRAMES 
+			 || !_defaultProps.ContainsKey(shader) 
+			 || ShaderUtil.GetPropertyCount(shader) != _defaultProps[shader].Count)
+				_initTimers[shader] = 0;
+			else
+				return false;
+			
+			// Get and cache new props
+			var newProps = MaterialEditor.GetMaterialProperties(new[] { new Material(shader) });
+
+			Dictionary<string, MaterialProperty> lastPropsDic;
+			
+			if (_defaultProps.ContainsKey(shader))
+				lastPropsDic = _defaultProps[shader];
+			else
+			{
+				lastPropsDic = new Dictionary<string, MaterialProperty>();
+				equals = false;
+			}
+			
+			_defaultProps[shader] = new Dictionary<string, MaterialProperty>();
+			for (int i = 0; i < newProps.Length; i++)
+			{
+				if (_defaultProps[shader].ContainsKey(newProps[i].name)) 
+					Debug.LogError($"Shader:{shader.name} has repeated property name:{newProps[i].name}!");
+				_defaultProps[shader][newProps[i].name] = newProps[i];
+				if (equals)
+					equals = lastPropsDic.ContainsKey(newProps[i].name) && PropertyEquals(newProps[i], lastPropsDic[newProps[i].name]);
+			}
+			return !equals;
+		}
 
 		public static Rect GetRevertButtonRect(MaterialProperty prop, Rect rect, bool isCallInDrawer = false)
 		{
@@ -218,95 +273,62 @@ namespace LWGUI
 			EditorGUIUtility.fieldWidth = RevertableHelper.fieldWidth;
 			EditorGUIUtility.labelWidth = RevertableHelper.labelWidth;
 		}
-		
-		public static void SetPropertyToDefault(MaterialProperty prop)
+
+		public static void SetPropertyToDefault(MaterialProperty defaultProp, MaterialProperty prop)
 		{
-			switch (prop.type)
-			{
-				case MaterialProperty.PropType.Color:
-					prop.colorValue = defaultMaterial.GetColor(prop.name);
-					break;
-				case MaterialProperty.PropType.Vector:
-					prop.vectorValue = defaultMaterial.GetVector(prop.name);
-					break;
-				case MaterialProperty.PropType.Float:
-				case MaterialProperty.PropType.Range:
-					prop.floatValue = defaultMaterial.GetFloat(prop.name);
-					break;
-				case MaterialProperty.PropType.Texture: 
-					prop.textureValue = defaultMaterial.GetTexture(prop.name);
-					break;
+			prop.vectorValue = defaultProp.vectorValue;
+			prop.colorValue = defaultProp.colorValue;
+			prop.floatValue = defaultProp.floatValue;
+			prop.textureValue = defaultProp.textureValue;
 #if UNITY_2021_1_OR_NEWER
-				case MaterialProperty.PropType.Int:
-					prop.intValue = defaultMaterial.GetInt(prop.name);
-					break;
+			prop.intValue = defaultProp.intValue;
 #endif
-			}
+		}
+		
+		public static void SetPropertyToDefault(Shader shader, MaterialProperty prop)
+		{
+			Debug.Assert(_defaultProps.ContainsKey(shader) && _defaultProps[shader].ContainsKey(prop.name), $"Unknown Shader:{shader.name} or Prop:{prop.name}");
+			var defaultProp = _defaultProps[shader][prop.name];
+			SetPropertyToDefault(defaultProp, prop);
+		}
+
+		public static bool PropertyEquals(MaterialProperty prop1, MaterialProperty prop2)
+		{
+			if (prop1.textureValue == prop2.textureValue
+			 && prop1.vectorValue == prop2.vectorValue
+			 && prop1.colorValue == prop2.colorValue
+			 && prop1.floatValue == prop2.floatValue
+#if UNITY_2021_1_OR_NEWER
+			 && prop1.intValue == prop2.intValue
+#endif
+			   )
+				return true;
+			else
+				return false;
 		}
 		
 
 		// ======================= Draw revert button =======================
-		public static bool RevertButton(Rect position, MaterialProperty prop, MaterialEditor materialEditor)
+		public static bool RevertButton(Rect position, MaterialProperty prop, MaterialEditor materialEditor, Shader shader)
 		{
-			bool doRevert = false;
+			Debug.Assert(_defaultProps.ContainsKey(shader) && _defaultProps[shader].ContainsKey(prop.name), $"Unknown Shader:{shader.name} or Prop:{prop.name}");
+
+			var defaultProp = _defaultProps[shader][prop.name];
 			Rect rect = position;
-			switch (prop.type)
+			if (PropertyEquals(prop, defaultProp) && !prop.hasMixedValue)
+				return false;
+			if (DoRevertButton(rect))
 			{
-				case MaterialProperty.PropType.Color:
-					var color = defaultMaterial.GetColor(prop.name);
-					if (color == prop.colorValue && !prop.hasMixedValue)
-						break;
-					if (DoRevertButton(rect))
-					{
-						AddProperty(prop.targets, prop.name);
-						prop.colorValue = color;
-						doRevert = true;
-					}
-					break;
-
-				case MaterialProperty.PropType.Vector:
-					var vector = defaultMaterial.GetVector(prop.name);
-					if (vector == prop.vectorValue && !prop.hasMixedValue)
-						break;
-					if (DoRevertButton(rect))
-					{
-						AddProperty(prop.targets, prop.name);
-						prop.vectorValue = vector;
-						doRevert = true;
-					}
-					break;
-
-				case MaterialProperty.PropType.Range:
-				case MaterialProperty.PropType.Float:
-					var value = defaultMaterial.GetFloat(prop.name);
-					if (value == prop.floatValue && !prop.hasMixedValue)
-						break;
-					if (DoRevertButton(rect))
-					{
-						AddProperty(prop.targets, prop.name);
-						prop.floatValue = value;
-						doRevert = true;
-						// refresh keywords
-						MaterialEditor.ApplyMaterialPropertyDrawers(materialEditor.targets);
-					}
-					break;
-
-				case MaterialProperty.PropType.Texture:
-					// var tex = defaultMaterial.GetTexture(prop.name);
-					// if (tex == prop.textureValue && !prop.hasMixedValue)
-					// 	break;
-					// if (DoRevertButton(rect))
-					// {
-					// 	AddProperty(prop.targets, prop.name);
-					// 	prop.textureValue = tex;
-					// }
-					break;
+				AddProperty(prop.targets, prop.name);
+				SetPropertyToDefault(defaultProp, prop);
+				// refresh keywords
+				MaterialEditor.ApplyMaterialPropertyDrawers(materialEditor.targets);
+				return true;
 			}
-			return doRevert;
+			return false;
 		}
 
 		private static readonly Texture _icon = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("e7bc1130858d984488bca32b8512ca96"));
-		
 		private static bool DoRevertButton(Rect rect)
 		{
 			if (_icon == null) Debug.LogError("RevertIcon.png + meta is missing!");
@@ -490,7 +512,7 @@ public static float PowPreserveSign(float f, float p)
 			return rects;
 		}
 
-        public static bool Foldout(Rect position, ref bool isFolding, bool toggleValue, bool hasToggle, string title)
+        public static bool Foldout(Rect position, ref bool isFolding, bool toggleValue, bool hasToggle, GUIContent label)
         {
 			var style = new GUIStyle("ShurikenModuleTitle");
 			style.border = new RectOffset(15, 7, 4, 4);
@@ -503,7 +525,7 @@ public static float PowPreserveSign(float f, float p)
 			var rect = position;//GUILayoutUtility.GetRect(position.width, 24f, style);
 
 			GUI.backgroundColor = isFolding ? Color.white : new Color(0.85f, 0.85f, 0.85f);
-			GUI.Box(rect, title, style);
+			GUI.Box(rect, label, style);
 			GUI.backgroundColor = Color.white;
 
             var toggleRect = new Rect(rect.x + 8f, rect.y + 7f, 13f, 13f);
@@ -596,7 +618,6 @@ public static float PowPreserveSign(float f, float p)
 #endregion
 	}
 
-	// Ramp
 
 	public class RampHelper
 	{
@@ -827,5 +848,14 @@ public static float PowPreserveSign(float f, float p)
 	}
 
 
+	/// <summary>
+	/// Handles relationships between props and provides search function
+	/// </summary>
+	public class MetaDataHelper
+	{
+		private static Dictionary<Shader, Dictionary<string /*Main*/, List<string /*Sub*/>>> _mainSubStructure = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		
+		// private static 
+	}
 
 } //namespace LWGUI

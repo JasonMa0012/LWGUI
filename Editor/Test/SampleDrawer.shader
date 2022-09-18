@@ -14,7 +14,7 @@ Shader "Hidden"
         
         [Title(Title on Group)]
         // Create a folding group with name "g1"
-        [Main(g1)] _group ("Group", float) = 1
+        [Main(g1)] _group ("Group", float) = 0
         [Sub(g1)]  _float ("float", float) = 2
         
         [KWEnum(g1, name1, key1, name2, key2, name3, key3)]

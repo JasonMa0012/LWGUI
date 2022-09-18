@@ -53,7 +53,7 @@ namespace LWGUI
 			_isFolding = isFirstFrame ? !_defaultFoldingState : GroupStateHelper.GetGroupFolding(editor.target, finalGroupName);
 
 			EditorGUI.BeginChangeCheck();
-			bool toggleResult = Helper.Foldout(position, ref _isFolding, toggleValue, _defaultToggleDisplayed, label.text);
+			bool toggleResult = Helper.Foldout(position, ref _isFolding, toggleValue, _defaultToggleDisplayed, label);
 			EditorGUI.showMixedValue = false;
 
 			if (EditorGUI.EndChangeCheck())
@@ -93,6 +93,7 @@ namespace LWGUI
 		protected MaterialProperty   prop;
 		protected MaterialProperty[] props;
 		protected LWGUI              lwgui;
+		protected Shader             shader;
 
 
 		protected virtual float GetVisibleHeight(MaterialProperty prop)
@@ -115,6 +116,7 @@ namespace LWGUI
 			this.prop = prop;
 			lwgui = Helper.GetLWGUI(editor);
 			props = lwgui.props;
+			shader = lwgui.shader;
 			
 			var rect = position;
 			
@@ -130,7 +132,7 @@ namespace LWGUI
 				}
 				else
 				{
-					Debug.LogWarning(this.GetType() + " does not support this MaterialProperty type:'" + prop.type + "'!");
+					Debug.LogWarning($"Property:'{prop.name}' Type:'{prop.type}' mismatch!");
 					editor.DefaultShaderProperty(rect, prop, label.text);
 				}
 			}
@@ -469,9 +471,9 @@ namespace LWGUI
 
 				
 				var revertButtonRect = RevertableHelper.GetRevertButtonRect(extraProp, position, true);
-				if (RevertableHelper.RevertButton(revertButtonRect, extraProp, editor))
+				if (RevertableHelper.RevertButton(revertButtonRect, extraProp, editor, shader))
 				{
-					RevertableHelper.SetPropertyToDefault(extraProp);
+					RevertableHelper.SetPropertyToDefault(shader, extraProp);
 				}
 			}
 
@@ -550,14 +552,14 @@ namespace LWGUI
 			bool[] needRevert = new bool[count];
 			for (int i = 0; i < needRevert.Length; i++)
 			{
-				needRevert[i] = RevertableHelper.RevertButton(revertButtonRect, colorArray[i], editor);
+				needRevert[i] = RevertableHelper.RevertButton(revertButtonRect, colorArray[i], editor, shader);
 			}
 
 			if (needRevert.Contains(true))
 			{
 				for (int i = 0; i < count; i++)
 				{
-					RevertableHelper.SetPropertyToDefault(colorArray[i]);
+					RevertableHelper.SetPropertyToDefault(shader, colorArray[i]);
 				}
 			}
 
@@ -611,7 +613,7 @@ namespace LWGUI
 			// Draw Label
 			var labelRect = new Rect(position);//EditorGUILayout.GetControlRect();
 			labelRect.yMax -= position.height * 0.5f;
-			EditorGUI.PrefixLabel(labelRect, new GUIContent(label));
+			EditorGUI.PrefixLabel(labelRect, label);
 
 			// Ramp buttons Rect
 			var labelWidth = EditorGUIUtility.labelWidth;
@@ -752,11 +754,11 @@ namespace LWGUI
 			}
 
 			var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, position, true);
-			if (RevertableHelper.RevertButton(revertButtonRect, min, editor) ||
-				RevertableHelper.RevertButton(revertButtonRect, max, editor))
+			if (RevertableHelper.RevertButton(revertButtonRect, min, editor, shader) ||
+				RevertableHelper.RevertButton(revertButtonRect, max, editor, shader))
 			{
-				RevertableHelper.SetPropertyToDefault(min);
-				RevertableHelper.SetPropertyToDefault(max);
+				RevertableHelper.SetPropertyToDefault(shader, min);
+				RevertableHelper.SetPropertyToDefault(shader, max);
 			}
 
 		}
@@ -769,8 +771,9 @@ namespace LWGUI
 	/// </summary>
 	public class ChannelDrawer : SubDrawer
 	{
-		private string[] _names  = new string[] { "R", "G", "B", "A", "RGB Average", "RGB Luminance" };
-		private int[]    _values = new int[] { 0, 1, 2, 3, 4, 5 };
+		private GUIContent[] _names  = new GUIContent[] { new GUIContent("R"), new GUIContent("G"), new GUIContent("B"), new GUIContent("A"),
+			new GUIContent("RGB Average"), new GUIContent("RGB Luminance") };
+		private int[]        _values = new int[] { 0, 1, 2, 3, 4, 5 };
 
 		public ChannelDrawer() { }
 		public ChannelDrawer(string group)
@@ -813,7 +816,7 @@ namespace LWGUI
 
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = prop.hasMixedValue;
-			int num = EditorGUI.IntPopup(rect, label.text, index, _names, _values);
+			int num = EditorGUI.IntPopup(rect, label, index, _names, _values);
 			EditorGUI.showMixedValue = false;
 			if (EditorGUI.EndChangeCheck())
 			{
