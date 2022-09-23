@@ -17,7 +17,7 @@ namespace LWGUI
 	/// default Toggle Displayed: "on" or "off" (Default: on)
 	/// Target Property Type: FLoat, express Toggle value
 	/// </summary>
-	public class MainDrawer : MaterialPropertyDrawer
+	internal class MainDrawer : MaterialPropertyDrawer
 	{
 		private bool   _isFolding;
 		private string _group;
@@ -46,6 +46,13 @@ namespace LWGUI
 		public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
+			var lwgui = Helper.GetLWGUI(editor);
+
+			if (lwgui.eventType == EventType.Init)
+			{
+				
+				return;
+			}
 
 			var toggleValue = prop.floatValue == 1.0f;
 			string finalGroupName = (_group != "" && _group != "_") ? _group : prop.name;
@@ -87,7 +94,7 @@ namespace LWGUI
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// Target Property Type: Any
 	/// </summary>
-	public class SubDrawer : MaterialPropertyDrawer
+	internal class SubDrawer : MaterialPropertyDrawer
 	{
 		protected string             group = "";
 		protected MaterialProperty   prop;
@@ -168,7 +175,7 @@ namespace LWGUI
 	/// keyword：keyword used for toggle, "_" = ignore, none or "__" = Property Name +  "_ON", always Upper (Default: none)
 	/// Target Property Type: FLoat
 	/// </summary>
-	public class SubToggleDrawer : SubDrawer
+	internal class SubToggleDrawer : SubDrawer
 	{
 		private string _keyWord = "";
 		
@@ -214,7 +221,7 @@ namespace LWGUI
 	/// power: power of slider (Default: 1)
 	/// Target Property Type: Range
 	/// </summary>
-	public class SubPowerSliderDrawer : SubDrawer
+	internal class SubPowerSliderDrawer : SubDrawer
 	{
 		private float _power = 1;
 		
@@ -246,7 +253,7 @@ namespace LWGUI
 	/// v(s): value
 	/// Target Property Type: FLoat, express current keyword index
 	/// </summary>
-	public class KWEnumDrawer : SubDrawer
+	internal class KWEnumDrawer : SubDrawer
 	{
 		private GUIContent[] _names;
 		private string[]     _keyWords;
@@ -367,7 +374,7 @@ namespace LWGUI
 		}
 	}
 
-	public class SubEnumDrawer : KWEnumDrawer
+	internal class SubEnumDrawer : KWEnumDrawer
 	{
 		public SubEnumDrawer(string group, string n1, float v1, string n2, float v2)
 			: base(group, new []{n1, n2}, null, new []{v1, v2}){ }
@@ -385,7 +392,7 @@ namespace LWGUI
 		protected override string GetKeywordName(string propName, string name) { return "_"; }
 	}
 
-	public class SubKeywordEnumDrawer : KWEnumDrawer
+	internal class SubKeywordEnumDrawer : KWEnumDrawer
 	{
 		public SubKeywordEnumDrawer(string group, string kw1, string kw2)
 			: base(group, new []{kw1, kw2}, new []{kw1, kw2}) { }
@@ -414,7 +421,7 @@ namespace LWGUI
 	/// Target Property Type: Texture
 	/// Extra Property Type: Any, except Texture
 	/// </summary>
-	public class TexDrawer : SubDrawer
+	internal class TexDrawer : SubDrawer
 	{
 		private string        _extraPropName = "";
 		private ChannelDrawer _channelDrawer = new ChannelDrawer("_");
@@ -437,8 +444,6 @@ namespace LWGUI
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var rect = position; //EditorGUILayout.GetControlRect();
-			
-			editor.TexturePropertyMiniThumbnail(rect, prop, label.text, label.tooltip);
 
 			MaterialProperty extraProp = null;
 			if (_extraPropName != "" && _extraPropName != "_")
@@ -446,36 +451,36 @@ namespace LWGUI
 
 			if (extraProp != null && extraProp.type != MaterialProperty.PropType.Texture)
 			{
-				Rect extraPropRect = Rect.zero;
+				Rect extraPropRect = new Rect(rect);
+				label.text = " ";
+				
 				if (extraProp.type == MaterialProperty.PropType.Range)
 				{
+					editor.SetDefaultGUIWidths();
 					EditorGUIUtility.labelWidth = 0;
-					EditorGUIUtility.fieldWidth = RevertableHelper.fieldWidth - 12f;
-					extraPropRect = MaterialEditor.GetRectAfterLabelWidth(rect);
+					EditorGUIUtility.fieldWidth++;
 				}
-				else
-					extraPropRect = MaterialEditor.GetRectAfterLabelWidth(rect);
-
 
 				var i = EditorGUI.indentLevel;
 				EditorGUI.indentLevel = 0;
 				if (extraProp.type == MaterialProperty.PropType.Vector)
 				{
-					_channelDrawer.DrawProp(extraPropRect, extraProp, new GUIContent(""), editor);
+					_channelDrawer.DrawProp(extraPropRect, extraProp, label, editor);
 				}
 				else
 				{
-					editor.ShaderProperty(extraPropRect, extraProp, "");
+					editor.ShaderProperty(extraPropRect, extraProp, label);
 				}
 				EditorGUI.indentLevel = i;
 
-				
 				var revertButtonRect = RevertableHelper.GetRevertButtonRect(extraProp, position, true);
 				if (RevertableHelper.RevertButton(revertButtonRect, extraProp, editor, shader))
 				{
 					RevertableHelper.SetPropertyToDefault(shader, extraProp);
 				}
 			}
+			
+			editor.TexturePropertyMiniThumbnail(rect, prop, prop.displayName, label.tooltip);
 
 			EditorGUI.showMixedValue = false;
 		}
@@ -487,7 +492,7 @@ namespace LWGUI
 	/// color2-4: extra color property name (Unity 2019.2+ only)
 	/// Target Property Type: Color
 	/// </summary>
-	public class ColorDrawer : SubDrawer
+	internal class ColorDrawer : SubDrawer
 	{
 		private string[] _colorStrings = new string[3];
 		
@@ -574,7 +579,7 @@ namespace LWGUI
 	/// defaultWidth: default Ramp Width (Default: 512)
 	/// Target Property Type: Texture2D
 	/// </summary>
-	public class RampDrawer : SubDrawer
+	internal class RampDrawer : SubDrawer
 	{
 		private string _defaultFileName;
 		private float  _defaultWidth;
@@ -681,7 +686,7 @@ namespace LWGUI
 	/// Target Property Type: Range, range limits express the MinMaxSlider value range
 	/// Output Min/Max Property Type: Range, it's value is limited by it's range
 	/// </summary>
-	public class MinMaxSliderDrawer : SubDrawer
+	internal class MinMaxSliderDrawer : SubDrawer
 	{
 		private string _minPropName;
 		private string _maxPropName;
@@ -769,7 +774,7 @@ namespace LWGUI
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// Target Property Type: Vector, used to dot() with Texture Sample Value 
 	/// </summary>
-	public class ChannelDrawer : SubDrawer
+	internal class ChannelDrawer : SubDrawer
 	{
 		private GUIContent[] _names  = new GUIContent[] { new GUIContent("R"), new GUIContent("G"), new GUIContent("B"), new GUIContent("A"),
 			new GUIContent("RGB Average"), new GUIContent("RGB Luminance") };
@@ -854,7 +859,7 @@ namespace LWGUI
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// header: string to display, "SpaceLine" or "_" = none (Default: none)
 	/// </summary>
-	public class TitleDecorator : SubDrawer
+	internal class TitleDecorator : SubDrawer
 	{
 		private string _header;
 

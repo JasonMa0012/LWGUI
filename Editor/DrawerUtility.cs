@@ -12,20 +12,26 @@ namespace LWGUI
 {
 	/// when LwguiEventType.Init:		get all metadata from drawer
 	/// when LwguiEventType.Repaint:	LWGUI decides how to draw each prop according to metadata
-	public enum LwguiEventType
+	internal enum EventType
 	{
 		Init,
 		Repaint
 	}
 	
+	internal enum SearchMode
+	{
+		All,
+		Modified
+	}
 	
-    public class LWGUI : ShaderGUI
+	internal class LWGUI : ShaderGUI
     {
 		// Used for access to all props in Drawer
         public MaterialProperty[] props;
         public MaterialEditor     materialEditor;
-		public string             searchingText = "Search";
-		public LwguiEventType     eventType;
+		public string             searchingText = "";
+		public SearchMode         searchMode    = SearchMode.All;
+		public EventType          eventType     = EventType.Init;
 		public Shader             shader;
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
@@ -33,70 +39,87 @@ namespace LWGUI
             this.props = props;
             this.materialEditor = materialEditor;
 			this.shader = (materialEditor.target as Material).shader;
+			this.eventType = RevertableHelper.InitAndHasShaderChanged(shader) ? EventType.Init : EventType.Repaint;
 
-			RevertableHelper.InitAndHasShaderChanged(shader);
-			
-			
-			// LWGUI header
-			var headerRect = EditorGUILayout.GetControlRect();
-			headerRect.xMax -= RevertableHelper.revertButtonWidth;
-			searchingText = EditorGUI.TextField(headerRect, "", searchingText, new GUIStyle("ToolbarSeachTextFieldPopup"));
-
-            // base.OnGUI(materialEditor, props);
+			// drawer register metadata
+			if (eventType == EventType.Init)
 			{
-				// move fields left to make rect for Revert Button
-				materialEditor.SetDefaultGUIWidths();
-				EditorGUIUtility.fieldWidth += RevertableHelper.revertButtonWidth;
-				EditorGUIUtility.labelWidth -= RevertableHelper.revertButtonWidth;
-				RevertableHelper.fieldWidth = EditorGUIUtility.fieldWidth;
-				RevertableHelper.labelWidth = EditorGUIUtility.labelWidth;
-				
-				for (int index = 0; index < props.Length; ++index)
+				foreach (var prop in props)
 				{
-					var prop = props[index];
-					if ((prop.flags & MaterialProperty.PropFlags.HideInInspector) == 0)
-					{
-						var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
-						// ignored when in Folding Group
-						if (height <= 0) continue;
-						
-						var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
-						var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, rect);
-						rect.xMax -= RevertableHelper.revertButtonWidth;
-
-						// Process some builtin types display misplaced
-						switch (prop.type)
-						{
-							case MaterialProperty.PropType.Texture:
-							case MaterialProperty.PropType.Range:
-								materialEditor.SetDefaultGUIWidths();
-								break;
-							default:
-								RevertableHelper.SetRevertableGUIWidths();
-								break;
-						}
-						
-						RevertableHelper.RevertButton(revertButtonRect, prop, materialEditor, shader);
-						var label = new GUIContent(prop.displayName, "Property Name: " + prop.name);
-						materialEditor.ShaderProperty(rect, prop, label);
-					}
+					var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
+					var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
+					materialEditor.ShaderProperty(rect, prop, prop.displayName);
 				}
-				materialEditor.SetDefaultGUIWidths();
-
-				EditorGUILayout.Space();
-				EditorGUILayout.Space();
-				if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
-				{
-					materialEditor.RenderQueueField();
-				}
-				materialEditor.EnableInstancingField();
-				materialEditor.DoubleSidedGIField();
 			}
-			
-			
-			// LWGUI logo
-			EditorGUILayout.Space();
-			Helper.DrawLogo();
+			// draw with metadata and searchingText
+			else if (eventType == EventType.Repaint)
+			{
+				// LWGUI header
+				var headerRect = EditorGUILayout.GetControlRect();
+				headerRect.xMax -= RevertableHelper.revertButtonWidth;
+				Helper.DrawSearchField(headerRect, ref searchingText, ref searchMode);
+				
+
+	            // base.OnGUI(materialEditor, props);
+				{
+					// move fields left to make rect for Revert Button
+					materialEditor.SetDefaultGUIWidths();
+					EditorGUIUtility.fieldWidth += RevertableHelper.revertButtonWidth;
+					EditorGUIUtility.labelWidth -= RevertableHelper.revertButtonWidth;
+					RevertableHelper.fieldWidth = EditorGUIUtility.fieldWidth;
+					RevertableHelper.labelWidth = EditorGUIUtility.labelWidth;
+					
+					for (int index = 0; index < props.Length; ++index)
+					{
+						var prop = props[index];
+						if ((prop.flags & MaterialProperty.PropFlags.HideInInspector) == 0)
+						{
+							var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
+							// ignored when in Folding Group
+							if (height <= 0) continue;
+							
+							var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
+							var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, rect);
+							rect.xMax -= RevertableHelper.revertButtonWidth;
+
+							// Process some builtin types display misplaced
+							switch (prop.type)
+							{
+								case MaterialProperty.PropType.Texture:
+								case MaterialProperty.PropType.Range:
+									materialEditor.SetDefaultGUIWidths();
+									break;
+								default:
+									RevertableHelper.SetRevertableGUIWidths();
+									break;
+							}
+							
+							RevertableHelper.RevertButton(revertButtonRect, prop, materialEditor, shader);
+							var label = new GUIContent(prop.displayName, "Property Name: " + prop.name);
+							materialEditor.ShaderProperty(rect, prop, label);
+						}
+					}
+					materialEditor.SetDefaultGUIWidths();
+
+					EditorGUILayout.Space();
+					EditorGUILayout.Space();
+					if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
+					{
+						materialEditor.RenderQueueField();
+					}
+					materialEditor.EnableInstancingField();
+					materialEditor.DoubleSidedGIField();
+				}
+				
+				
+				// LWGUI logo
+				EditorGUILayout.Space();
+				Helper.DrawLogo();
+			}
+			else
+			{
+				Debug.LogError("Unknown Event Type");
+			}
 		}
 
 
@@ -112,7 +135,7 @@ namespace LWGUI
         }
     }
 	
-	public class GroupStateHelper
+	internal class GroupStateHelper
     {
 		// Used to Folding Group, key: group name, value: is folding
 		private static Dictionary<Object, Dictionary<string, bool>> _groups = new Dictionary<Object, Dictionary<string, bool>>();
@@ -194,7 +217,7 @@ namespace LWGUI
 	/// <summary>
 	/// Helpers for drawing Unreal Style Revertable Shader GUI 
 	/// </summary>
-    public class RevertableHelper
+	internal class RevertableHelper
 	{
 		public static readonly float    revertButtonWidth = 15f;
 		public static          float    fieldWidth;
@@ -204,7 +227,7 @@ namespace LWGUI
 			_defaultProps = new Dictionary<Shader, Dictionary<string, MaterialProperty>>();
 
 		private static Dictionary<Shader, int> _initTimers     = new Dictionary<Shader, int>();
-		private const  int                     INIT_PER_FRAMES = 30;
+		private const  int                     INIT_PER_FRAMES = 15;
 		
 		public static bool InitAndHasShaderChanged(Shader shader)
 		{
@@ -334,7 +357,7 @@ namespace LWGUI
 			if (_icon == null) Debug.LogError("RevertIcon.png + meta is missing!");
 			GUI.DrawTexture(rect, _icon);
 			var e = Event.current;
-			if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
+			if (e.type == UnityEngine.EventType.MouseDown && rect.Contains(e.mousePosition))
 			{
 				e.Use();
 				return true;
@@ -393,7 +416,7 @@ namespace LWGUI
 	/// <summary>
 	/// Misc Function
 	/// </summary>
-    public class Helper
+	internal class Helper
     {
 #region Engine Misc
 
@@ -534,7 +557,7 @@ public static float PowPreserveSign(float f, float p)
 				toggleValue = GUI.Toggle(toggleRect, toggleValue, "", new GUIStyle(EditorGUI.showMixedValue ? "ToggleMixed" : "Toggle"));
 
 			var e = Event.current;
-            if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
+            if (e.type == UnityEngine.EventType.MouseDown && rect.Contains(e.mousePosition))
             {
                 isFolding = !isFolding;
                 e.Use();
@@ -603,7 +626,7 @@ public static float PowPreserveSign(float f, float p)
 				if (logoRect.Contains(Event.current.mousePosition))
 				{
 					GUI.color = new Color(c.r, c.g, c.b, 0.8f);
-					if (Event.current.type == EventType.MouseDown)
+					if (Event.current.type == UnityEngine.EventType.MouseDown)
 						Application.OpenURL("https://github.com/JasonMa0012/LWGUI");
 				}
 				GUI.DrawTexture(logoRect, _logo);
@@ -613,13 +636,17 @@ public static float PowPreserveSign(float f, float p)
 													 + "Copyright (c) Jason Ma"));
 			}
 		}
-		
-		
+
+		public static void DrawSearchField(Rect rect, ref string searchingText, ref SearchMode searchMode)
+		{
+			searchingText = EditorGUI.TextField(rect, "", searchingText, new GUIStyle("ToolbarSeachTextFieldPopup"));
+			
+		}
 #endregion
 	}
 
 
-	public class RampHelper
+	internal class RampHelper
 	{
 		
 		[Serializable]
@@ -658,7 +685,7 @@ public static float PowPreserveSign(float f, float p)
 
 			// if the current edited texture is null, create new one
 			var currEvent = Event.current;
-			if (prop.textureValue == null && currEvent.type == EventType.MouseDown && editRect.Contains(currEvent.mousePosition))
+			if (prop.textureValue == null && currEvent.type == UnityEngine.EventType.MouseDown && editRect.Contains(currEvent.mousePosition))
 			{
 				isNeedCreate = true;
 				currEvent.Use();
@@ -671,7 +698,7 @@ public static float PowPreserveSign(float f, float p)
 			if (EditorGUI.EndChangeCheck()) hasChange = true;
 			
 			// Edit Icon override
-			if (currEvent.type == EventType.Repaint)
+			if (currEvent.type == UnityEngine.EventType.Repaint)
 			{
 				var isHover = editRect.Contains(currEvent.mousePosition);
 				_styleEdit.Draw(editRect, _iconEdit, isHover, false, false, false);
@@ -849,11 +876,13 @@ public static float PowPreserveSign(float f, float p)
 
 
 	/// <summary>
-	/// Handles relationships between props and provides search function
+	/// Provide Metadata for drawing
 	/// </summary>
-	public class MetaDataHelper
+	internal class MetaDataHelper
 	{
-		private static Dictionary<Shader, Dictionary<string /*Main*/, List<string /*Sub*/>>> _mainSubStructure = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*Main*/, List<string /*Sub*/>>> _mainSubDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*Prop*/, List<string /*Tooltip*/>>> _tooltipDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*Prop*/, List<string /*Helpbox*/>>> _HelpboxDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
 		
 		// private static 
 	}
