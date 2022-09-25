@@ -27,9 +27,9 @@ namespace LWGUI
 
 		private static readonly float _height = 28f;
 
-		public MainDrawer() : this("") { }
+		public MainDrawer() : this(String.Empty) { }
 
-		public MainDrawer(string group) : this(group, "") { }
+		public MainDrawer(string group) : this(group, String.Empty) { }
 
 		public MainDrawer(string group, string keyword) : this(group, keyword, "off") { }
 
@@ -50,12 +50,12 @@ namespace LWGUI
 
 			if (lwgui.eventType == EventType.Init)
 			{
-				
+				MetaDataHelper.RegisterMainProp(lwgui.shader, prop, _group);
 				return;
 			}
 
 			var toggleValue = prop.floatValue == 1.0f;
-			string finalGroupName = (_group != "" && _group != "_") ? _group : prop.name;
+			string finalGroupName = (_group != String.Empty && _group != "_") ? _group : prop.name;
 			bool isFirstFrame = !GroupStateHelper.ContainsGroup(editor.target, finalGroupName);
 			_isFolding = isFirstFrame ? !_defaultFoldingState : GroupStateHelper.GetGroupFolding(editor.target, finalGroupName);
 
@@ -96,7 +96,7 @@ namespace LWGUI
 	/// </summary>
 	internal class SubDrawer : MaterialPropertyDrawer
 	{
-		protected string             group = "";
+		protected string             group = String.Empty;
 		protected MaterialProperty   prop;
 		protected MaterialProperty[] props;
 		protected LWGUI              lwgui;
@@ -124,10 +124,16 @@ namespace LWGUI
 			lwgui = Helper.GetLWGUI(editor);
 			props = lwgui.props;
 			shader = lwgui.shader;
+
+			if (lwgui.eventType == EventType.Init)
+			{
+				Init(position, prop, label, editor);
+				return;
+			}
 			
 			var rect = position;
 			
-			if (group != "" && group != "_")
+			if (group != String.Empty && group != "_")
 				EditorGUI.indentLevel++;
 			
 			if (GroupStateHelper.IsSubVisible(editor.target, group))
@@ -144,7 +150,7 @@ namespace LWGUI
 				}
 			}
 
-			if (group != "" && group != "_")
+			if (group != String.Empty && group != "_")
 				EditorGUI.indentLevel--;
 		}
 
@@ -153,6 +159,11 @@ namespace LWGUI
 			return GroupStateHelper.IsSubVisible(editor.target, group) ? GetVisibleHeight(prop) : 0;
 		}
 
+		public virtual void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			MetaDataHelper.RegisterSubProp(shader, prop, group);
+		}
+		
 		// Draws a custom style property
 		public virtual void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
@@ -165,7 +176,7 @@ namespace LWGUI
 					break;
 			}
 			editor.DefaultShaderProperty(position, prop, label.text);
-			GUI.Label(position, new GUIContent("", label.tooltip));
+			GUI.Label(position, new GUIContent(String.Empty, label.tooltip));
 		}
 	}
 
@@ -177,10 +188,10 @@ namespace LWGUI
 	/// </summary>
 	internal class SubToggleDrawer : SubDrawer
 	{
-		private string _keyWord = "";
+		private string _keyWord = String.Empty;
 		
 		public SubToggleDrawer() { }
-		public SubToggleDrawer(string group) : this(group, "") { }
+		public SubToggleDrawer(string group) : this(group, String.Empty) { }
 
 		public SubToggleDrawer(string group, string keyWord)
 		{
@@ -304,7 +315,7 @@ namespace LWGUI
 			{
 				keyWords = new string[names.Length];
 				for (int i = 0; i < names.Length; i++)
-					keyWords[i] = "";
+					keyWords[i] = String.Empty;
 			}
 			this._keyWords = keyWords;
 
@@ -423,14 +434,14 @@ namespace LWGUI
 	/// </summary>
 	internal class TexDrawer : SubDrawer
 	{
-		private string        _extraPropName = "";
+		private string        _extraPropName = String.Empty;
 		private ChannelDrawer _channelDrawer = new ChannelDrawer("_");
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight; }
 
 		public TexDrawer() { }
 
-		public TexDrawer(string group) : this(group, "") { }
+		public TexDrawer(string group) : this(group, String.Empty) { }
 
 		public TexDrawer(string group, string extraPropName)
 		{
@@ -440,47 +451,69 @@ namespace LWGUI
 
 		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Texture; }
 
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			MaterialProperty extraProp = LWGUI.FindProp(_extraPropName, props, true);
+			MetaDataHelper.RegisterSubProp(shader, prop, group, extraProp == null ? null : new []{extraProp});
+		}
+
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var rect = position; //EditorGUILayout.GetControlRect();
+			var texLabel = string.Empty;
 
-			MaterialProperty extraProp = null;
-			if (_extraPropName != "" && _extraPropName != "_")
-				extraProp = LWGUI.FindProp(_extraPropName, props, true);
-
+			MaterialProperty extraProp = LWGUI.FindProp(_extraPropName, props, true);
 			if (extraProp != null && extraProp.type != MaterialProperty.PropType.Texture)
 			{
-				Rect extraPropRect = new Rect(rect);
-				label.text = " ";
-				
-				if (extraProp.type == MaterialProperty.PropType.Range)
+				var i = EditorGUI.indentLevel;
+				Rect indentedRect, extraPropRect = new Rect(rect);
+				switch (extraProp.type)
 				{
-					editor.SetDefaultGUIWidths();
-					EditorGUIUtility.labelWidth = 0;
-					EditorGUIUtility.fieldWidth++;
+#if UNITY_2021_1_OR_NEWER
+					case MaterialProperty.PropType.Int:
+#endif
+					case MaterialProperty.PropType.Color:
+					case MaterialProperty.PropType.Float:
+					case MaterialProperty.PropType.Vector:
+						indentedRect = EditorGUI.IndentedRect(extraPropRect);
+						RevertableHelper.SetRevertableGUIWidths();
+						EditorGUIUtility.labelWidth -= (indentedRect.xMin - extraPropRect.xMin) + 30f;
+						extraPropRect = indentedRect;
+						extraPropRect.xMin += 30f;
+						EditorGUI.indentLevel = 0;
+						break;
+					case MaterialProperty.PropType.Range:
+						texLabel = prop.displayName;
+						label.text = string.Empty;
+						indentedRect = EditorGUI.IndentedRect(extraPropRect);
+						editor.SetDefaultGUIWidths();
+						EditorGUIUtility.fieldWidth += 1f;
+						EditorGUIUtility.labelWidth = 0;
+						EditorGUI.indentLevel = 0;
+						extraPropRect = MaterialEditor.GetRectAfterLabelWidth(extraPropRect);
+						extraPropRect.xMin += 2;
+						break;
 				}
 
-				var i = EditorGUI.indentLevel;
-				EditorGUI.indentLevel = 0;
 				if (extraProp.type == MaterialProperty.PropType.Vector)
-				{
 					_channelDrawer.DrawProp(extraPropRect, extraProp, label, editor);
-				}
 				else
-				{
 					editor.ShaderProperty(extraPropRect, extraProp, label);
-				}
+				
 				EditorGUI.indentLevel = i;
 
 				var revertButtonRect = RevertableHelper.GetRevertButtonRect(extraProp, position, true);
-				if (RevertableHelper.RevertButton(revertButtonRect, extraProp, editor, shader))
+				if (RevertableHelper.IsPropertyShouldRevert(editor.target, prop.name) ||
+					RevertableHelper.DrawRevertableProperty(revertButtonRect, extraProp, editor, shader))
 				{
+					RevertableHelper.SetPropertyToDefault(shader, prop);
 					RevertableHelper.SetPropertyToDefault(shader, extraProp);
+					RevertableHelper.RemovePropertyShouldRevert(editor.targets, prop.name);
 				}
 			}
 			
-			editor.TexturePropertyMiniThumbnail(rect, prop, prop.displayName, label.tooltip);
+			editor.TexturePropertyMiniThumbnail(rect, prop, texLabel, label.tooltip);
 
 			EditorGUI.showMixedValue = false;
 		}
@@ -496,9 +529,9 @@ namespace LWGUI
 	{
 		private string[] _colorStrings = new string[3];
 		
-		public ColorDrawer(string group, string color2) : this(group, color2, "", "") { }
+		public ColorDrawer(string group, string color2) : this(group, color2, String.Empty, String.Empty) { }
 		
-		public ColorDrawer(string group, string color2, string color3) : this(group, color2, color3, "") { }
+		public ColorDrawer(string group, string color2, string color3) : this(group, color2, color3, String.Empty) { }
 		
 		public ColorDrawer(string group, string color2, string color3, string color4)
 		{
@@ -509,7 +542,19 @@ namespace LWGUI
 		}
 		
 		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Color; }
-		
+
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			var extraColorProps = new List<MaterialProperty>();
+			foreach (var extraColorProp in _colorStrings)
+			{
+				var p = LWGUI.FindProp(extraColorProp, props);
+				if (p != null && IsMatchPropType(p))
+					extraColorProps.Add(p);
+			}
+			MetaDataHelper.RegisterSubProp(shader, prop, group, extraColorProps.ToArray());
+		}
+
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			Stack<MaterialProperty> cProps = new Stack<MaterialProperty>();
@@ -522,7 +567,7 @@ namespace LWGUI
 				}
 
 				var p = LWGUI.FindProp(_colorStrings[i - 1], props);
-				if (p != null && p.type == MaterialProperty.PropType.Color)
+				if (p != null && IsMatchPropType(p))
 					cProps.Push(p);
 			}
 
@@ -530,7 +575,7 @@ namespace LWGUI
 			var colorArray = cProps.ToArray();
 			var rect = position; //EditorGUILayout.GetControlRect();
 
-			EditorGUI.LabelField(rect, label);
+			EditorGUI.PrefixLabel(rect, label);
 
 			for (int i = 0; i < count; i++)
 			{
@@ -554,14 +599,17 @@ namespace LWGUI
 			}
 
 			var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, position, true);
-			bool[] needRevert = new bool[count];
-			for (int i = 0; i < needRevert.Length; i++)
+			bool[] shouldRevert = new bool[count];
+			shouldRevert[count - 1] = RevertableHelper.IsPropertyShouldRevert(editor.target, prop.name);
+			for (int i = 0; i < shouldRevert.Length - 1; i++)
 			{
-				needRevert[i] = RevertableHelper.RevertButton(revertButtonRect, colorArray[i], editor, shader);
+				shouldRevert[i] = RevertableHelper.DrawRevertableProperty(revertButtonRect, colorArray[i], editor, shader);
 			}
 
-			if (needRevert.Contains(true))
+			if (shouldRevert.Contains(true))
 			{
+				if (shouldRevert[count - 1])
+					RevertableHelper.RemovePropertyShouldRevert(editor.targets, prop.name);
 				for (int i = 0; i < count; i++)
 				{
 					RevertableHelper.SetPropertyToDefault(shader, colorArray[i]);
@@ -595,7 +643,7 @@ namespace LWGUI
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight * 2f; }
 
-		public RampDrawer() : this("") { }
+		public RampDrawer() : this(String.Empty) { }
 		public RampDrawer(string group) : this(group, "RampMap") { }
 		public RampDrawer(string group, string defaultFileName) : this(group, defaultFileName, 512) { }
 
@@ -701,6 +749,15 @@ namespace LWGUI
 
 		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Range; }
 
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			MetaDataHelper.RegisterSubProp(shader, prop, group, new []
+			{
+				LWGUI.FindProp(_minPropName, props, true),
+				LWGUI.FindProp(_maxPropName, props, true)
+			});
+		}
+
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			// read min max
@@ -759,8 +816,8 @@ namespace LWGUI
 			}
 
 			var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, position, true);
-			if (RevertableHelper.RevertButton(revertButtonRect, min, editor, shader) ||
-				RevertableHelper.RevertButton(revertButtonRect, max, editor, shader))
+			if (RevertableHelper.DrawRevertableProperty(revertButtonRect, min, editor, shader) ||
+				RevertableHelper.DrawRevertableProperty(revertButtonRect, max, editor, shader))
 			{
 				RevertableHelper.SetPropertyToDefault(shader, min);
 				RevertableHelper.SetPropertyToDefault(shader, max);
@@ -869,7 +926,7 @@ namespace LWGUI
 		public TitleDecorator(string group, string header)
 		{
 			this.group = group;
-			this._header = header == "SpaceLine" || header == "_" ? "" : header;
+			this._header = header == "SpaceLine" || header == "_" ? String.Empty : header;
 		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
