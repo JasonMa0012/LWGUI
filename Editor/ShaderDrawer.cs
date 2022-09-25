@@ -102,20 +102,24 @@ namespace LWGUI
 		protected LWGUI              lwgui;
 		protected Shader             shader;
 
+		public SubDrawer() { }
 
+		public SubDrawer(string group)
+		{
+			this.group = group;
+		}
+		
+		protected virtual bool IsMatchPropType(MaterialProperty property) { return true; }
+		
 		protected virtual float GetVisibleHeight(MaterialProperty prop)
 		{
 			var height = MaterialEditor.GetDefaultPropertyHeight(prop);
 			return prop.type == MaterialProperty.PropType.Vector ? EditorGUIUtility.singleLineHeight : height;
 		}
 
-		protected virtual bool IsMatchPropType(MaterialProperty property) { return true; }
-
-		public SubDrawer() { }
-
-		public SubDrawer(string group)
+		public virtual void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			this.group = group;
+			MetaDataHelper.RegisterSubProp(shader, prop, group);
 		}
 
 		public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
@@ -159,11 +163,6 @@ namespace LWGUI
 			return GroupStateHelper.IsSubVisible(editor.target, group) ? GetVisibleHeight(prop) : 0;
 		}
 
-		public virtual void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
-		{
-			MetaDataHelper.RegisterSubProp(shader, prop, group);
-		}
-		
 		// Draws a custom style property
 		public virtual void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{

@@ -1035,9 +1035,9 @@ public static float PowPreserveSign(float f, float p)
 		private static Dictionary<Shader, Dictionary<string /*MainProp*/,	List<string /*SubProp*/>>>		_mainSubDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
 		private static Dictionary<Shader, Dictionary<string /*GroupName*/,	     string /*MainProp*/>>		_mainGroupNameDic = new Dictionary<Shader, Dictionary<string, string>>();
 		
-		private static Dictionary<Shader, Dictionary<string /*Prop*/, 		List<string /*ExtraProp*/>>>	_extraPropDic     = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*Prop*/, 		List<string /*Tooltip*/>>>		_tooltipDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*Prop*/, 		List<string /*Helpbox*/>>>		_HelpboxDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*ExtraPropName*/>>>_extraPropDic     = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*Tooltip*/>>>		_tooltipDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*Helpbox*/>>>		_HelpboxDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
 
 		public static void RegisterMainProp(Shader shader, MaterialProperty prop, string group)
 		{
@@ -1081,7 +1081,8 @@ public static float PowPreserveSign(float f, float p)
 						var mainPropName = _mainGroupNameDic[shader][groupName];
 						if (_mainSubDic[shader].ContainsKey(mainPropName))
 						{
-							_mainSubDic[shader][mainPropName].Add(prop.name);
+							if (!_mainSubDic[shader][mainPropName].Contains(prop.name))
+								_mainSubDic[shader][mainPropName].Add(prop.name);
 						}
 						else
 							Debug.LogError($"Unregistered Main Property:{mainPropName}");
@@ -1102,7 +1103,10 @@ public static float PowPreserveSign(float f, float p)
 				foreach (var extraProp in extraProps)
 				{
 					if (extraProp != null)
-						_extraPropDic[shader][prop.name].Add(extraProp.name);
+					{
+						if (!_extraPropDic[shader][prop.name].Contains(extraProp.name))
+							_extraPropDic[shader][prop.name].Add(extraProp.name);
+					}
 				}
 			}
 		}
