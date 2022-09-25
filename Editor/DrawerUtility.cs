@@ -1243,7 +1243,6 @@ public static float PowPreserveSign(float f, float p)
 					}
 					
 					// whole word match search
-					var isMatch = false;
 					var displayName = prop.displayName.ToLower();
 					var name = prop.name.ToLower();
 					searchingText = searchingText.ToLower();
@@ -1252,6 +1251,7 @@ public static float PowPreserveSign(float f, float p)
 
 					foreach (var keyword in keywords)
 					{
+						var isMatch = false;
 						isMatch |= displayName.Contains(keyword);
 						isMatch |= name.Contains(keyword);
 						contains &= isMatch;
