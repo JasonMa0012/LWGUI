@@ -914,6 +914,7 @@ namespace LWGUI
 	/// Similar to Header()
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// header: string to display, "SpaceLine" or "_" = none (Default: none)
+	/// tips: Modifying the Decorator parameters in Shader requires manually refreshing the GUI instance by throwing an exception
 	/// </summary>
 	internal class TitleDecorator : SubDrawer
 	{
@@ -934,6 +935,46 @@ namespace LWGUI
 			position = EditorGUI.IndentedRect(position);
 			GUIStyle style = new GUIStyle(EditorStyles.boldLabel);
 			GUI.Label(position, _header, style);
+		}
+	}
+
+	/// <summary>
+	/// Tooltip, describes the details of the property. (Default: "Property Name:" + property.name)
+	/// tooltip：a single-line string to display, you can use more than one Tooltip() to represent multiple lines. (Default: Newline)
+	/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
+	/// </summary>
+	internal class TooltipDecorator : SubDrawer
+	{
+		private string _tooltip;
+
+		public TooltipDecorator() { }
+		public TooltipDecorator(string tooltip) { this._tooltip = tooltip; }
+
+		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
+		
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			MetaDataHelper.RegisterPropertyTooltip(shader, prop, _tooltip);
+		}
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor) { }
+	}
+
+	/// <summary>
+	/// Display a Helpbox on the property
+	/// message：a single-line string to display, you can use more than one Helpbox() to represent multiple lines. (Default: Newline)
+	/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
+	/// </summary>
+	internal class HelpboxDecorator : TooltipDecorator
+	{
+		private string _message;
+
+		public HelpboxDecorator() { }
+		public HelpboxDecorator(string message) { this._message = message; }
+
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			MetaDataHelper.RegisterPropertyHelpbox(shader, prop, _message);
 		}
 	}
 

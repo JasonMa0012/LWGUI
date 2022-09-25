@@ -10,6 +10,8 @@ Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a 
 
 ![LWGUI](README_CN.assets/LWGUI.png)
 
+![image-20220926025611208](README_CN.assets/image-20220926025611208.png)
+
 - [LWGUI (Light Weight Shader GUI)](#lwgui--light-weight-shader-gui-)
   * [Installation](#installation)
   * [Usage](#usage)
@@ -24,7 +26,9 @@ Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a 
       - [Channel](#channel)
       - [Ramp](#ramp)
       - [MinMaxSlider](#minmaxslider)
+    + [LWGUI Decorator](#lwgui-decorator)
       - [Title](#title)
+      - [Tooltip - Helpbox](#tooltip---helpbox)
     + [Unity Builtin Drawers](#unity-builtin-drawers)
       - [Space](#space)
       - [Header](#header)
@@ -37,7 +41,6 @@ Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a 
   * [TODO](#todo)
   * [Contribution](#contribution)
     + [Tips](#tips-1)
-
 
 
 
@@ -303,14 +306,54 @@ Result:
 
 
 
+### LWGUI Decorator
+
 #### Title
 
 ```c#
 /// Similar to Header()
 /// group：father group name, support suffix keyword for conditional display (Default: none)
-/// header: string to display
+/// header: string to display, "SpaceLine" or "_" = none (Default: none)
+/// tips: Modifying the Decorator parameters in Shader requires manually refreshing the GUI instance by throwing an exception
 TitleDecorator(string group, string header)
 ```
+
+#### Tooltip - Helpbox
+
+```c#
+/// Tooltip, describes the details of the property. (Default: "Property Name:" + property.name)
+/// tooltip：a single-line string to display, you can use more than one Tooltip() to represent multiple lines. (Default: Newline)
+/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
+public TooltipDecorator(string tooltip)
+```
+
+```c#
+/// Display a Helpbox on the property
+/// message：a single-line string to display, you can use more than one Helpbox() to represent multiple lines. (Default: Newline)
+/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
+public HelpboxDecorator(string message)
+```
+
+Example:
+
+```c#
+[Title(Metadata Samples)]
+[Tooltip(Test multiline Tooltip)]
+[Tooltip()]
+[Tooltip(Line 3)]
+[Tooltip()]
+[Tooltip(Line 5)]
+_float_tooltip ("Float with Tooltips", float) = 0
+[Helpbox(Test multiline Helpbox)]
+[Helpbox(Line2)]
+[Helpbox(Line3)]
+_float_helpbox ("Float with Helpbox", float) = 2
+
+```
+
+![image-20220926024341932](README_CN.assets/image-20220926024341932.png)
+
+![image-20220926024400545](README_CN.assets/image-20220926024400545.png)
 
 
 
@@ -376,16 +419,16 @@ MaterialToggleUIDrawer(string keyword)
 
 ## TODO
 
-- [ ] Per material save the Folding Group open state
+- [x] Per material save the Folding Group open state
 - [x] Support for Unreal Style Revertable GUI
-- [ ] Support for HelpBox
-- [ ] Support for Tooltip, displays default values and custom content
+- [x] Support for HelpBox
+- [x] Support for Tooltip, displays default values and custom content
 - [ ] Support for upper-right menu, can be all expanded or collapsed
 - [ ] Support for ShaderGraph or ASE
 - [ ] Support for change text format
 - [ ] Support for Pass switch
 - [ ] Support for Curve
-- [ ] Support for search properties
+- [x] Support for search properties
 
 
 
