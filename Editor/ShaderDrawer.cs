@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace LWGUI
 {
@@ -16,7 +17,7 @@ namespace LWGUI
 	/// default Toggle Displayed: "on" or "off" (Default: on)
 	/// Target Property Type: FLoat, express Toggle value
 	/// </summary>
-	public class MainDrawer : MaterialPropertyDrawer
+	internal class MainDrawer : MaterialPropertyDrawer
 	{
 		private bool   _isFolding;
 		private string _group;
@@ -26,20 +27,13 @@ namespace LWGUI
 
 		private static readonly float _height = 28f;
 
-		public MainDrawer() : this("") { }
+		public MainDrawer() : this(String.Empty) { }
 
-		public MainDrawer(string group) : this(group, "") { }
+		public MainDrawer(string group) : this(group, String.Empty) { }
 
 		public MainDrawer(string group, string keyword) : this(group, keyword, "off") { }
 
 		public MainDrawer(string group, string keyword, string defaultFoldingState) : this(group, keyword, defaultFoldingState, "on") { }
-
-		// Obsolete
-		public MainDrawer(string group, string keyword, float style) : this(group, keyword, (style == 1 || style == 3) ? "on" : "off", (style == 0 || style == 1) ? "on" : "off")
-		{
-			Helper.ObsoleteWarning("MainDrawer(string group, string keyword, float style)",
-								   "MainDrawer(string group, string keyword, string defaultFoldingState, string defaultToggleDisplayed)");
-		}
 
 		public MainDrawer(string group, string keyword, string defaultFoldingState, string defaultToggleDisplayed)
 		{
@@ -52,14 +46,21 @@ namespace LWGUI
 		public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
+			var lwgui = Helper.GetLWGUI(editor);
+
+			if (lwgui.eventType == EventType.Init)
+			{
+				MetaDataHelper.RegisterMainProp(lwgui.shader, prop, _group);
+				return;
+			}
 
 			var toggleValue = prop.floatValue == 1.0f;
-			string finalGroupName = (_group != "" && _group != "_") ? _group : prop.name;
-			bool isFirstFrame = !GUIData.group.ContainsKey(finalGroupName);
-			_isFolding = isFirstFrame ? !_defaultFoldingState : GUIData.group[finalGroupName];
+			string finalGroupName = (_group != String.Empty && _group != "_") ? _group : prop.name;
+			bool isFirstFrame = !GroupStateHelper.ContainsGroup(editor.target, finalGroupName);
+			_isFolding = isFirstFrame ? !_defaultFoldingState : GroupStateHelper.GetGroupFolding(editor.target, finalGroupName);
 
 			EditorGUI.BeginChangeCheck();
-			bool toggleResult = Helper.Foldout(position, ref _isFolding, toggleValue, _defaultToggleDisplayed, label.text);
+			bool toggleResult = Helper.Foldout(position, ref _isFolding, toggleValue, _defaultToggleDisplayed, label);
 			EditorGUI.showMixedValue = false;
 
 			if (EditorGUI.EndChangeCheck())
@@ -67,17 +68,8 @@ namespace LWGUI
 				prop.floatValue = toggleResult ? 1.0f : 0.0f;
 				Helper.SetShaderKeyWord(editor.targets, Helper.GetKeyWord(_keyword, prop.name), toggleResult);
 			}
-			// Sometimes the Toggle is activated but the key is not activated
-			// else
-			// {
-			// 	if (!prop.hasMixedValue)
-			// 		Helper.SetShaderKeyWord(editor.targets, Helper.GetKeyWord(_keyword, prop.name), toggleResult);
-			// }
 
-			if (isFirstFrame)
-				GUIData.group.Add(finalGroupName, _isFolding);
-			else
-				GUIData.group[finalGroupName] = _isFolding;
+			GroupStateHelper.SetGroupFolding(editor.target, finalGroupName, _isFolding);
 		}
 
 		public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
@@ -102,21 +94,13 @@ namespace LWGUI
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// Target Property Type: Any
 	/// </summary>
-	public class SubDrawer : MaterialPropertyDrawer
+	internal class SubDrawer : MaterialPropertyDrawer
 	{
-		protected string             group = "";
+		protected string             group = String.Empty;
 		protected MaterialProperty   prop;
 		protected MaterialProperty[] props;
-
-		protected bool IsVisible() { return Helper.IsVisible(group); }
-
-		protected virtual float GetVisibleHeight(MaterialProperty prop)
-		{
-			var height = MaterialEditor.GetDefaultPropertyHeight(prop);
-			return prop.type == MaterialProperty.PropType.Vector ? EditorGUIUtility.singleLineHeight : height;
-		}
-
-		protected virtual bool IsMatchPropType(MaterialProperty property) { return true; }
+		protected LWGUI              lwgui;
+		protected Shader             shader;
 
 		public SubDrawer() { }
 
@@ -124,18 +108,39 @@ namespace LWGUI
 		{
 			this.group = group;
 		}
+		
+		protected virtual bool IsMatchPropType(MaterialProperty property) { return true; }
+		
+		protected virtual float GetVisibleHeight(MaterialProperty prop)
+		{
+			var height = MaterialEditor.GetDefaultPropertyHeight(prop);
+			return prop.type == MaterialProperty.PropType.Vector ? EditorGUIUtility.singleLineHeight : height;
+		}
+
+		public virtual void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			MetaDataHelper.RegisterSubProp(shader, prop, group);
+		}
 
 		public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			this.prop = prop;
-			props = Helper.GetProperties(editor);
+			lwgui = Helper.GetLWGUI(editor);
+			props = lwgui.props;
+			shader = lwgui.shader;
+
+			if (lwgui.eventType == EventType.Init)
+			{
+				Init(position, prop, label, editor);
+				return;
+			}
 			
 			var rect = position;
 			
-			if (group != "" && group != "_")
+			if (group != String.Empty && group != "_")
 				EditorGUI.indentLevel++;
 			
-			if (IsVisible())
+			if (GroupStateHelper.IsSubVisible(editor.target, group))
 			{
 				if (IsMatchPropType(prop))
 				{
@@ -144,18 +149,18 @@ namespace LWGUI
 				}
 				else
 				{
-					Debug.LogWarning(this.GetType() + " does not support this MaterialProperty type:'" + prop.type + "'!");
+					Debug.LogWarning($"Property:'{prop.name}' Type:'{prop.type}' mismatch!");
 					editor.DefaultShaderProperty(rect, prop, label.text);
 				}
 			}
 
-			if (group != "" && group != "_")
+			if (group != String.Empty && group != "_")
 				EditorGUI.indentLevel--;
 		}
 
 		public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
 		{
-			return IsVisible() || group == "" || group == "_" ? GetVisibleHeight(prop) : 0;
+			return GroupStateHelper.IsSubVisible(editor.target, group) ? GetVisibleHeight(prop) : 0;
 		}
 
 		// Draws a custom style property
@@ -170,7 +175,7 @@ namespace LWGUI
 					break;
 			}
 			editor.DefaultShaderProperty(position, prop, label.text);
-			GUI.Label(position, new GUIContent("", label.tooltip));
+			GUI.Label(position, new GUIContent(String.Empty, label.tooltip));
 		}
 	}
 
@@ -180,12 +185,12 @@ namespace LWGUI
 	/// keyword：keyword used for toggle, "_" = ignore, none or "__" = Property Name +  "_ON", always Upper (Default: none)
 	/// Target Property Type: FLoat
 	/// </summary>
-	public class SubToggleDrawer : SubDrawer
+	internal class SubToggleDrawer : SubDrawer
 	{
-		private string _keyWord = "";
+		private string _keyWord = String.Empty;
 		
 		public SubToggleDrawer() { }
-		public SubToggleDrawer(string group) : this(group, "") { }
+		public SubToggleDrawer(string group) : this(group, String.Empty) { }
 
 		public SubToggleDrawer(string group, string keyWord)
 		{
@@ -207,13 +212,8 @@ namespace LWGUI
 				prop.floatValue = value ? 1.0f : 0.0f;
 				Helper.SetShaderKeyWord(editor.targets, k, value);
 			}
-			// else
-			// {
-			// 	if (!prop.hasMixedValue)
-			// 		Helper.SetShaderKeyWord(editor.targets, k, value);
-			// }
 
-			Helper.SetKeywordDisplay(k, value);
+			GroupStateHelper.SetKeywordConditionalDisplay(editor.target, k, value);
 			EditorGUI.showMixedValue = false;
 		}
 
@@ -231,7 +231,7 @@ namespace LWGUI
 	/// power: power of slider (Default: 1)
 	/// Target Property Type: Range
 	/// </summary>
-	public class SubPowerSliderDrawer : SubDrawer
+	internal class SubPowerSliderDrawer : SubDrawer
 	{
 		private float _power = 1;
 		
@@ -263,7 +263,7 @@ namespace LWGUI
 	/// v(s): value
 	/// Target Property Type: FLoat, express current keyword index
 	/// </summary>
-	public class KWEnumDrawer : SubDrawer
+	internal class KWEnumDrawer : SubDrawer
 	{
 		private GUIContent[] _names;
 		private string[]     _keyWords;
@@ -314,7 +314,7 @@ namespace LWGUI
 			{
 				keyWords = new string[names.Length];
 				for (int i = 0; i < names.Length; i++)
-					keyWords[i] = "";
+					keyWords[i] = String.Empty;
 			}
 			this._keyWords = keyWords;
 
@@ -372,7 +372,7 @@ namespace LWGUI
 			// set keyword for conditional display
 			for (int i = 0; i < keyWords.Length; i++)
 			{
-				Helper.SetKeywordDisplay(keyWords[i], newIndex == i);
+				GroupStateHelper.SetKeywordConditionalDisplay(editor.target, keyWords[i], newIndex == i);
 			}
 		}
 
@@ -381,11 +381,10 @@ namespace LWGUI
 			base.Apply(prop);
 			if (!prop.hasMixedValue && IsMatchPropType(prop))
 				Helper.SetShaderKeyWord(prop.targets, GetKeywords(prop), (int)prop.floatValue);
-			Debug.Log(prop.floatValue);
 		}
 	}
 
-	public class SubEnumDrawer : KWEnumDrawer
+	internal class SubEnumDrawer : KWEnumDrawer
 	{
 		public SubEnumDrawer(string group, string n1, float v1, string n2, float v2)
 			: base(group, new []{n1, n2}, null, new []{v1, v2}){ }
@@ -403,7 +402,7 @@ namespace LWGUI
 		protected override string GetKeywordName(string propName, string name) { return "_"; }
 	}
 
-	public class SubKeywordEnumDrawer : KWEnumDrawer
+	internal class SubKeywordEnumDrawer : KWEnumDrawer
 	{
 		public SubKeywordEnumDrawer(string group, string kw1, string kw2)
 			: base(group, new []{kw1, kw2}, new []{kw1, kw2}) { }
@@ -432,16 +431,16 @@ namespace LWGUI
 	/// Target Property Type: Texture
 	/// Extra Property Type: Any, except Texture
 	/// </summary>
-	public class TexDrawer : SubDrawer
+	internal class TexDrawer : SubDrawer
 	{
-		private string        _extraPropName = "";
+		private string        _extraPropName = String.Empty;
 		private ChannelDrawer _channelDrawer = new ChannelDrawer("_");
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight; }
 
 		public TexDrawer() { }
 
-		public TexDrawer(string group) : this(group, "") { }
+		public TexDrawer(string group) : this(group, String.Empty) { }
 
 		public TexDrawer(string group, string extraPropName)
 		{
@@ -451,49 +450,69 @@ namespace LWGUI
 
 		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Texture; }
 
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			MaterialProperty extraProp = LWGUI.FindProp(_extraPropName, props, true);
+			MetaDataHelper.RegisterSubProp(shader, prop, group, extraProp == null ? null : new []{extraProp});
+		}
+
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var rect = position; //EditorGUILayout.GetControlRect();
-			
-			editor.TexturePropertyMiniThumbnail(rect, prop, label.text, label.tooltip);
+			var texLabel = string.Empty;
 
-			MaterialProperty extraProp = null;
-			if (_extraPropName != "" && _extraPropName != "_")
-				extraProp = LWGUI.FindProp(_extraPropName, props, true);
-
+			MaterialProperty extraProp = LWGUI.FindProp(_extraPropName, props, true);
 			if (extraProp != null && extraProp.type != MaterialProperty.PropType.Texture)
 			{
-				Rect extraPropRect = Rect.zero;
-				if (extraProp.type == MaterialProperty.PropType.Range)
-				{
-					EditorGUIUtility.labelWidth = 0;
-					EditorGUIUtility.fieldWidth = RevertableHelper.fieldWidth - 12f;
-					extraPropRect = MaterialEditor.GetRectAfterLabelWidth(rect);
-				}
-				else
-					extraPropRect = MaterialEditor.GetRectAfterLabelWidth(rect);
-
-
 				var i = EditorGUI.indentLevel;
-				EditorGUI.indentLevel = 0;
+				Rect indentedRect, extraPropRect = new Rect(rect);
+				switch (extraProp.type)
+				{
+#if UNITY_2021_1_OR_NEWER
+					case MaterialProperty.PropType.Int:
+#endif
+					case MaterialProperty.PropType.Color:
+					case MaterialProperty.PropType.Float:
+					case MaterialProperty.PropType.Vector:
+						indentedRect = EditorGUI.IndentedRect(extraPropRect);
+						RevertableHelper.SetRevertableGUIWidths();
+						EditorGUIUtility.labelWidth -= (indentedRect.xMin - extraPropRect.xMin) + 30f;
+						extraPropRect = indentedRect;
+						extraPropRect.xMin += 30f;
+						EditorGUI.indentLevel = 0;
+						break;
+					case MaterialProperty.PropType.Range:
+						texLabel = prop.displayName;
+						label.text = string.Empty;
+						indentedRect = EditorGUI.IndentedRect(extraPropRect);
+						editor.SetDefaultGUIWidths();
+						EditorGUIUtility.fieldWidth += 1f;
+						EditorGUIUtility.labelWidth = 0;
+						EditorGUI.indentLevel = 0;
+						extraPropRect = MaterialEditor.GetRectAfterLabelWidth(extraPropRect);
+						extraPropRect.xMin += 2;
+						break;
+				}
+
 				if (extraProp.type == MaterialProperty.PropType.Vector)
-				{
-					_channelDrawer.DrawProp(extraPropRect, extraProp, new GUIContent(""), editor);
-				}
+					_channelDrawer.DrawProp(extraPropRect, extraProp, label, editor);
 				else
-				{
-					editor.ShaderProperty(extraPropRect, extraProp, "");
-				}
+					editor.ShaderProperty(extraPropRect, extraProp, label);
+				
 				EditorGUI.indentLevel = i;
 
-				
 				var revertButtonRect = RevertableHelper.GetRevertButtonRect(extraProp, position, true);
-				if (RevertableHelper.RevertButton(revertButtonRect, extraProp, editor))
+				if (RevertableHelper.IsPropertyShouldRevert(editor.target, prop.name) ||
+					RevertableHelper.DrawRevertableProperty(revertButtonRect, extraProp, editor, shader))
 				{
-					RevertableHelper.SetPropertyToDefault(extraProp);
+					RevertableHelper.SetPropertyToDefault(shader, prop);
+					RevertableHelper.SetPropertyToDefault(shader, extraProp);
+					RevertableHelper.RemovePropertyShouldRevert(editor.targets, prop.name);
 				}
 			}
+			
+			editor.TexturePropertyMiniThumbnail(rect, prop, texLabel, label.tooltip);
 
 			EditorGUI.showMixedValue = false;
 		}
@@ -505,13 +524,13 @@ namespace LWGUI
 	/// color2-4: extra color property name (Unity 2019.2+ only)
 	/// Target Property Type: Color
 	/// </summary>
-	public class ColorDrawer : SubDrawer
+	internal class ColorDrawer : SubDrawer
 	{
 		private string[] _colorStrings = new string[3];
 		
-		public ColorDrawer(string group, string color2) : this(group, color2, "", "") { }
+		public ColorDrawer(string group, string color2) : this(group, color2, String.Empty, String.Empty) { }
 		
-		public ColorDrawer(string group, string color2, string color3) : this(group, color2, color3, "") { }
+		public ColorDrawer(string group, string color2, string color3) : this(group, color2, color3, String.Empty) { }
 		
 		public ColorDrawer(string group, string color2, string color3, string color4)
 		{
@@ -522,7 +541,19 @@ namespace LWGUI
 		}
 		
 		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Color; }
-		
+
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			var extraColorProps = new List<MaterialProperty>();
+			foreach (var extraColorProp in _colorStrings)
+			{
+				var p = LWGUI.FindProp(extraColorProp, props);
+				if (p != null && IsMatchPropType(p))
+					extraColorProps.Add(p);
+			}
+			MetaDataHelper.RegisterSubProp(shader, prop, group, extraColorProps.ToArray());
+		}
+
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			Stack<MaterialProperty> cProps = new Stack<MaterialProperty>();
@@ -535,7 +566,7 @@ namespace LWGUI
 				}
 
 				var p = LWGUI.FindProp(_colorStrings[i - 1], props);
-				if (p != null && p.type == MaterialProperty.PropType.Color)
+				if (p != null && IsMatchPropType(p))
 					cProps.Push(p);
 			}
 
@@ -543,7 +574,7 @@ namespace LWGUI
 			var colorArray = cProps.ToArray();
 			var rect = position; //EditorGUILayout.GetControlRect();
 
-			EditorGUI.LabelField(rect, label);
+			EditorGUI.PrefixLabel(rect, label);
 
 			for (int i = 0; i < count; i++)
 			{
@@ -558,12 +589,8 @@ namespace LWGUI
 				EditorGUI.BeginChangeCheck();
 				Color src, dst;
 				src = cProp.colorValue;
-				var hdr = (prop.flags & MaterialProperty.PropFlags.HDR) != MaterialProperty.PropFlags.None;
-				dst = EditorGUI.ColorField(r, GUIContent.none, src, true, true, hdr
-#if UNITY_2017
-											, (ColorPickerHDRConfig)null
-#endif
-										  );
+				var isHdr = (prop.flags & MaterialProperty.PropFlags.HDR) != MaterialProperty.PropFlags.None;
+				dst = EditorGUI.ColorField(r, GUIContent.none, src, true, true, isHdr);
 				if (EditorGUI.EndChangeCheck())
 				{
 					cProp.colorValue = dst;
@@ -571,17 +598,20 @@ namespace LWGUI
 			}
 
 			var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, position, true);
-			bool[] needRevert = new bool[count];
-			for (int i = 0; i < needRevert.Length; i++)
+			bool[] shouldRevert = new bool[count];
+			shouldRevert[count - 1] = RevertableHelper.IsPropertyShouldRevert(editor.target, prop.name);
+			for (int i = 0; i < shouldRevert.Length - 1; i++)
 			{
-				needRevert[i] = RevertableHelper.RevertButton(revertButtonRect, colorArray[i], editor);
+				shouldRevert[i] = RevertableHelper.DrawRevertableProperty(revertButtonRect, colorArray[i], editor, shader);
 			}
 
-			if (needRevert.Contains(true))
+			if (shouldRevert.Contains(true))
 			{
+				if (shouldRevert[count - 1])
+					RevertableHelper.RemovePropertyShouldRevert(editor.targets, prop.name);
 				for (int i = 0; i < count; i++)
 				{
-					RevertableHelper.SetPropertyToDefault(colorArray[i]);
+					RevertableHelper.SetPropertyToDefault(shader, colorArray[i]);
 				}
 			}
 
@@ -596,7 +626,7 @@ namespace LWGUI
 	/// defaultWidth: default Ramp Width (Default: 512)
 	/// Target Property Type: Texture2D
 	/// </summary>
-	public class RampDrawer : SubDrawer
+	internal class RampDrawer : SubDrawer
 	{
 		private string _defaultFileName;
 		private float  _defaultWidth;
@@ -612,7 +642,7 @@ namespace LWGUI
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight * 2f; }
 
-		public RampDrawer() : this("") { }
+		public RampDrawer() : this(String.Empty) { }
 		public RampDrawer(string group) : this(group, "RampMap") { }
 		public RampDrawer(string group, string defaultFileName) : this(group, defaultFileName, 512) { }
 
@@ -635,7 +665,7 @@ namespace LWGUI
 			// Draw Label
 			var labelRect = new Rect(position);//EditorGUILayout.GetControlRect();
 			labelRect.yMax -= position.height * 0.5f;
-			EditorGUI.PrefixLabel(labelRect, new GUIContent(label));
+			EditorGUI.PrefixLabel(labelRect, label);
 
 			// Ramp buttons Rect
 			var labelWidth = EditorGUIUtility.labelWidth;
@@ -703,7 +733,7 @@ namespace LWGUI
 	/// Target Property Type: Range, range limits express the MinMaxSlider value range
 	/// Output Min/Max Property Type: Range, it's value is limited by it's range
 	/// </summary>
-	public class MinMaxSliderDrawer : SubDrawer
+	internal class MinMaxSliderDrawer : SubDrawer
 	{
 		private string _minPropName;
 		private string _maxPropName;
@@ -717,6 +747,15 @@ namespace LWGUI
 		}
 
 		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Range; }
+
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			MetaDataHelper.RegisterSubProp(shader, prop, group, new []
+			{
+				LWGUI.FindProp(_minPropName, props, true),
+				LWGUI.FindProp(_maxPropName, props, true)
+			});
+		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
@@ -776,11 +815,11 @@ namespace LWGUI
 			}
 
 			var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, position, true);
-			if (RevertableHelper.RevertButton(revertButtonRect, min, editor) ||
-				RevertableHelper.RevertButton(revertButtonRect, max, editor))
+			if (RevertableHelper.DrawRevertableProperty(revertButtonRect, min, editor, shader) ||
+				RevertableHelper.DrawRevertableProperty(revertButtonRect, max, editor, shader))
 			{
-				RevertableHelper.SetPropertyToDefault(min);
-				RevertableHelper.SetPropertyToDefault(max);
+				RevertableHelper.SetPropertyToDefault(shader, min);
+				RevertableHelper.SetPropertyToDefault(shader, max);
 			}
 
 		}
@@ -791,10 +830,11 @@ namespace LWGUI
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// Target Property Type: Vector, used to dot() with Texture Sample Value 
 	/// </summary>
-	public class ChannelDrawer : SubDrawer
+	internal class ChannelDrawer : SubDrawer
 	{
-		private string[] _names  = new string[] { "R", "G", "B", "A", "RGB Average", "RGB Luminance" };
-		private int[]    _values = new int[] { 0, 1, 2, 3, 4, 5 };
+		private GUIContent[] _names  = new GUIContent[] { new GUIContent("R"), new GUIContent("G"), new GUIContent("B"), new GUIContent("A"),
+			new GUIContent("RGB Average"), new GUIContent("RGB Luminance") };
+		private int[]        _values = new int[] { 0, 1, 2, 3, 4, 5 };
 
 		public ChannelDrawer() { }
 		public ChannelDrawer(string group)
@@ -837,7 +877,7 @@ namespace LWGUI
 
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = prop.hasMixedValue;
-			int num = EditorGUI.IntPopup(rect, label.text, index, _names, _values);
+			int num = EditorGUI.IntPopup(rect, label, index, _names, _values);
 			EditorGUI.showMixedValue = false;
 			if (EditorGUI.EndChangeCheck())
 			{
@@ -870,20 +910,12 @@ namespace LWGUI
 		}
 	}
 	
-	// Obsolete
-	public class RGBAChannelMaskToVec4Drawer : ChannelDrawer
-	{
-		public RGBAChannelMaskToVec4Drawer() { Helper.ObsoleteWarning("RGBAChannelMaskToVec4Drawer()", "ChannelDrawer()"); }
-		public RGBAChannelMaskToVec4Drawer(string group) : base(group) { Helper.ObsoleteWarning("RGBAChannelMaskToVec4Drawer()", "ChannelDrawer()"); }
-	}
-
-
 	/// <summary>
 	/// Similar to Header()
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// header: string to display, "SpaceLine" or "_" = none (Default: none)
 	/// </summary>
-	public class TitleDecorator : SubDrawer
+	internal class TitleDecorator : SubDrawer
 	{
 		private string _header;
 
@@ -893,25 +925,14 @@ namespace LWGUI
 		public TitleDecorator(string group, string header)
 		{
 			this.group = group;
-			this._header = header == "SpaceLine" || header == "_" ? "" : header;
+			this._header = header == "SpaceLine" || header == "_" ? String.Empty : header;
 		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			GUIStyle style = new GUIStyle(EditorStyles.boldLabel);
-			style.fontSize = (int)(style.fontSize
-#if UNITY_2019_1_OR_NEWER
-#else
-                                    * 1.5f
-#endif
-				);
-			
-#if UNITY_2019_1_OR_NEWER
 			position.y += 2;
-#else
-			position.y += 4;
-#endif
 			position = EditorGUI.IndentedRect(position);
+			GUIStyle style = new GUIStyle(EditorStyles.boldLabel);
 			GUI.Label(position, _header, style);
 		}
 	}

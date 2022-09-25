@@ -57,6 +57,14 @@ Shader "Hidden"
         [HideInInspector] _mColor2 (" ", Color) = (0, 1, 0, 1)
         [HideInInspector] [HDR] _mColor3 (" ", Color) = (0, 0, 1, 1)
 
+        [Tex(_, _color2)] _tex_color2 ("Tex with Color", 2D) = "white" { }
+        [HideInInspector] _color2 (" ", Color) = (1, 0, 0, 1)
+        [Tex(_, _float5)] _tex_float2 ("Tex with Float", 2D) = "white" { }
+        [HideInInspector] _float5 (" ", float) = 0
+        [Tex(_, _range2)] _tex_range2 ("Tex with Range", 2D) = "white" { }
+        [HideInInspector] _range2 (" ", Range(0,1)) = 0
+        [Tex(_, _textureChannelMask2)] _tex_channel2 ("Tex with Channel", 2D) = "white" { }
+        [HideInInspector] _textureChannelMask2(" ", Vector) = (0,0,0,1)
 
         [Space]
         [Title(Ramp Samples)]
