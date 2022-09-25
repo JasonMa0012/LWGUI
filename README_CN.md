@@ -10,6 +10,8 @@
 
 ![LWGUI](README_CN.assets/LWGUI.png)
 
+![image-20220926025611208](README_CN.assets/image-20220926025611208.png)
+
 - [LWGUI (Light Weight Shader GUI)](#lwgui--light-weight-shader-gui-)
   * [Installation](#installation)
   * [Usage](#usage)
@@ -24,7 +26,9 @@
       - [Channel](#channel)
       - [Ramp](#ramp)
       - [MinMaxSlider](#minmaxslider)
+    + [LWGUI Decorator](#lwgui-decorator)
       - [Title](#title)
+      - [Tooltip - Helpbox](#tooltip---helpbox)
     + [Unity Builtin Drawers](#unity-builtin-drawers)
       - [Space](#space)
       - [Header](#header)
@@ -37,7 +41,6 @@
   * [TODO](#todo)
   * [Contribution](#contribution)
     + [Tips](#tips-1)
-
 
 ## Installation
 
@@ -299,16 +302,54 @@ Result:
 
 ![image-20220828003810353](README_CN.assets/image-20220828003810353.png)
 
+### LWGUI Decorator
+
 #### Title
 
 ```c#
 /// Similar to Header()
 /// group：father group name, support suffix keyword for conditional display (Default: none)
-/// header: string to display
+/// header: string to display, "SpaceLine" or "_" = none (Default: none)
+/// tips: Modifying the Decorator parameters in Shader requires manually refreshing the GUI instance by throwing an exception
 TitleDecorator(string group, string header)
 ```
 
+#### Tooltip - Helpbox
 
+```c#
+/// Tooltip, describes the details of the property. (Default: "Property Name:" + property.name)
+/// tooltip：a single-line string to display, you can use more than one Tooltip() to represent multiple lines. (Default: Newline)
+/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
+public TooltipDecorator(string tooltip)
+```
+
+```c#
+/// Display a Helpbox on the property
+/// message：a single-line string to display, you can use more than one Helpbox() to represent multiple lines. (Default: Newline)
+/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
+public HelpboxDecorator(string message)
+```
+
+Example:
+
+```c#
+[Title(Metadata Samples)]
+[Tooltip(Test multiline Tooltip)]
+[Tooltip()]
+[Tooltip(Line 3)]
+[Tooltip()]
+[Tooltip(Line 5)]
+_float_tooltip ("Float with Tooltips", float) = 0
+[Helpbox(Test multiline Helpbox)]
+[Helpbox(Line2)]
+[Helpbox(Line3)]
+_float_helpbox ("Float with Helpbox", float) = 2
+
+```
+
+![image-20220926024341932](README_CN.assets/image-20220926024341932.png)
+
+![image-20220926024400545](README_CN.assets/image-20220926024400545.png)
 
 ### Unity Builtin Drawers
 
@@ -373,16 +414,16 @@ MaterialToggleUIDrawer(string keyword)
 ## TODO
 
 - [ ] 支持ShaderGraph or ASE
-- [ ] **per material保存折叠组打开状态**
+- [x] **per material保存折叠组打开状态**
 - [x] 支持Unreal风格的Revertable GUI
-- [ ] **支持HelpBox**
+- [x] **支持HelpBox**
 - [ ] 支持改文字格式
-- [ ] **支持Tooltip, 显示默认值和自定义内容**
+- [x] **支持Tooltip, 显示默认值和自定义内容**
 - [ ] **支持右上角菜单全部展开或折叠**
 - [ ] 支持Pass开关
 - [ ] 支持Curve
-- [ ] **支持搜索框**
-- [ ] **支持仅显示已修改项**
+- [x] **支持搜索框**
+- [x] **支持仅显示已修改项**
 
 
 

@@ -46,6 +46,9 @@ Shader "Hidden"
         [Main(g2, _KEYWORD, on, off)] _group2 ("group2 without toggle", float) = 1
         [Sub(g2)] _float2 ("float2", float) = 2
         [Ramp(g2)] _Ramp2 ("Ramp2", 2D) = "white" { }
+        [Tooltip(Test Tooltip)]
+        [Helpbox(Test Helpbox)]
+        [Sub(g2)] _float_tooltip_helpbox ("float tooltip helpbox", float) = 0
 
     }
     
