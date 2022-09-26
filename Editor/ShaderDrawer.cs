@@ -460,12 +460,13 @@ namespace LWGUI
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var rect = position; //EditorGUILayout.GetControlRect();
-			var texLabel = string.Empty;
+			var texLabel = prop.displayName;
 
 			MaterialProperty extraProp = LWGUI.FindProp(_extraPropName, props, true);
 			if (extraProp != null && extraProp.type != MaterialProperty.PropType.Texture)
 			{
 				var i = EditorGUI.indentLevel;
+				texLabel = string.Empty;
 				Rect indentedRect, extraPropRect = new Rect(rect);
 				switch (extraProp.type)
 				{
@@ -484,7 +485,6 @@ namespace LWGUI
 						break;
 					case MaterialProperty.PropType.Range:
 						texLabel = prop.displayName;
-						label.text = string.Empty;
 						indentedRect = EditorGUI.IndentedRect(extraPropRect);
 						editor.SetDefaultGUIWidths();
 						EditorGUIUtility.fieldWidth += 1f;
