@@ -61,7 +61,7 @@ namespace LWGUI
 
 			EditorGUI.BeginChangeCheck();
 			bool toggleResult = Helper.Foldout(position, ref _isFolding, toggleValue, _defaultToggleDisplayed, label);
-			EditorGUI.showMixedValue = false;
+			// EditorGUI.showMixedValue = false;
 
 			if (EditorGUI.EndChangeCheck())
 			{
