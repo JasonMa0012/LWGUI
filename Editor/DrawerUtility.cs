@@ -663,8 +663,13 @@ public static float PowPreserveSign(float f, float p)
 
             var toggleRect = new Rect(rect.x + 8f, rect.y + 7f, 13f, 13f);
 
-            if (hasToggle)
-				toggleValue = GUI.Toggle(toggleRect, toggleValue, String.Empty, new GUIStyle(EditorGUI.showMixedValue ? "ToggleMixed" : "Toggle"));
+			if (hasToggle)
+			{
+				EditorGUI.BeginChangeCheck();
+				GUI.Toggle(toggleRect, EditorGUI.showMixedValue ? false : toggleValue, String.Empty, new GUIStyle(EditorGUI.showMixedValue ? "ToggleMixed" : "Toggle"));
+				if (EditorGUI.EndChangeCheck())
+					toggleValue = !toggleValue;
+			}
 
 			var e = Event.current;
             if (e.type == UnityEngine.EventType.MouseDown && rect.Contains(e.mousePosition))
