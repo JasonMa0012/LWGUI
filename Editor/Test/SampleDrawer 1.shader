@@ -39,16 +39,16 @@ Shader "Hidden"
         [Channel] _textureChannelMask("Texture Channel Mask (Default G)", Vector) = (0,1,0,0)
         
         [Title(Metadata Samples)]
-        [Tooltip(Test multiline Tooltip)]
+        [Tooltip(Test multiline Tooltip, a single line supports up to 4 commas)]
         [Tooltip()]
         [Tooltip(Line 3)]
         [Tooltip()]
         [Tooltip(Line 5)]
-        _float_tooltip ("Float with Tooltips", float) = 0
+        _float_tooltip ("Float with Tooltips", float) = 1
         [Helpbox(Test multiline Helpbox)]
         [Helpbox(Line2)]
         [Helpbox(Line3)]
-        _float_helpbox ("Float with Helpbox", float) = 2
+        _float_helpbox ("Float with Helpbox", float) = 1
 
         
         [Space]

@@ -27,8 +27,6 @@ namespace LWGUI
 	
 	internal class LWGUI : ShaderGUI
     {
-		// EditorGUI.kSingleLineHeight
-		public static readonly float singleLineHeight        = 18f;
 		public static readonly float helpboxSingleLineHeight = 12.5f;
 
 		public MaterialProperty[]                                props;
@@ -42,6 +40,11 @@ namespace LWGUI
 		public EventType                                         eventType         = EventType.Init;
 		public Shader                                            shader;
 
+		/// <summary>
+		/// Called when switch to a new Material Window, each window has a LWGUI instance
+		/// </summary>
+		public LWGUI() { }
+		
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
         {
             this.props = props;
@@ -314,6 +317,9 @@ namespace LWGUI
 			}
 		}
 		
+		/// <summary>
+		/// Detect Shader changes to know when to initialize
+		/// </summary>
 		public static bool InitAndHasShaderChanged(Shader shader)
 		{
 			bool equals = true;
@@ -366,7 +372,8 @@ namespace LWGUI
 
 		public static Rect GetRevertButtonRect(MaterialProperty prop, Rect rect, bool isCallInDrawer = false)
 		{
-			float defaultHeightWithoutDrawers = LWGUI.singleLineHeight;
+			// TODO: use Reflection
+			float defaultHeightWithoutDrawers = EditorGUIUtility.singleLineHeight;
 			return GetRevertButtonRect(defaultHeightWithoutDrawers, rect, isCallInDrawer);
 		}
 		
@@ -412,6 +419,34 @@ namespace LWGUI
 		{
 			CheckProperty(shader, prop);
 			return _defaultProps[shader][prop.name];
+		}
+
+		public static string GetPropertyDefaultValueText(Shader shader, MaterialProperty prop)
+		{
+			var defaultProp = GetDefaultProperty(shader, prop);
+			string defaultText = String.Empty;
+			switch (defaultProp.type)
+			{
+				case MaterialProperty.PropType.Color:
+					defaultText += defaultProp.colorValue;
+					break;
+				case MaterialProperty.PropType.Float:
+				case MaterialProperty.PropType.Range:
+					defaultText += defaultProp.floatValue;
+					break;
+#if UNITY_2021_1_OR_NEWER
+				case MaterialProperty.PropType.Int:
+					defaultText += defaultProp.intValue;
+					break;
+#endif
+				case MaterialProperty.PropType.Texture:
+					defaultText += defaultProp.textureValue != null ? defaultProp.textureValue.name : "None";
+					break;
+				case MaterialProperty.PropType.Vector:
+					defaultText += defaultProp.vectorValue;
+					break;
+			}
+			return defaultText;
 		}
 
 		public static bool IsDefaultProperty(Shader shader, MaterialProperty prop)
@@ -619,9 +654,16 @@ public static float PowPreserveSign(float f, float p)
 #endregion
 
 
+#region Reflection
+
+		
+
+#endregion
+
 #region Draw GUI for Drawer
 
-// copy and edit of https://github.com/GucioDevs/SimpleMinMaxSlider/blob/master/Assets/SimpleMinMaxSlider/Scripts/Editor/MinMaxSliderDrawer.cs
+		// TODO: use Reflection
+		// copy and edit of https://github.com/GucioDevs/SimpleMinMaxSlider/blob/master/Assets/SimpleMinMaxSlider/Scripts/Editor/MinMaxSliderDrawer.cs
 		public static Rect[] SplitRect(Rect rectToSplit, int n)
 		{
 			Rect[] rects = new Rect[n];
@@ -680,6 +722,7 @@ public static float PowPreserveSign(float f, float p)
             return toggleValue;
         }
 
+		// TODO: use Reflection
         public static void PowerSlider(MaterialProperty prop, float power, Rect position, GUIContent label)
         {
             int controlId = GUIUtility.GetControlID("EditorSliderKnob".GetHashCode(), FocusType.Passive, position);
@@ -770,7 +813,7 @@ public static float PowPreserveSign(float f, float p)
 			EditorGUI.BeginChangeCheck();
 			
 			var rect = EditorGUILayout.GetControlRect();
-			var revertButtonRect = RevertableHelper.GetRevertButtonRect(LWGUI.singleLineHeight, rect);
+			var revertButtonRect = RevertableHelper.GetRevertButtonRect(EditorGUIUtility.singleLineHeight, rect);
 			rect.xMax -= RevertableHelper.revertButtonWidth;
 			// Get internal TextField ControlID
 			int controlId = GUIUtility.GetControlID(s_TextFieldHash, FocusType.Keyboard, rect) + 1;
@@ -792,6 +835,7 @@ public static float PowPreserveSign(float f, float p)
 				Event.current.Use();
 			}
 			
+			// TODO: use Reflection -> controlId
 			searchingText = EditorGUI.TextField(rect, String.Empty, searchingText, toolbarSeachTextFieldPopup);
 
 			
@@ -1067,6 +1111,7 @@ public static float PowPreserveSign(float f, float p)
 		
 		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*ExtraPropName*/>>>_extraPropDic     = new Dictionary<Shader, Dictionary<string, List<string>>>();
 		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*Tooltip*/>>>		_tooltipDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*DefaultValue*/>>>	_defaultDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
 		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*Helpbox*/>>>		_helpboxDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
 
 		public static void ClearCaches(Shader shader)
@@ -1074,11 +1119,16 @@ public static float PowPreserveSign(float f, float p)
 			if (_mainSubDic.ContainsKey(shader)) _mainSubDic[shader].Clear();
 			if (_mainGroupNameDic.ContainsKey(shader)) _mainGroupNameDic[shader].Clear();
 			if (_propParentDic.ContainsKey(shader)) _propParentDic[shader].Clear();
+			
 			if (_extraPropDic.ContainsKey(shader)) _extraPropDic[shader].Clear();
 			if (_tooltipDic.ContainsKey(shader)) _tooltipDic[shader].Clear();
+			if (_defaultDic.ContainsKey(shader)) _defaultDic[shader].Clear();
 			if (_helpboxDic.ContainsKey(shader)) _helpboxDic[shader].Clear();
 		}
-		
+
+
+		#region Main - Sub
+
 		public static void RegisterMainProp(Shader shader, MaterialProperty prop, string group)
 		{
 			if (_mainSubDic.ContainsKey(shader))
@@ -1157,6 +1207,10 @@ public static float PowPreserveSign(float f, float p)
 				}
 			}
 		}
+		#endregion
+
+
+		#region Tooltip / Helpbox
 
 		private static void RegisterPropertyString(Shader shader, MaterialProperty prop, string str, Dictionary<Shader, Dictionary<string, List<string>>> dst)
 		{
@@ -1182,17 +1236,35 @@ public static float PowPreserveSign(float f, float p)
 			return str;
 		}
 		
+		public static void RegisterPropertyDefaultValueText(Shader shader, MaterialProperty prop, string text)
+		{
+			RegisterPropertyString(shader, prop, text, _defaultDic);
+		}
+
 		public static void RegisterPropertyTooltip(Shader shader, MaterialProperty prop, string tooltip)
 		{
 			RegisterPropertyString(shader, prop, tooltip, _tooltipDic);
 		}
 
+		private static string GetPropertyDefaultValueText(Shader shader, MaterialProperty prop)
+		{
+			var defaultText = GetPropertyString(shader, prop, _defaultDic, out _);
+			if (string.IsNullOrEmpty(defaultText))
+				// TODO: use Reflection - handle builtin Toggle / Enum
+				defaultText = RevertableHelper.GetPropertyDefaultValueText(shader, prop);
+			else
+				defaultText = defaultText.Remove(defaultText.Length - 1);
+
+			return defaultText;
+		}
+		
 		public static string GetPropertyTooltip(Shader shader, MaterialProperty prop)
 		{
 			var str = GetPropertyString(shader, prop, _tooltipDic, out _);
 			if (!string.IsNullOrEmpty(str))
-				str += "\n\n";
-			str += "Property Name: " + prop.name;
+				str += "\n";
+			str += $"Name: {prop.name}\n";
+			str += $"Default: " + GetPropertyDefaultValueText(shader, prop);
 			return str;
 		}
 		
@@ -1206,6 +1278,8 @@ public static float PowPreserveSign(float f, float p)
 			var str = GetPropertyString(shader, prop, _helpboxDic, out lineCount);
 			return str;
 		}
+		#endregion
+
 		
 		public static Dictionary<string, bool> SearchProperties(Shader shader, MaterialProperty[] props, string searchingText, SearchMode searchMode)
 		{
@@ -1299,6 +1373,7 @@ public static float PowPreserveSign(float f, float p)
 				isSubProp = true;
 			return isSubProp;
 		}
+		
 	}
 
 } //namespace LWGUI

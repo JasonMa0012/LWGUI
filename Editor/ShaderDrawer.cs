@@ -47,14 +47,16 @@ namespace LWGUI
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var lwgui = Helper.GetLWGUI(editor);
+			var toggleValue = prop.floatValue > 0;
 
 			if (lwgui.eventType == EventType.Init)
 			{
 				MetaDataHelper.RegisterMainProp(lwgui.shader, prop, _group);
+				MetaDataHelper.RegisterPropertyDefaultValueText(lwgui.shader, prop, 
+																RevertableHelper.GetDefaultProperty(lwgui.shader, prop).floatValue > 0 ? "On" : "Off");
 				return;
 			}
 
-			var toggleValue = prop.floatValue == 1.0f;
 			string finalGroupName = (_group != String.Empty && _group != "_") ? _group : prop.name;
 			bool isFirstFrame = !GroupStateHelper.ContainsGroup(editor.target, finalGroupName);
 			_isFolding = isFirstFrame ? !_defaultFoldingState : GroupStateHelper.GetGroupFolding(editor.target, finalGroupName);
@@ -174,6 +176,7 @@ namespace LWGUI
 					editor.SetDefaultGUIWidths();
 					break;
 			}
+			// TODO: use Reflection
 			editor.DefaultShaderProperty(position, prop, label.text);
 			GUI.Label(position, new GUIContent(String.Empty, label.tooltip));
 		}
@@ -199,6 +202,13 @@ namespace LWGUI
 		}
 		
 		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Float; }
+
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			base.Init(position, prop, label, editor);
+			MetaDataHelper.RegisterPropertyDefaultValueText(shader, prop, 
+															RevertableHelper.GetDefaultProperty(shader, prop).floatValue > 0 ? "On" : "Off");
+		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
@@ -331,6 +341,14 @@ namespace LWGUI
 
 		protected virtual string GetKeywordName(string propName, string name) { return (name).Replace(' ', '_').ToUpperInvariant(); }
 
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			base.Init(position, prop, label, editor);
+			var index = (int)RevertableHelper.GetDefaultProperty(shader, prop).floatValue;
+			if (index < _names.Length)
+				MetaDataHelper.RegisterPropertyDefaultValueText(shader, prop, _names[index].text);
+		}
+
 		private string[] GetKeywords(MaterialProperty property)
 		{
 			string[] keyWords = new string[_keyWords.Length];
@@ -361,7 +379,7 @@ namespace LWGUI
 			}
 
 
-			int newIndex = EditorGUI.Popup(rect, label, index, this._names);
+			int newIndex = EditorGUI.Popup(rect, label, index, _names);
 			EditorGUI.showMixedValue = false;
 			if (EditorGUI.EndChangeCheck())
 			{
@@ -454,19 +472,29 @@ namespace LWGUI
 		{
 			MaterialProperty extraProp = LWGUI.FindProp(_extraPropName, props, true);
 			MetaDataHelper.RegisterSubProp(shader, prop, group, extraProp == null ? null : new []{extraProp});
+			if (extraProp != null)
+			{
+				var text = string.Empty;
+				if (extraProp.type == MaterialProperty.PropType.Vector)
+					text = ChannelDrawer.GetChannelName(extraProp);
+				else
+					text = RevertableHelper.GetPropertyDefaultValueText(shader, extraProp);
+				
+				MetaDataHelper.RegisterPropertyDefaultValueText(shader, prop, 
+																RevertableHelper.GetPropertyDefaultValueText(shader, prop) + ", " + text);
+			}
 		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var rect = position; //EditorGUILayout.GetControlRect();
-			var texLabel = prop.displayName;
+			var texLabel = label.text;
 
 			MaterialProperty extraProp = LWGUI.FindProp(_extraPropName, props, true);
 			if (extraProp != null && extraProp.type != MaterialProperty.PropType.Texture)
 			{
 				var i = EditorGUI.indentLevel;
-				texLabel = string.Empty;
 				Rect indentedRect, extraPropRect = new Rect(rect);
 				switch (extraProp.type)
 				{
@@ -476,6 +504,7 @@ namespace LWGUI
 					case MaterialProperty.PropType.Color:
 					case MaterialProperty.PropType.Float:
 					case MaterialProperty.PropType.Vector:
+						texLabel = string.Empty;
 						indentedRect = EditorGUI.IndentedRect(extraPropRect);
 						RevertableHelper.SetRevertableGUIWidths();
 						EditorGUIUtility.labelWidth -= (indentedRect.xMin - extraPropRect.xMin) + 30f;
@@ -484,7 +513,7 @@ namespace LWGUI
 						EditorGUI.indentLevel = 0;
 						break;
 					case MaterialProperty.PropType.Range:
-						texLabel = prop.displayName;
+						label.text = string.Empty;
 						indentedRect = EditorGUI.IndentedRect(extraPropRect);
 						editor.SetDefaultGUIWidths();
 						EditorGUIUtility.fieldWidth += 1f;
@@ -750,11 +779,12 @@ namespace LWGUI
 
 		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			MetaDataHelper.RegisterSubProp(shader, prop, group, new []
-			{
-				LWGUI.FindProp(_minPropName, props, true),
-				LWGUI.FindProp(_maxPropName, props, true)
-			});
+			var minProp = LWGUI.FindProp(_minPropName, props, true);
+			var maxProp = LWGUI.FindProp(_maxPropName, props, true);
+			MetaDataHelper.RegisterSubProp(shader, prop, group, new []{ minProp, maxProp });
+			MetaDataHelper.RegisterPropertyDefaultValueText(shader, prop,
+															RevertableHelper.GetDefaultProperty(shader, minProp).floatValue + " - " + 
+															RevertableHelper.GetDefaultProperty(shader, maxProp).floatValue);
 		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
@@ -832,9 +862,18 @@ namespace LWGUI
 	/// </summary>
 	internal class ChannelDrawer : SubDrawer
 	{
-		private GUIContent[] _names  = new GUIContent[] { new GUIContent("R"), new GUIContent("G"), new GUIContent("B"), new GUIContent("A"),
+		private static GUIContent[] _names  = new[] { new GUIContent("R"), new GUIContent("G"), new GUIContent("B"), new GUIContent("A"),
 			new GUIContent("RGB Average"), new GUIContent("RGB Luminance") };
-		private int[]        _values = new int[] { 0, 1, 2, 3, 4, 5 };
+		private static int[]     _intValues     = new int[] { 0, 1, 2, 3, 4, 5 };
+		private static Vector4[] _vector4Values = new[]
+		{
+			new Vector4(1, 0, 0, 0),
+			new Vector4(0, 1, 0, 0),
+			new Vector4(0, 0, 1, 0),
+			new Vector4(0, 0, 0, 1),
+			new Vector4(1f / 3f, 1f / 3f, 1f / 3f, 0),
+			new Vector4(0.2126f, 0.7152f, 0.0722f, 0)
+		};
 
 		public ChannelDrawer() { }
 		public ChannelDrawer(string group)
@@ -844,68 +883,53 @@ namespace LWGUI
 
 		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Vector; }
 
-		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		private static int GetChannelIndex(MaterialProperty prop)
 		{
-			// define all drop list
-			Vector4 R = new Vector4(1, 0, 0, 0);
-			Vector4 G = new Vector4(0, 1, 0, 0);
-			Vector4 B = new Vector4(0, 0, 1, 0);
-			Vector4 A = new Vector4(0, 0, 0, 1);
-			Vector4 RGBAverage = new Vector4(1f / 3f, 1f / 3f, 1f / 3f, 0);
-			Vector4 RGBLuminance = new Vector4(0.2126f, 0.7152f, 0.0722f, 0);
-
-			var rect = position; //EditorGUILayout.GetControlRect();
 			int index;
-			if (prop.vectorValue == R)
+			if (prop.vectorValue == _vector4Values[0])
 				index = 0;
-			else if (prop.vectorValue == G)
+			else if (prop.vectorValue == _vector4Values[1])
 				index = 1;
-			else if (prop.vectorValue == B)
+			else if (prop.vectorValue == _vector4Values[2])
 				index = 2;
-			else if (prop.vectorValue == A)
+			else if (prop.vectorValue == _vector4Values[3])
 				index = 3;
-			else if (prop.vectorValue == RGBAverage)
+			else if (prop.vectorValue == _vector4Values[4])
 				index = 4;
-			else if (prop.vectorValue == RGBLuminance)
+			else if (prop.vectorValue == _vector4Values[5])
 				index = 5;
 			else
 			{
-				Debug.LogError("RGBAChannelMaskToVec4Drawer invalid vector found, reset to a");
-				prop.vectorValue = A;
+				Debug.LogError($"Channel Property:{prop.name} invalid vector found, reset to A");
+				prop.vectorValue = _vector4Values[3];
 				index = 3;
 			}
+			return index;
+		}
+
+		public static string GetChannelName(MaterialProperty prop)
+		{
+			return _names[GetChannelIndex(prop)].text;
+		}
+
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			base.Init(position, prop, label, editor);
+			MetaDataHelper.RegisterPropertyDefaultValueText(shader, prop, GetChannelName(RevertableHelper.GetDefaultProperty(shader, prop)));
+		}
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			var rect = position; //EditorGUILayout.GetControlRect();
+			var index = GetChannelIndex(prop);
 
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = prop.hasMixedValue;
-			int num = EditorGUI.IntPopup(rect, label, index, _names, _values);
+			int num = EditorGUI.IntPopup(rect, label, index, _names, _intValues);
 			EditorGUI.showMixedValue = false;
 			if (EditorGUI.EndChangeCheck())
 			{
-				Vector4 setValue;
-				switch (num)
-				{
-					case 0:
-						setValue = R;
-						break;
-					case 1:
-						setValue = G;
-						break;
-					case 2:
-						setValue = B;
-						break;
-					case 3:
-						setValue = A;
-						break;
-					case 4:
-						setValue = RGBAverage;
-						break;
-					case 5:
-						setValue = RGBLuminance;
-						break;
-					default:
-						throw new System.NotImplementedException();
-				}
-				prop.vectorValue = setValue;
+				prop.vectorValue = _vector4Values[num];
 			}
 		}
 	}
@@ -939,8 +963,8 @@ namespace LWGUI
 	}
 
 	/// <summary>
-	/// Tooltip, describes the details of the property. (Default: "Property Name:" + property.name)
-	/// tooltip：a single-line string to display, you can use more than one Tooltip() to represent multiple lines. (Default: Newline)
+	/// Tooltip, describes the details of the property. (Default: property.name and property default value)
+	/// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
 	/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 	/// </summary>
 	internal class TooltipDecorator : SubDrawer
@@ -948,6 +972,15 @@ namespace LWGUI
 		private string _tooltip;
 
 		public TooltipDecorator() { }
+		
+		public TooltipDecorator(string s1, string s2) : this(s1 + ", " + s2) { }
+		
+		public TooltipDecorator(string s1, string s2, string s3) : this(s1 + ", " + s2 + ", " + s3) { }
+		
+		public TooltipDecorator(string s1, string s2, string s3, string s4) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4) { }
+		
+		public TooltipDecorator(string s1, string s2, string s3, string s4, string s5) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5) { }
+		
 		public TooltipDecorator(string tooltip) { this._tooltip = tooltip; }
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
@@ -962,7 +995,7 @@ namespace LWGUI
 
 	/// <summary>
 	/// Display a Helpbox on the property
-	/// message：a single-line string to display, you can use more than one Helpbox() to represent multiple lines. (Default: Newline)
+	/// message：a single-line string to display, support up to 4 ','. (Default: Newline)
 	/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 	/// </summary>
 	internal class HelpboxDecorator : TooltipDecorator
@@ -970,6 +1003,15 @@ namespace LWGUI
 		private string _message;
 
 		public HelpboxDecorator() { }
+		
+		public HelpboxDecorator(string s1, string s2) : this(s1 + ", " + s2) { }
+		
+		public HelpboxDecorator(string s1, string s2, string s3) : this(s1 + ", " + s2 + ", " + s3) { }
+		
+		public HelpboxDecorator(string s1, string s2, string s3, string s4) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4) { }
+		
+		public HelpboxDecorator(string s1, string s2, string s3, string s4, string s5) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5) { }
+
 		public HelpboxDecorator(string message) { this._message = message; }
 
 		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
