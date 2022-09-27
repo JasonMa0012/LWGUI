@@ -321,15 +321,15 @@ TitleDecorator(string group, string header)
 #### Tooltip - Helpbox
 
 ```c#
-/// Tooltip, describes the details of the property. (Default: "Property Name:" + property.name)
-/// tooltip：a single-line string to display, you can use more than one Tooltip() to represent multiple lines. (Default: Newline)
+/// Tooltip, describes the details of the property. (Default: property.name and property default value)
+/// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
 /// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 public TooltipDecorator(string tooltip)
 ```
 
 ```c#
 /// Display a Helpbox on the property
-/// message：a single-line string to display, you can use more than one Helpbox() to represent multiple lines. (Default: Newline)
+/// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
 /// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 public HelpboxDecorator(string message)
 ```
@@ -353,7 +353,7 @@ _float_helpbox ("Float with Helpbox", float) = 2
 
 ![image-20220926024341932](README_CN.assets/image-20220926024341932.png)
 
-![image-20220926024400545](README_CN.assets/image-20220926024400545.png)
+![image-20220928012041068](README.assets/image-20220928012041068.png)
 
 
 
