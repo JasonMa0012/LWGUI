@@ -49,7 +49,7 @@ namespace LWGUI
 			var lwgui = Helper.GetLWGUI(editor);
 			var toggleValue = prop.floatValue > 0;
 
-			if (lwgui.eventType == EventType.Init)
+			if (lwgui.lwguiEventType == LwguiEventType.Init)
 			{
 				MetaDataHelper.RegisterMainProp(lwgui.shader, prop, _group);
 				MetaDataHelper.RegisterPropertyDefaultValueText(lwgui.shader, prop, 
@@ -131,7 +131,7 @@ namespace LWGUI
 			props = lwgui.props;
 			shader = lwgui.shader;
 
-			if (lwgui.eventType == EventType.Init)
+			if (lwgui.lwguiEventType == LwguiEventType.Init)
 			{
 				Init(position, prop, label, editor);
 				return;

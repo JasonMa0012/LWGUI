@@ -13,7 +13,7 @@ namespace LWGUI
 {
 	/// when LwguiEventType.Init:		get all metadata from drawer
 	/// when LwguiEventType.Repaint:	LWGUI decides how to draw each prop according to metadata
-	internal enum EventType
+	internal enum LwguiEventType
 	{
 		Init,
 		Repaint
@@ -37,7 +37,7 @@ namespace LWGUI
 		public SearchMode                                        searchMode        = SearchMode.All;
 		public SearchMode                                        lastSearchMode    = SearchMode.All;
 		public bool                                              updateSearchMode  = false;
-		public EventType                                         eventType         = EventType.Init;
+		public LwguiEventType                                    lwguiEventType    = LwguiEventType.Init;
 		public Shader                                            shader;
 
 		/// <summary>
@@ -50,14 +50,14 @@ namespace LWGUI
             this.props = props;
             this.materialEditor = materialEditor;
 			this.shader = (materialEditor.target as Material).shader;
-			this.eventType = RevertableHelper.InitAndHasShaderChanged(shader) ? EventType.Init : EventType.Repaint;
+			this.lwguiEventType = RevertableHelper.InitAndHasShaderChanged(shader, materialEditor.target) ? LwguiEventType.Init : LwguiEventType.Repaint;
 
 			// drawer register metadata
-			if (eventType == EventType.Init)
+			if (lwguiEventType == LwguiEventType.Init)
 			{
 				// reset all caches
 				MetaDataHelper.ClearCaches(shader);
-				searchResult = MetaDataHelper.SearchProperties(shader, props, String.Empty, SearchMode.All);
+				searchResult = null;
 				lastSearchingText = searchingText = string.Empty;
 				lastSearchMode = searchMode = SearchMode.All;
 				updateSearchMode = false;
@@ -73,7 +73,7 @@ namespace LWGUI
 				}
 			}
 			// draw with metadata and searchingText
-			else if (eventType == EventType.Repaint)
+			else if (lwguiEventType == LwguiEventType.Repaint)
 			{
 				// Search Field
 				if (searchResult == null)
@@ -93,78 +93,75 @@ namespace LWGUI
 					updateSearchMode = false;
 				}
 
-	            // base.OnGUI(materialEditor, props);
+				// move fields left to make rect for Revert Button
+				materialEditor.SetDefaultGUIWidths();
+				EditorGUIUtility.fieldWidth += RevertableHelper.revertButtonWidth;
+				EditorGUIUtility.labelWidth -= RevertableHelper.revertButtonWidth;
+				RevertableHelper.fieldWidth = EditorGUIUtility.fieldWidth;
+				RevertableHelper.labelWidth = EditorGUIUtility.labelWidth;
+
+				foreach (var prop in props)
 				{
-					// move fields left to make rect for Revert Button
-					materialEditor.SetDefaultGUIWidths();
-					EditorGUIUtility.fieldWidth += RevertableHelper.revertButtonWidth;
-					EditorGUIUtility.labelWidth -= RevertableHelper.revertButtonWidth;
-					RevertableHelper.fieldWidth = EditorGUIUtility.fieldWidth;
-					RevertableHelper.labelWidth = EditorGUIUtility.labelWidth;
-
-					foreach (var prop in props)
+					if ((prop.flags & MaterialProperty.PropFlags.HideInInspector) == 0 && searchResult[prop.name])
 					{
-						if ((prop.flags & MaterialProperty.PropFlags.HideInInspector) == 0 && searchResult[prop.name])
+						var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
+						
+						// ignored when in Folding Group
+						if (height <= 0) continue;
+						
+						// helpbox
+						int lineCount;
+						var helpboxStr = MetaDataHelper.GetPropertyHelpbox(shader, prop, out lineCount);
+						if (!string.IsNullOrEmpty(helpboxStr))
 						{
-							var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
-							
-							// ignored when in Folding Group
-							if (height <= 0) continue;
-							
-							// helpbox
-							int lineCount;
-							var helpboxStr = MetaDataHelper.GetPropertyHelpbox(shader, prop, out lineCount);
-							if (!string.IsNullOrEmpty(helpboxStr))
+							var helpboxRect = EditorGUILayout.GetControlRect(true, 30f + Mathf.Max(0, lineCount - 2f) * helpboxSingleLineHeight);
+							if (MetaDataHelper.IsSubProperty(shader, prop))
 							{
-								var helpboxRect = EditorGUILayout.GetControlRect(true, 30f + Mathf.Max(0, lineCount - 2f) * helpboxSingleLineHeight);
-								if (MetaDataHelper.IsSubProperty(shader, prop))
-								{
-									EditorGUI.indentLevel++;
-									helpboxRect = EditorGUI.IndentedRect(helpboxRect);
-									EditorGUI.indentLevel--;
-								}
-								helpboxRect.xMax -= RevertableHelper.revertButtonWidth;
-								EditorGUI.HelpBox(helpboxRect, helpboxStr, MessageType.Info);
+								EditorGUI.indentLevel++;
+								helpboxRect = EditorGUI.IndentedRect(helpboxRect);
+								EditorGUI.indentLevel--;
 							}
-							
-							var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
-							var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, rect);
-							rect.xMax -= RevertableHelper.revertButtonWidth;
-
-							// Process some builtin types display misplaced
-							switch (prop.type)
-							{
-								case MaterialProperty.PropType.Texture:
-								case MaterialProperty.PropType.Range:
-									materialEditor.SetDefaultGUIWidths();
-									break;
-								default:
-									RevertableHelper.SetRevertableGUIWidths();
-									break;
-							}
-							
-							RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, materialEditor, shader);
-							var label = new GUIContent(prop.displayName, MetaDataHelper.GetPropertyTooltip(shader, prop));
-							materialEditor.ShaderProperty(rect, prop, label);
+							helpboxRect.xMax -= RevertableHelper.revertButtonWidth;
+							EditorGUI.HelpBox(helpboxRect, helpboxStr, MessageType.Info);
 						}
-					}
-					materialEditor.SetDefaultGUIWidths();
+						
+						var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
+						var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, rect);
+						rect.xMax -= RevertableHelper.revertButtonWidth;
 
-					EditorGUILayout.Space();
-					EditorGUILayout.Space();
-					if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
-					{
-						materialEditor.RenderQueueField();
+						// Process some builtin types display misplaced
+						switch (prop.type)
+						{
+							case MaterialProperty.PropType.Texture:
+							case MaterialProperty.PropType.Range:
+								materialEditor.SetDefaultGUIWidths();
+								break;
+							default:
+								RevertableHelper.SetRevertableGUIWidths();
+								break;
+						}
+						
+						RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, materialEditor, shader);
+						var label = new GUIContent(prop.displayName, MetaDataHelper.GetPropertyTooltip(shader, prop));
+						materialEditor.ShaderProperty(rect, prop, label);
 					}
-					materialEditor.EnableInstancingField();
-					materialEditor.DoubleSidedGIField();
 				}
-				
-				
-				// LWGUI logo
-				EditorGUILayout.Space();
-				Helper.DrawLogo();
 			}
+			
+			materialEditor.SetDefaultGUIWidths();
+
+			EditorGUILayout.Space();
+			EditorGUILayout.Space();
+			if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
+			{
+				materialEditor.RenderQueueField();
+			}
+			materialEditor.EnableInstancingField();
+			materialEditor.DoubleSidedGIField();
+			
+			// LWGUI logo
+			EditorGUILayout.Space();
+			Helper.DrawLogo();
 		}
 
 		/// <summary>
@@ -302,8 +299,9 @@ namespace LWGUI
 		private static Dictionary<Shader /*Shader*/, Dictionary<string /*Prop Name*/, MaterialProperty /*Prop*/>> 
 			_defaultProps = new Dictionary<Shader, Dictionary<string, MaterialProperty>>();
 
-		private static Dictionary<Shader, int> _initTimers     = new Dictionary<Shader, int>();
-		private const  int                     INIT_PER_FRAMES = 0;
+		private static Dictionary<Shader, int>    _initTimers     = new Dictionary<Shader, int>();
+		private static Dictionary<Object, Shader> _lastShaders    = new Dictionary<Object, Shader>();
+		private const  int                        INIT_PER_FRAMES = 1;
 
 
 		#region Init
@@ -320,26 +318,38 @@ namespace LWGUI
 		/// <summary>
 		/// Detect Shader changes to know when to initialize
 		/// </summary>
-		public static bool InitAndHasShaderChanged(Shader shader)
+		public static bool InitAndHasShaderChanged(Shader shader, Object material = null)
 		{
 			bool equals = true;
+			
+			if (material != null && !_lastShaders.ContainsKey(material))
+				_lastShaders.Add(material, null);
 
 			// Init every few frames
 			if (_initTimers.ContainsKey(shader))
 				_initTimers[shader]++;
 			else
 				_initTimers[shader] = 0;
-			
+
 			// fast refresh can better capture the shadeer modification
-			if (_initTimers[shader] > INIT_PER_FRAMES
+			if (_initTimers[shader] >= INIT_PER_FRAMES
 			 || !_defaultProps.ContainsKey(shader)
 			 || ShaderUtil.GetPropertyCount(shader) != _defaultProps[shader].Count
+			 || (material != null && _lastShaders[material] != shader)
 			   )
 			{
+				if (material != null)
+				{
+					if (_lastShaders[material] != shader) equals = false;
+					_lastShaders[material] = shader;
+				}
 				_initTimers[shader] = 0;
 			}
 			else
+			{
+				if (material != null) _lastShaders[material] = shader;
 				return false;
+			}
 			
 			// Get and cache new props
 			var newProps = MaterialEditor.GetMaterialProperties(new[] { new Material(shader) });
