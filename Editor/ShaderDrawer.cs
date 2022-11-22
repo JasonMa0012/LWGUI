@@ -74,11 +74,13 @@ namespace LWGUI
 			GroupStateHelper.SetGroupFolding(editor.target, finalGroupName, _isFolding);
 		}
 
+		// Call in custom shader gui
 		public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
 		{
 			return _height;
 		}
 
+		// Call when creating new material 
 		public override void Apply(MaterialProperty prop)
 		{
 			base.Apply(prop);
@@ -345,7 +347,7 @@ namespace LWGUI
 		{
 			base.Init(position, prop, label, editor);
 			var index = (int)RevertableHelper.GetDefaultProperty(shader, prop).floatValue;
-			if (index < _names.Length)
+			if (index < _names.Length && index >= 0)
 				MetaDataHelper.RegisterPropertyDefaultValueText(shader, prop, _names[index].text);
 		}
 
@@ -378,7 +380,7 @@ namespace LWGUI
 				}
 			}
 
-
+			Helper.AdaptiveFieldWidth(EditorStyles.popup, _names[index], EditorStyles.popup.lineHeight);
 			int newIndex = EditorGUI.Popup(rect, label, index, _names);
 			EditorGUI.showMixedValue = false;
 			if (EditorGUI.EndChangeCheck())
@@ -930,6 +932,79 @@ namespace LWGUI
 			if (EditorGUI.EndChangeCheck())
 			{
 				prop.vectorValue = _vector4Values[num];
+			}
+		}
+	}
+
+	/// <summary>
+	/// Popping a menu, you can select the Shader Property Preset, the Preset values will replaces the default values
+	/// group：father group name, support suffix keyword for conditional display (Default: none)
+	///	presetFileName: "Shader Property Preset" asset name, you can create new Preset by
+	///		"Right Click > Create > LWGUI > Shader Property Preset" in Project window,
+	///		*any Preset in the entire project cannot have the same name*
+	/// </summary>
+	internal class PresetDrawer : SubDrawer
+	{
+		public string presetFileName;
+		public PresetDrawer(string presetFileName) : this("_", presetFileName) {}
+		public PresetDrawer(string group, string presetFileName)
+		{
+			this.group = group;
+			this.presetFileName = presetFileName;
+		}
+
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Float; }
+
+		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			base.Init(position, prop, label, editor);
+			var preset = PresetHelper.GetPreset(presetFileName);
+			if (preset == null) return;
+			
+			var presetNames = preset.presets.Select(((inPreset) => (inPreset.presetName))).ToArray();
+			var index = (int)RevertableHelper.GetDefaultProperty(shader, prop).floatValue;
+			if (index < presetNames.Length && index >= 0)
+				MetaDataHelper.RegisterPropertyDefaultValueText(shader, prop, presetNames[index]);
+			index = (int)prop.floatValue;
+			if (index < presetNames.Length && index >= 0)
+				MetaDataHelper.RegisterPropertyPreset(shader, prop, presetFileName, presetNames[index]);
+		}
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = prop.hasMixedValue;
+        	
+			var rect = position;
+
+			int index = (int)Mathf.Max(0, prop.floatValue);
+			var preset = PresetHelper.GetPreset(presetFileName);
+			if (preset == null || preset.presets.Count == 0)
+			{
+				var c = GUI.color;
+				GUI.color = Color.red;
+				label.text += $"  (Invalid Preset File: {presetFileName})";
+				EditorGUI.LabelField(rect, label);
+				GUI.color = c;
+				return;
+			}
+			
+			var presetNames = preset.presets.Select(((inPreset) => new GUIContent(inPreset.presetName))).ToArray();
+			Helper.AdaptiveFieldWidth(EditorStyles.popup, presetNames[index], EditorStyles.popup.lineHeight);
+			int newIndex = EditorGUI.Popup(rect, label, index, presetNames);
+			EditorGUI.showMixedValue = false;
+			if (EditorGUI.EndChangeCheck())
+			{
+				prop.floatValue = newIndex;
+				preset.Apply(prop.targets.Select((o => o as Material)).ToArray(), (int)prop.floatValue);
+				RevertableHelper.ForceInit();
+			}
+
+			if (RevertableHelper.IsPropertyShouldRevert(prop.targets[0], prop.name))
+			{
+				preset.Apply(prop.targets.Select((o => o as Material)).ToArray(), (int)prop.floatValue);
+				RevertableHelper.ForceInit();
+				RevertableHelper.RemovePropertyShouldRevert(prop.targets, prop.name);
 			}
 		}
 	}

@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -27,8 +28,6 @@ namespace LWGUI
 	
 	internal class LWGUI : ShaderGUI
     {
-		public static readonly float helpboxSingleLineHeight = 12.5f;
-
 		public MaterialProperty[]                                props;
 		public MaterialEditor                                    materialEditor;
 		public Dictionary<string /*PropName*/, bool /*Display*/> searchResult;
@@ -50,7 +49,7 @@ namespace LWGUI
             this.props = props;
             this.materialEditor = materialEditor;
 			this.shader = (materialEditor.target as Material).shader;
-			this.lwguiEventType = RevertableHelper.InitAndHasShaderChanged(shader, materialEditor.target) ? LwguiEventType.Init : LwguiEventType.Repaint;
+			this.lwguiEventType = RevertableHelper.InitAndHasShaderModified(shader, materialEditor.target, props) ? LwguiEventType.Init : LwguiEventType.Repaint;
 
 			// drawer register metadata
 			if (lwguiEventType == LwguiEventType.Init)
@@ -102,49 +101,38 @@ namespace LWGUI
 
 				foreach (var prop in props)
 				{
-					if ((prop.flags & MaterialProperty.PropFlags.HideInInspector) == 0 && searchResult[prop.name])
-					{
-						var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
-						
-						// ignored when in Folding Group
-						if (height <= 0) continue;
-						
-						// helpbox
-						int lineCount;
-						var helpboxStr = MetaDataHelper.GetPropertyHelpbox(shader, prop, out lineCount);
-						if (!string.IsNullOrEmpty(helpboxStr))
-						{
-							var helpboxRect = EditorGUILayout.GetControlRect(true, 30f + Mathf.Max(0, lineCount - 2f) * helpboxSingleLineHeight);
-							if (MetaDataHelper.IsSubProperty(shader, prop))
-							{
-								EditorGUI.indentLevel++;
-								helpboxRect = EditorGUI.IndentedRect(helpboxRect);
-								EditorGUI.indentLevel--;
-							}
-							helpboxRect.xMax -= RevertableHelper.revertButtonWidth;
-							EditorGUI.HelpBox(helpboxRect, helpboxStr, MessageType.Info);
-						}
-						
-						var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
-						var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, rect);
-						rect.xMax -= RevertableHelper.revertButtonWidth;
+					if ((prop.flags & MaterialProperty.PropFlags.HideInInspector) != 0 || !searchResult[prop.name])
+						continue;
+					
+					var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
+					
+					// ignored when in Folding Group
+					if (height <= 0) continue;
+					
+					Helper.DrawHelpbox(shader, prop);
 
-						// Process some builtin types display misplaced
-						switch (prop.type)
-						{
-							case MaterialProperty.PropType.Texture:
-							case MaterialProperty.PropType.Range:
-								materialEditor.SetDefaultGUIWidths();
-								break;
-							default:
-								RevertableHelper.SetRevertableGUIWidths();
-								break;
-						}
-						
-						RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, materialEditor, shader);
-						var label = new GUIContent(prop.displayName, MetaDataHelper.GetPropertyTooltip(shader, prop));
-						materialEditor.ShaderProperty(rect, prop, label);
+					// get rect
+					var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
+					var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, rect);
+					rect.xMax -= RevertableHelper.revertButtonWidth;
+
+					PresetHelper.DrawAddPropertyToPresetMenu(rect, shader, prop);
+
+					// Process some builtin types display misplaced
+					switch (prop.type)
+					{
+						case MaterialProperty.PropType.Texture:
+						case MaterialProperty.PropType.Range:
+							materialEditor.SetDefaultGUIWidths();
+							break;
+						default:
+							RevertableHelper.SetRevertableGUIWidths();
+							break;
 					}
+					
+					RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, materialEditor, shader);
+					var label = new GUIContent(prop.displayName, MetaDataHelper.GetPropertyTooltip(shader, prop));
+					materialEditor.ShaderProperty(rect, prop, label);
 				}
 			}
 			
@@ -163,6 +151,7 @@ namespace LWGUI
 			EditorGUILayout.Space();
 			Helper.DrawLogo();
 		}
+
 
 		/// <summary>
 		///   <para>Find shader properties.</para>
@@ -213,10 +202,7 @@ namespace LWGUI
 		public static void SetGroupFolding(Object material, string group, bool isFolding)
 		{
 			InitPoolPerMaterial(material);
-			if (_groups[material].ContainsKey(group))
-				_groups[material][group] = isFolding;
-			else 
-				_groups[material].Add(group, isFolding);
+			_groups[material][group] = isFolding;
 		}
 		
 		public static bool GetGroupFolding(Object material, string group)
@@ -278,11 +264,7 @@ namespace LWGUI
 		{
 			if (string.IsNullOrEmpty(keyword) || keyword == "_") return;
 			InitPoolPerMaterial(material);
-
-			if (_keywords[material].ContainsKey(keyword))
-				_keywords[material][keyword] = isDisplay;
-			else
-				_keywords[material].Add(keyword, isDisplay);
+			_keywords[material][keyword] = isDisplay;
 		}
     }
 
@@ -299,81 +281,62 @@ namespace LWGUI
 		private static Dictionary<Shader /*Shader*/, Dictionary<string /*Prop Name*/, MaterialProperty /*Prop*/>> 
 			_defaultProps = new Dictionary<Shader, Dictionary<string, MaterialProperty>>();
 
-		private static Dictionary<Shader, int>    _initTimers     = new Dictionary<Shader, int>();
-		private static Dictionary<Object, Shader> _lastShaders    = new Dictionary<Object, Shader>();
-		private const  int                        INIT_PER_FRAMES = 1;
+		private static Dictionary<Shader, DateTime> _lastShaderModifiedTimes  = new Dictionary<Shader, DateTime>();
+		private static Dictionary<Object, Shader>   _lastShaders = new Dictionary<Object, Shader>();
+		private static bool                         _forceInit;
 
 
 		#region Init
 
 		private static void CheckProperty(Shader shader, MaterialProperty prop)
 		{
-			if (!_defaultProps.ContainsKey(shader) || !_defaultProps[shader].ContainsKey(prop.name))
-			{
-				Debug.LogWarning($"Uninitialized Shader:{shader.name} or Prop:{prop.name}");
-				InitAndHasShaderChanged(shader);
-			}
+			Debug.Assert(_defaultProps.ContainsKey(shader) && _defaultProps[shader].ContainsKey(prop.name),
+						 $"Uninitialized Shader:{shader.name} or Prop:{prop.name}");
 		}
+
+		public static void ForceInit() { _forceInit = true; }
 		
 		/// <summary>
 		/// Detect Shader changes to know when to initialize
 		/// </summary>
-		public static bool InitAndHasShaderChanged(Shader shader, Object material = null)
+		public static bool InitAndHasShaderModified(Shader shader, Object material, MaterialProperty[] props)
 		{
-			bool equals = true;
-			
-			if (material != null && !_lastShaders.ContainsKey(material))
-				_lastShaders.Add(material, null);
+			var shaderPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6) + AssetDatabase.GetAssetPath(shader);
+			Debug.Assert(File.Exists(shaderPath), $"Unable to find Shader: {shader.name} in {shaderPath}!");
 
-			// Init every few frames
-			if (_initTimers.ContainsKey(shader))
-				_initTimers[shader]++;
-			else
-				_initTimers[shader] = 0;
+			var currTime = (new FileInfo(shaderPath)).LastWriteTime;
 
-			// fast refresh can better capture the shadeer modification
-			if (_initTimers[shader] >= INIT_PER_FRAMES
-			 || !_defaultProps.ContainsKey(shader)
-			 || ShaderUtil.GetPropertyCount(shader) != _defaultProps[shader].Count
-			 || (material != null && _lastShaders[material] != shader)
+			// check for init
+			if (_forceInit
+			  || !_lastShaderModifiedTimes.ContainsKey(shader) 
+			  || _lastShaderModifiedTimes[shader] != currTime
+			  || !_defaultProps.ContainsKey(shader)
+			  || !_lastShaders.ContainsKey(material)
+			  || _lastShaders[material] != shader
 			   )
 			{
-				if (material != null)
-				{
-					if (_lastShaders[material] != shader) equals = false;
-					_lastShaders[material] = shader;
-				}
-				_initTimers[shader] = 0;
+				if (_lastShaderModifiedTimes.ContainsKey(shader) && _lastShaderModifiedTimes[shader] != currTime)
+					AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(shader));
+				
+				_forceInit = false;
+				_lastShaders[material] = shader;
+				_lastShaderModifiedTimes[shader] = currTime;
 			}
-			else
-			{
-				if (material != null) _lastShaders[material] = shader;
-				return false;
-			}
+			else return false;
 			
 			// Get and cache new props
-			var newProps = MaterialEditor.GetMaterialProperties(new[] { new Material(shader) });
+			var defaultMaterial = new Material(shader);
+			PresetHelper.ApplyPresetValue(props, defaultMaterial);
+			var newProps = MaterialEditor.GetMaterialProperties(new[] { defaultMaterial });
+			Debug.Assert(newProps.Length == props.Length);
 
-			Dictionary<string, MaterialProperty> lastPropsDic;
-			
-			if (_defaultProps.ContainsKey(shader))
-				lastPropsDic = _defaultProps[shader];
-			else
-			{
-				lastPropsDic = new Dictionary<string, MaterialProperty>();
-				equals = false;
-			}
-			
 			_defaultProps[shader] = new Dictionary<string, MaterialProperty>();
-			for (int i = 0; i < newProps.Length; i++)
+			foreach (var prop in newProps)
 			{
-				if (_defaultProps[shader].ContainsKey(newProps[i].name)) 
-					Debug.LogError($"Shader:{shader.name} has repeated property name:{newProps[i].name}!");
-				_defaultProps[shader][newProps[i].name] = newProps[i];
-				if (equals)
-					equals = lastPropsDic.ContainsKey(newProps[i].name) && Helper.PropertyValueEquals(newProps[i], lastPropsDic[newProps[i].name]);
+				_defaultProps[shader][prop.name] = prop;
 			}
-			return !equals;
+			
+			return true;
 		}
 		#endregion
 
@@ -649,11 +612,23 @@ namespace LWGUI
 			}
 		}
 
+		public static void AdaptiveFieldWidth(string str, GUIContent content, float extraWidth = 0)
+		{
+			AdaptiveFieldWidth(new GUIStyle(str), content, extraWidth);
+		}
+		
+		public static void AdaptiveFieldWidth(GUIStyle style, GUIContent content, float extraWidth = 0)
+		{
+			var extraTextWidth = Mathf.Max(0, style.CalcSize(content).x + extraWidth - EditorGUIUtility.fieldWidth);
+			EditorGUIUtility.labelWidth -= extraTextWidth;
+			EditorGUIUtility.fieldWidth += extraTextWidth;
+		}
+
 #endregion
 
 
 #region Math
-public static float PowPreserveSign(float f, float p)
+		public static float PowPreserveSign(float f, float p)
 		{
 			float num = Mathf.Pow(Mathf.Abs(f), p);
 			if ((double)f < 0.0)
@@ -663,12 +638,6 @@ public static float PowPreserveSign(float f, float p)
 
 #endregion
 
-
-#region Reflection
-
-		
-
-#endregion
 
 #region Draw GUI for Drawer
 
@@ -780,6 +749,25 @@ public static float PowPreserveSign(float f, float p)
 
 #region Draw GUI for Material
 
+		public static readonly float helpboxSingleLineHeight = 12.5f;
+
+		public static void DrawHelpbox(Shader shader, MaterialProperty prop)
+		{
+			int lineCount;
+			var helpboxStr = MetaDataHelper.GetPropertyHelpbox(shader, prop, out lineCount);
+			if (!string.IsNullOrEmpty(helpboxStr))
+			{
+				var helpboxRect = EditorGUILayout.GetControlRect(true, 30f + Mathf.Max(0, lineCount - 2f) * helpboxSingleLineHeight);
+				if (MetaDataHelper.IsSubProperty(shader, prop))
+				{
+					EditorGUI.indentLevel++;
+					helpboxRect = EditorGUI.IndentedRect(helpboxRect);
+					EditorGUI.indentLevel--;
+				}
+				helpboxRect.xMax -= RevertableHelper.revertButtonWidth;
+				EditorGUI.HelpBox(helpboxRect, helpboxStr, MessageType.Info);
+			}
+		}
 
 		private static Texture _logo = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("26b9d845eb7b1a747bf04dc84e5bcc2c"));
 		public static void DrawLogo()
@@ -1119,10 +1107,12 @@ public static float PowPreserveSign(float f, float p)
 		private static Dictionary<Shader, Dictionary<string /*GroupName*/,	     string /*MainProp*/>>		_mainGroupNameDic = new Dictionary<Shader, Dictionary<string, string>>();
 		private static Dictionary<Shader, Dictionary<string /*PropName*/,	     string /*GroupName*/>>		_propParentDic	  = new Dictionary<Shader, Dictionary<string, string>>();
 		
-		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*ExtraPropName*/>>>_extraPropDic     = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*Tooltip*/>>>		_tooltipDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*DefaultValue*/>>>	_defaultDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*Helpbox*/>>>		_helpboxDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*ExtraPropName*/>>> _extraPropDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*Tooltip*/>>>       _tooltipDic   = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*DefaultValue*/>>>  _defaultDic   = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*Helpbox*/>>>       _helpboxDic   = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/,	List<string /*PresetName*/>>>    _presetDic    = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		
 
 		public static void ClearCaches(Shader shader)
 		{
@@ -1134,6 +1124,7 @@ public static float PowPreserveSign(float f, float p)
 			if (_tooltipDic.ContainsKey(shader)) _tooltipDic[shader].Clear();
 			if (_defaultDic.ContainsKey(shader)) _defaultDic[shader].Clear();
 			if (_helpboxDic.ContainsKey(shader)) _helpboxDic[shader].Clear();
+			if (_presetDic.ContainsKey(shader)) _presetDic[shader].Clear();
 		}
 
 
@@ -1220,7 +1211,7 @@ public static float PowPreserveSign(float f, float p)
 		#endregion
 
 
-		#region Tooltip / Helpbox
+		#region Tooltip / Helpbox / Preset
 
 		private static void RegisterPropertyString(Shader shader, MaterialProperty prop, string str, Dictionary<Shader, Dictionary<string, List<string>>> dst)
 		{
@@ -1237,9 +1228,10 @@ public static float PowPreserveSign(float f, float p)
 			lineCount = 0;
 			if (src.ContainsKey(shader) && src[shader].ContainsKey(prop.name))
 			{
-				foreach (var tooltip in src[shader][prop.name])
+				for (int i = 0; i < src[shader][prop.name].Count; i++)
 				{
-					str += tooltip + "\n";
+					if (i > 0) str += "\n";
+					str += src[shader][prop.name][i];
 					lineCount++;
 				}
 			}
@@ -1262,8 +1254,6 @@ public static float PowPreserveSign(float f, float p)
 			if (string.IsNullOrEmpty(defaultText))
 				// TODO: use Reflection - handle builtin Toggle / Enum
 				defaultText = RevertableHelper.GetPropertyDefaultValueText(shader, prop);
-			else
-				defaultText = defaultText.Remove(defaultText.Length - 1);
 
 			return defaultText;
 		}
@@ -1272,7 +1262,7 @@ public static float PowPreserveSign(float f, float p)
 		{
 			var str = GetPropertyString(shader, prop, _tooltipDic, out _);
 			if (!string.IsNullOrEmpty(str))
-				str += "\n";
+				str += "\n\n";
 			str += $"Name: {prop.name}\n";
 			str += $"Default: " + GetPropertyDefaultValueText(shader, prop);
 			return str;
@@ -1285,12 +1275,34 @@ public static float PowPreserveSign(float f, float p)
 
 		public static string GetPropertyHelpbox(Shader shader, MaterialProperty prop, out int lineCount)
 		{
-			var str = GetPropertyString(shader, prop, _helpboxDic, out lineCount);
-			return str;
+			return GetPropertyString(shader, prop, _helpboxDic, out lineCount);
 		}
+		
+		public static void RegisterPropertyPreset(Shader shader, MaterialProperty prop, string presetFileName, string selectedPresetName)
+		{
+			RegisterPropertyString(shader, prop, presetFileName + "/" + selectedPresetName, _presetDic);
+		}
+		
+		public static void GetAllPropertyPreset(Shader shader, out List<string> presetFileNames, out List<string> selectedPresetNames)
+		{
+			presetFileNames = null;
+			selectedPresetNames = null;
+			if (!_presetDic.ContainsKey(shader) || _presetDic[shader].Count == 0) return;
+
+			string[] strs = null;
+			presetFileNames = new List<string>();
+			selectedPresetNames = new List<string>();
+			foreach (var strList in _presetDic[shader].Values)
+			{
+				strs = strList[0].Split(new[] { '/' }, 2);
+				presetFileNames.Add(strs[0]);
+				selectedPresetNames.Add(strs[1]);
+			}
+		}
+		
 		#endregion
 
-		
+
 		public static Dictionary<string, bool> SearchProperties(Shader shader, MaterialProperty[] props, string searchingText, SearchMode searchMode)
 		{
 			var result = new Dictionary<string, bool>();
@@ -1384,6 +1396,184 @@ public static float PowPreserveSign(float f, float p)
 			return isSubProp;
 		}
 		
+	}
+	
+	internal class ReflectionHelper
+	{
+		public static Assembly     UnityEditor_Assembly                         	= Assembly.GetAssembly(typeof(Editor));
+	
+		public static Type         MaterialPropertyHandler_Type                 	= UnityEditor_Assembly.GetType("UnityEditor.MaterialPropertyHandler");
+		public static MethodInfo   MaterialPropertyHandler_GetHandler_Method    	= MaterialPropertyHandler_Type.GetMethod("GetHandler", BindingFlags.Static | BindingFlags.NonPublic);
+		public static PropertyInfo MaterialPropertyHandler_PropertyDrawer_Property  = ReflectionHelper.MaterialPropertyHandler_Type.GetProperty("propertyDrawer");
+
+		
+		public static MaterialPropertyDrawer GetPropertyDrawer(Shader shader, MaterialProperty prop)
+		{
+			var handler = ReflectionHelper.MaterialPropertyHandler_GetHandler_Method.Invoke(null, new System.Object[] { shader, prop.name });
+			if (handler != null && handler.GetType() == ReflectionHelper.MaterialPropertyHandler_Type)
+			{
+				return ReflectionHelper.MaterialPropertyHandler_PropertyDrawer_Property.GetValue(handler) as MaterialPropertyDrawer;
+			}
+			return null;
+		}
+	}
+
+	internal class PresetHelper
+	{
+		private static  Dictionary<string /*FileName*/, ShaderPropertyPreset> _loadedPresets = new Dictionary<string, ShaderPropertyPreset>();
+		
+		private static bool _isInitComplete;
+
+		public static bool IsInitComplete { get => _isInitComplete; }
+
+		public static void Init()
+		{
+			if (!_isInitComplete)
+			{
+				ForceInit();
+			}
+		}
+
+		public static void ForceInit()
+		{
+			_loadedPresets.Clear();
+			_isInitComplete = false;
+			var GUIDs = AssetDatabase.FindAssets($"t:{typeof(ShaderPropertyPreset)}");
+			foreach (var GUID in GUIDs)
+			{
+				var preset = AssetDatabase.LoadAssetAtPath<ShaderPropertyPreset>(AssetDatabase.GUIDToAssetPath(GUID));
+				AddPreset(preset);
+			}
+			_isInitComplete = true;
+		}
+
+		public static void AddPreset(ShaderPropertyPreset preset)
+		{
+			if (!preset) return;
+			if (_loadedPresets.ContainsKey(preset.name))
+			{
+				Debug.LogError($"ShaderPropertyPreset: '{preset.name}' already exists!");
+				return;
+			}
+			
+			_loadedPresets.Add(preset.name, preset);
+			// Debug.Log(preset.name);
+		}
+		
+		public static ShaderPropertyPreset GetPreset(string presetFileName)
+		{
+			if (!_loadedPresets.ContainsKey(presetFileName) || !_loadedPresets[presetFileName])
+				ForceInit();
+			
+			if (!_loadedPresets.ContainsKey(presetFileName) || !_loadedPresets[presetFileName])
+			{
+				Debug.LogError($"Invalid ShaderPropertyPreset: ‘{presetFileName}’ !");
+				return null;
+			}
+
+			return _loadedPresets[presetFileName];
+		}
+
+		public static void ApplyPresetValue(MaterialProperty[] props, Material material)
+		{
+			Init();
+			List<MaterialPropertyDrawer> _drawers = new List<MaterialPropertyDrawer>();
+			List<MaterialProperty> _properties = new List<MaterialProperty>();
+			// Update Value
+			foreach (var prop in props)
+			{
+				var drawer = ReflectionHelper.GetPropertyDrawer(material.shader, prop);
+				if (drawer != null)
+				{
+					_drawers.Add(drawer);
+					_properties.Add(prop);
+					if (drawer is PresetDrawer)
+					{
+						var preset = GetPreset((drawer as PresetDrawer).presetFileName);
+						if (preset)
+							preset.Apply(material, (int)prop.floatValue);
+					}
+				}
+			}
+			
+			// Update Keyword
+			for (int i = 0; i < _properties.Count; i++)
+			{
+				_drawers[i].Apply(_properties[i]);
+			}
+		}
+
+		private enum PresetOperation
+		{
+			Add = 0,
+			Update = 1,
+			Remove = 2
+		}
+
+		public static void DrawAddPropertyToPresetMenu(Rect rect, Shader shader, MaterialProperty prop)
+		{
+			if (Event.current.type == EventType.ContextClick && rect.Contains(Event.current.mousePosition))
+			{
+				List<string> presetFileNames, selectedPresetNames;
+				MetaDataHelper.GetAllPropertyPreset(shader, out presetFileNames, out selectedPresetNames);
+				if (presetFileNames != null && selectedPresetNames != null)
+				{
+					// Get Menu Content
+					Dictionary<GUIContent, PresetOperation> operations = new Dictionary<GUIContent, PresetOperation>();
+					Dictionary<GUIContent, int> indices = new Dictionary<GUIContent, int>();
+					GUIContent[] menus = presetFileNames.SelectMany(((name, selected) =>
+					{
+						var presetFile = PresetHelper.GetPreset(presetFileNames[selected]);
+						var preset = presetFile.presets.Find((inPreset => inPreset.presetName == selectedPresetNames[selected]));
+						Debug.Assert(preset != null);
+						var propertyValue = preset.propertyValues.Find((value => value.propertyName == prop.name));
+						if (propertyValue == null)
+						{
+							var content = new GUIContent($"Add '{prop.displayName}' to '{selectedPresetNames[selected]}'");
+							operations.Add(content, PresetOperation.Add);
+							indices.Add(content, selected);
+							return new List<GUIContent>(){content};
+						}
+						else
+						{
+							var contentUpdate = new GUIContent($"Update '{prop.displayName}' in '{selectedPresetNames[selected]}'");
+							operations.Add(contentUpdate, PresetOperation.Update);
+							indices.Add(contentUpdate, selected);
+							var contentRemove = new GUIContent($"Remove '{prop.displayName}' from '{selectedPresetNames[selected]}'");
+							operations.Add(contentRemove, PresetOperation.Remove);
+							indices.Add(contentRemove, selected);
+							return new List<GUIContent>(){contentUpdate, contentRemove};
+						}
+					})).ToArray();
+					
+					EditorUtility.DisplayCustomMenu(new Rect(Event.current.mousePosition.x, Event.current.mousePosition.y, 0, 0),
+													menus, -1, (data, options, selected) =>
+					{
+						var index = indices[menus[selected]];
+						var operation = operations[menus[selected]];
+						var presetFile = PresetHelper.GetPreset(presetFileNames[index]);
+						var preset = presetFile.presets.Find((inPreset => inPreset.presetName == selectedPresetNames[index]));
+						Debug.Assert(preset != null);
+						var propertyValue = preset.propertyValues.Find((value => value.propertyName == prop.name));
+						if (propertyValue == null)
+						{
+							propertyValue = new ShaderPropertyPreset.PropertyValue();
+							propertyValue.CopyFromMaterialProperty(prop);
+							preset.propertyValues.Add(propertyValue);
+						}
+						else if (operation == PresetOperation.Update)
+						{
+							propertyValue.CopyFromMaterialProperty(prop);
+						}
+						else
+						{
+							preset.propertyValues.Remove(propertyValue);
+						}
+						RevertableHelper.ForceInit();
+					}, null);
+				}
+			}
+		}
 	}
 
 } //namespace LWGUI
