@@ -9,11 +9,11 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: LWGUI_SampleDrawer
   m_Shader: {fileID: 4800000, guid: ded91f399f8343d4f9b0cf33eda0088d, type: 3}
-  m_ShaderKeywords: KEY2 _KEYWORD
+  m_ShaderKeywords: KEY2 _ _KEYWORD
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 2000
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
@@ -40,13 +40,14 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _BlendMode: 0
     - _ColorMask: 15
     - _Cull: 2
-    - _DstBlend: 10
+    - _DstBlend: 0
     - _Queue: 2000
-    - _SrcBlend: 5
+    - _SrcBlend: 1
     - _ZTest: 4
-    - _ZWrite: 0
+    - _ZWrite: 1
     - _blendMode: 1
     - _enum: 1
     - _enum1: 0

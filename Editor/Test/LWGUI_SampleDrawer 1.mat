@@ -2,14 +2,18 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: LWGUI_SampleDrawer 1
   m_Shader: {fileID: 4800000, guid: 7ee048c9536c0344bb8b4860595a4d9b, type: 3}
-  m_ShaderKeywords: _GROUP_ON _KEY3 _TOGGLE_KEYWORD
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _GROUP_ON
+  - _KEY3
+  - _TOGGLE_KEYWORD
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -55,6 +59,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _enum: 2
     - _float: -0.8
@@ -76,7 +81,7 @@ Material:
     - _key3_Float4_PowerSlider: 0
     - _minMaxSlider: 1
     - _preset: 1
-    - _preset1: 1
+    - _preset1: 0
     - _range: 0.42
     - _rangeEnd: 0.67997557
     - _rangeStart: 0.25601953
@@ -92,3 +97,4 @@ Material:
     - _textureChannelMask: {r: 0, g: 0, b: 1, a: 0}
     - _textureChannelMask1: {r: 0, g: 0, b: 0, a: 1}
     - _vector1: {r: 1.32, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []

@@ -302,6 +302,57 @@ Result:
 
 ![image-20220828003810353](README_CN.assets/image-20220828003810353.png)
 
+
+
+#### Preset
+
+```c#
+/// Popping a menu, you can select the Shader Property Preset, the Preset values will replaces the default values
+/// group：father group name, support suffix keyword for conditional display (Default: none)
+///	presetFileName: "Shader Property Preset" asset name, you can create new Preset by
+///		"Right Click > Create > LWGUI > Shader Property Preset" in Project window,
+///		*any Preset in the entire project cannot have the same name*
+public PresetDrawer(string group, string presetFileName)
+```
+
+Example:
+
+~~~c#
+[Title(Preset Samples)]
+[Preset(LWGUI_BlendModePreset)] _BlendMode ("Blend Mode Preset", float) = 0 
+[Enum(UnityEngine.Rendering.CullMode)]_Cull("Cull", Float) = 2
+[Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend("SrcBlend", Float) = 1
+[Enum(UnityEngine.Rendering.BlendMode)]_DstBlend("DstBlend", Float) = 0
+[Toggle(_)]_ZWrite("ZWrite ", Float) = 1
+[Enum(UnityEngine.Rendering.CompareFunction)]_ZTest("ZTest", Float) = 4 // 4 is LEqual
+[Enum(RGBA,15,RGB,14)]_ColorMask("ColorMask", Float) = 15 // 15 is RGBA (binary 1111)
+    
+``````
+    
+Cull [_Cull]
+ZWrite [_ZWrite]
+Blend [_SrcBlend] [_DstBlend]
+ColorMask [_ColorMask]
+~~~
+
+Result:
+
+选择的预设内的属性值将成为默认值
+
+**RenderQueue**是个特殊属性, 需要手动在预设中添加
+
+![image-20221122231655378](README_CN.assets/image-20221122231655378.png)![image-20221122231816714](README_CN.assets/image-20221122231816714.png)
+
+##### Create Preset File
+
+![image-20221122232307362](README_CN.assets/image-20221122232307362.png)
+
+##### Edit Preset
+
+![image-20221122232354623](README_CN.assets/image-20221122232354623.png)![image-20221122232415972](README_CN.assets/image-20221122232415972.png)![image-20221122232425194](README_CN.assets/image-20221122232425194.png)
+
+
+
 ### LWGUI Decorator
 
 #### Title
@@ -424,6 +475,12 @@ MaterialToggleUIDrawer(string keyword)
 - [ ] 支持Curve
 - [x] **支持搜索框**
 - [x] **支持仅显示已修改项**
+- [x] 支持预设管理器
+- [x] 支持自适应枚举宽度
+- [ ] 支持2017
+  - [ ] 反射引擎私有函数
+  - [ ] 复制属性菜单
+
 
 
 

@@ -51,7 +51,7 @@ Shader "Hidden"
 
         
         [Title(Preset Samples)]
-        [Preset(LWGUI_BlendModePreset)] _blendMode ("Blend Mode Preset", float) = 0 
+        [Preset(LWGUI_BlendModePreset)] _BlendMode ("Blend Mode Preset", float) = 0 
         [Enum(UnityEngine.Rendering.CullMode)]_Cull("Cull", Float) = 2
         [Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend("SrcBlend", Float) = 1
         [Enum(UnityEngine.Rendering.BlendMode)]_DstBlend("DstBlend", Float) = 0

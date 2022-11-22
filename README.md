@@ -306,6 +306,57 @@ Result:
 
 
 
+#### Preset
+
+```c#
+/// Popping a menu, you can select the Shader Property Preset, the Preset values will replaces the default values
+/// group：father group name, support suffix keyword for conditional display (Default: none)
+///	presetFileName: "Shader Property Preset" asset name, you can create new Preset by
+///		"Right Click > Create > LWGUI > Shader Property Preset" in Project window,
+///		*any Preset in the entire project cannot have the same name*
+public PresetDrawer(string group, string presetFileName)
+```
+
+Example:
+
+~~~c#
+[Title(Preset Samples)]
+[Preset(LWGUI_BlendModePreset)] _BlendMode ("Blend Mode Preset", float) = 0 
+[Enum(UnityEngine.Rendering.CullMode)]_Cull("Cull", Float) = 2
+[Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend("SrcBlend", Float) = 1
+[Enum(UnityEngine.Rendering.BlendMode)]_DstBlend("DstBlend", Float) = 0
+[Toggle(_)]_ZWrite("ZWrite ", Float) = 1
+[Enum(UnityEngine.Rendering.CompareFunction)]_ZTest("ZTest", Float) = 4 // 4 is LEqual
+[Enum(RGBA,15,RGB,14)]_ColorMask("ColorMask", Float) = 15 // 15 is RGBA (binary 1111)
+    
+``````
+    
+Cull [_Cull]
+ZWrite [_ZWrite]
+Blend [_SrcBlend] [_DstBlend]
+ColorMask [_ColorMask]
+~~~
+
+Result:
+
+The Property Value in the selected Preset will be the default value
+
+**RenderQueue** is a Hard-Coded Property Name, you need to manually add it to the preset
+
+![image-20221122231655378](README.assets/image-20221122231655378.png)![image-20221122231816714](README.assets/image-20221122231816714.png)
+
+##### Create Preset File
+
+![image-20221122232307362](README.assets/image-20221122232307362.png)
+
+##### Edit Preset
+
+![image-20221122232354623](README.assets/image-20221122232354623.png)![image-20221122232415972](README.assets/image-20221122232415972.png)![image-20221122232425194](README.assets/image-20221122232425194.png)
+
+
+
+
+
 ### LWGUI Decorator
 
 #### Title
@@ -429,6 +480,12 @@ MaterialToggleUIDrawer(string keyword)
 - [ ] Support for Pass switch
 - [ ] Support for Curve
 - [x] Support for search properties
+- [x] Support for Preset Manager
+- [x] Support for adaptive enumeration widths
+- [ ] Support for Unity 2017
+  - [ ] Reflection engine private function
+  - [ ] Copy Properties Menu
+  - [ ] 复制属性菜单
 
 
 
