@@ -486,7 +486,6 @@ MaterialToggleUIDrawer(string keyword)
 - [ ] Support for Unity 2017
   - [ ] Reflection engine private function
   - [ ] Copy Properties Menu
-  - [ ] 复制属性菜单
 
 
 
