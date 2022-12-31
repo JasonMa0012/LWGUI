@@ -68,6 +68,7 @@ namespace LWGUI
 						var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
 						var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
 						materialEditor.ShaderProperty(rect, prop, prop.displayName);
+						MetaDataHelper.DisplayNameToTooltipAndHelpbox(shader, prop);
 					}
 				}
 			}
@@ -99,6 +100,7 @@ namespace LWGUI
 				RevertableHelper.fieldWidth = EditorGUIUtility.fieldWidth;
 				RevertableHelper.labelWidth = EditorGUIUtility.labelWidth;
 
+				// start drawing properties
 				foreach (var prop in props)
 				{
 					if ((prop.flags & MaterialProperty.PropFlags.HideInInspector) != 0 || !searchResult[prop.name])
@@ -131,7 +133,7 @@ namespace LWGUI
 					}
 					
 					RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, materialEditor, shader);
-					var label = new GUIContent(prop.displayName, MetaDataHelper.GetPropertyTooltip(shader, prop));
+					var label = new GUIContent(MetaDataHelper.GetPropertyDisplayName(shader, prop), MetaDataHelper.GetPropertyTooltip(shader, prop));
 					materialEditor.ShaderProperty(rect, prop, label);
 				}
 			}
@@ -147,7 +149,6 @@ namespace LWGUI
 			materialEditor.EnableInstancingField();
 			materialEditor.DoubleSidedGIField();
 			
-			// LWGUI logo
 			EditorGUILayout.Space();
 			Helper.DrawLogo();
 		}
@@ -1103,6 +1104,7 @@ namespace LWGUI
 	/// </summary>
 	internal class MetaDataHelper
 	{
+		#region Meta Data Container
 		private static Dictionary<Shader, Dictionary<string /*MainProp*/,	List<string /*SubProp*/>>>		_mainSubDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
 		private static Dictionary<Shader, Dictionary<string /*GroupName*/,	     string /*MainProp*/>>		_mainGroupNameDic = new Dictionary<Shader, Dictionary<string, string>>();
 		private static Dictionary<Shader, Dictionary<string /*PropName*/,	     string /*GroupName*/>>		_propParentDic	  = new Dictionary<Shader, Dictionary<string, string>>();
@@ -1126,6 +1128,7 @@ namespace LWGUI
 			if (_helpboxDic.ContainsKey(shader)) _helpboxDic[shader].Clear();
 			if (_presetDic.ContainsKey(shader)) _presetDic[shader].Clear();
 		}
+		#endregion
 
 
 		#region Main - Sub
@@ -1208,10 +1211,17 @@ namespace LWGUI
 				}
 			}
 		}
+		
+		public static bool IsSubProperty(Shader shader, MaterialProperty prop)
+		{
+			var isSubProp = false;
+			if (_propParentDic.ContainsKey(shader) && _propParentDic[shader].ContainsKey(prop.name))
+				isSubProp = true;
+			return isSubProp;
+		}
+
 		#endregion
 
-
-		#region Tooltip / Helpbox / Preset
 
 		private static void RegisterPropertyString(Shader shader, MaterialProperty prop, string str, Dictionary<Shader, Dictionary<string, List<string>>> dst)
 		{
@@ -1237,15 +1247,17 @@ namespace LWGUI
 			}
 			return str;
 		}
-		
+
+
+		#region Tooltip
 		public static void RegisterPropertyDefaultValueText(Shader shader, MaterialProperty prop, string text)
 		{
 			RegisterPropertyString(shader, prop, text, _defaultDic);
 		}
 
-		public static void RegisterPropertyTooltip(Shader shader, MaterialProperty prop, string tooltip)
+		public static void RegisterPropertyTooltip(Shader shader, MaterialProperty prop, string text)
 		{
-			RegisterPropertyString(shader, prop, tooltip, _tooltipDic);
+			RegisterPropertyString(shader, prop, text, _tooltipDic);
 		}
 
 		private static string GetPropertyDefaultValueText(Shader shader, MaterialProperty prop)
@@ -1267,17 +1279,76 @@ namespace LWGUI
 			str += $"Default: " + GetPropertyDefaultValueText(shader, prop);
 			return str;
 		}
-		
-		public static void RegisterPropertyHelpbox(Shader shader, MaterialProperty prop, string tooltip)
+		#endregion
+
+
+		#region Helpbox
+		public static void RegisterPropertyHelpbox(Shader shader, MaterialProperty prop, string text)
 		{
-			RegisterPropertyString(shader, prop, tooltip, _helpboxDic);
+			RegisterPropertyString(shader, prop, text, _helpboxDic);
 		}
 
 		public static string GetPropertyHelpbox(Shader shader, MaterialProperty prop, out int lineCount)
 		{
 			return GetPropertyString(shader, prop, _helpboxDic, out lineCount);
 		}
-		
+		#endregion
+
+
+		#region Display Name
+
+		private static readonly string _tooltipString = "#";
+		private static readonly string _helpboxString = "%";
+		public static string GetPropertyDisplayName(Shader shader, MaterialProperty prop)
+		{
+			var tooltipIndex = prop.displayName.IndexOf(_tooltipString, StringComparison.Ordinal);
+			var helpboxIndex = prop.displayName.IndexOf(_helpboxString, StringComparison.Ordinal);
+			var minIndex = tooltipIndex == -1 ? helpboxIndex : tooltipIndex;
+			if (tooltipIndex != -1 && helpboxIndex != -1)
+				minIndex = Mathf.Min(minIndex, helpboxIndex);
+			if (minIndex == -1)
+				return prop.displayName;
+			else if (minIndex == 0)
+				return string.Empty;
+			else
+				return prop.displayName.Substring(0, minIndex);
+		}
+
+		public static void DisplayNameToTooltipAndHelpbox(Shader shader, MaterialProperty prop)
+		{
+			var tooltips = prop.displayName.Split(new String[] { _tooltipString }, StringSplitOptions.None);
+			if (tooltips.Length > 1)
+			{
+				for (int i = 1; i <= tooltips.Length - 1; i++)
+				{
+					var str = tooltips[i];
+					var helpboxIndex = tooltips[i].IndexOf(_helpboxString, StringComparison.Ordinal);
+					if (helpboxIndex == 0)
+						str = "\n";
+					else if (helpboxIndex > 0)
+						str = tooltips[i].Substring(0, helpboxIndex);
+					RegisterPropertyTooltip(shader, prop, str);
+				}
+			}
+			var helpboxes = prop.displayName.Split(new String[] { _helpboxString }, StringSplitOptions.None);
+			if (helpboxes.Length > 1)
+			{
+				for (int i = 1; i <= helpboxes.Length - 1; i++)
+				{
+					var str = helpboxes[i];
+					var tooltipIndex = helpboxes[i].IndexOf(_tooltipString, StringComparison.Ordinal);
+					if (tooltipIndex == 0)
+						str = "\n";
+					else if (tooltipIndex > 0)
+						str = tooltips[i].Substring(0, tooltipIndex);
+					RegisterPropertyHelpbox(shader, prop, str);
+				}
+			}
+		}
+		#endregion
+ 
+
+		#region Preset
 		public static void RegisterPropertyPreset(Shader shader, MaterialProperty prop, string presetFileName, string selectedPresetName)
 		{
 			RegisterPropertyString(shader, prop, presetFileName + "/" + selectedPresetName, _presetDic);
@@ -1299,7 +1370,6 @@ namespace LWGUI
 				selectedPresetNames.Add(strs[1]);
 			}
 		}
-		
 		#endregion
 
 
@@ -1388,14 +1458,6 @@ namespace LWGUI
 			return result;
 		}
 
-		public static bool IsSubProperty(Shader shader, MaterialProperty prop)
-		{
-			var isSubProp = false;
-			if (_propParentDic.ContainsKey(shader) && _propParentDic[shader].ContainsKey(prop.name))
-				isSubProp = true;
-			return isSubProp;
-		}
-		
 	}
 	
 	internal class ReflectionHelper

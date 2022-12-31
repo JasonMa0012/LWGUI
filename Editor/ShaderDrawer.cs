@@ -1039,6 +1039,7 @@ namespace LWGUI
 
 	/// <summary>
 	/// Tooltip, describes the details of the property. (Default: property.name and property default value)
+	/// You can also use "#Text" in DisplayName to add Tooltip that supports Multi-Language.
 	/// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
 	/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 	/// </summary>
@@ -1070,6 +1071,7 @@ namespace LWGUI
 
 	/// <summary>
 	/// Display a Helpbox on the property
+	/// You can also use "%Text" in DisplayName to add Helpbox that supports Multi-Language.
 	/// message：a single-line string to display, support up to 4 ','. (Default: Newline)
 	/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 	/// </summary>
