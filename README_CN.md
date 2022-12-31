@@ -369,6 +369,7 @@ TitleDecorator(string group, string header)
 
 ```c#
 /// Tooltip, describes the details of the property. (Default: property.name and property default value)
+/// You can also use "#Text" in DisplayName to add Tooltip that supports Multi-Language.
 /// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
 /// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 public TooltipDecorator(string tooltip)
@@ -376,7 +377,8 @@ public TooltipDecorator(string tooltip)
 
 ```c#
 /// Display a Helpbox on the property
-/// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
+/// You can also use "%Text" in DisplayName to add Helpbox that supports Multi-Language.
+/// message：a single-line string to display, support up to 4 ','. (Default: Newline)
 /// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 public HelpboxDecorator(string message)
 ```
@@ -388,19 +390,18 @@ Example:
 [Tooltip(Test multiline Tooltip, a single line supports up to 4 commas)]
 [Tooltip()]
 [Tooltip(Line 3)]
-[Tooltip()]
-[Tooltip(Line 5)]
-_float_tooltip ("Float with Tooltips", float) = 1
+[Tooltip(Line 4)]
+_float_tooltip ("Float with Tooltips##这是中文Tooltip#これは日本語Tooltipです", float) = 1
 [Helpbox(Test multiline Helpbox)]
 [Helpbox(Line2)]
 [Helpbox(Line3)]
-_float_helpbox ("Float with Helpbox", float) = 1
+_float_helpbox ("Float with Helpbox%%这是中文Helpbox%これは日本語Helpboxです", float) = 1
 
 ```
 
-![image-20220926024341932](README_CN.assets/image-20220926024341932.png)
+![image-20221231221240686](README_CN.assets/image-20221231221240686.png)
 
-![image-20220928012041068](README_CN.assets/image-20220928012041068.png)
+![image-20221231221254101](README_CN.assets/image-20221231221254101.png)
 
 ### Unity Builtin Drawers
 
