@@ -76,6 +76,7 @@ Material:
     - _key3_Float4_PowerSlider: 0.0033800516
     - _minMaxSlider: 1
     - _preset: 0
+    - _preset1: 0
     - _range: 0
     - _rangeEnd: 0.7474536
     - _rangeStart: 0.24745372

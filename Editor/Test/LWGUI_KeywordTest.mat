@@ -19,6 +19,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Floats:
+    - _ZWrite: 1
     - _enum: 1
     - _group: 1
     - _keywordEnum: 1

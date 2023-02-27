@@ -1037,7 +1037,7 @@ namespace LWGUI
 			var gradientObject = ScriptableObject.CreateInstance<GradientObject>();
 			gradientObject.gradient = new Gradient();
 			gradientObject.gradient.colorKeys = new[] { new GradientColorKey(Color.gray, 0.0f), new GradientColorKey(Color.white, 1.0f) };
-			gradientObject.gradient.alphaKeys = new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 1f) };
+			gradientObject.gradient.alphaKeys = new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(1f, 1f) };
 
 			var ramp = CreateGradientTexture(gradientObject.gradient, width, height);
 			var png = ramp.EncodeToPNG();

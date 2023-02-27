@@ -54,7 +54,6 @@ namespace LWGUI
 				MetaDataHelper.RegisterMainProp(lwgui.shader, prop, _group);
 				MetaDataHelper.RegisterPropertyDefaultValueText(lwgui.shader, prop, 
 																RevertableHelper.GetDefaultProperty(lwgui.shader, prop).floatValue > 0 ? "On" : "Off");
-				return;
 			}
 
 			string finalGroupName = (_group != String.Empty && _group != "_") ? _group : prop.name;
