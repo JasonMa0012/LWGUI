@@ -1094,6 +1094,14 @@ namespace LWGUI
 		public override void Init(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			MetaDataHelper.RegisterPropertyHelpbox(shader, prop, _message);
+			
+			// To resolve such errors:
+			// ArgumentException: Getting control 26's position in a group with only 26 controls when doing repaint
+			{
+				// When the Drawer draws in the Repaint stage but does not draw in the Init stage, an error will occur.
+				// It is necessary to ensure that the same number of GUIs are drawn in different stages
+				EditorGUI.HelpBox(EditorGUILayout.GetControlRect(), "", MessageType.None);
+			}
 		}
 	}
 

@@ -51,7 +51,7 @@ namespace LWGUI
 			this.shader = (materialEditor.target as Material).shader;
 			this.lwguiEventType = RevertableHelper.InitAndHasShaderModified(shader, materialEditor.target, props) ? LwguiEventType.Init : LwguiEventType.Repaint;
 
-			// drawer register metadata
+			// drawer register metadata in Init
 			if (lwguiEventType == LwguiEventType.Init)
 			{
 				// reset all caches
@@ -60,20 +60,9 @@ namespace LWGUI
 				lastSearchingText = searchingText = string.Empty;
 				lastSearchMode = searchMode = SearchMode.All;
 				updateSearchMode = false;
-
-				if (Event.current.type != UnityEngine.EventType.Repaint)
-				{
-					foreach (var prop in props)
-					{
-						var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
-						var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
-						materialEditor.ShaderProperty(rect, prop, prop.displayName);
-						MetaDataHelper.DisplayNameToTooltipAndHelpbox(shader, prop);
-					}
-				}
 			}
-			// draw with metadata and searchingText
-			else if (lwguiEventType == LwguiEventType.Repaint)
+			
+			// draw with metadata
 			{
 				// Search Field
 				if (searchResult == null)
@@ -139,7 +128,7 @@ namespace LWGUI
 			}
 			
 			materialEditor.SetDefaultGUIWidths();
-
+			
 			EditorGUILayout.Space();
 			EditorGUILayout.Space();
 			if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
