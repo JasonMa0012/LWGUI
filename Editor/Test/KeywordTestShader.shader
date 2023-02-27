@@ -14,6 +14,7 @@ Shader "Hidden"
         [Toggle(_TOGGLE_KEYWORD)] _toggle1 ("Toggle", float) = 0
         
         [Main(g1, _, on, on)] _group ("Group", float) = 1
+        [SubEnum(g1, Off,0,On,1)] _ZWrite ("ZWrite Mode", Float) = 1
         [SubToggle(g1, _SUBTOGGLE_KEYWORD)] _toggle ("Sub Toggle", float) = 0
 
         [SubEnum(g1, Name1, 1, Name2, 0.5)]

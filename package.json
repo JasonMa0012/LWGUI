@@ -1,6 +1,6 @@
 {
   "name": "com.jasonma.lwgui",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "displayName": "LWGUI",
   "description": "A Lightweight, Flexible, Powerful Shader GUI System for Unity.",
   "keywords": [
@@ -12,7 +12,6 @@
     "email": "jasonma0012@foxmail.com",
     "url": "https://github.com/JasonMa0012/LWGUI"
   },
-  "type": "tool",
   "unity": "2019.2",
   "changelogUrl": "https://github.com/JasonMa0012/LWGUI/releases",
   "documentationUrl": "https://github.com/JasonMa0012/LWGUI",
