@@ -619,7 +619,7 @@ namespace LWGUI
 				EditorGUI.BeginChangeCheck();
 				Color src, dst;
 				src = cProp.colorValue;
-				var isHdr = (prop.flags & MaterialProperty.PropFlags.HDR) != MaterialProperty.PropFlags.None;
+				var isHdr = (colorArray[i].flags & MaterialProperty.PropFlags.HDR) != MaterialProperty.PropFlags.None;
 				dst = EditorGUI.ColorField(r, GUIContent.none, src, true, true, isHdr);
 				if (EditorGUI.EndChangeCheck())
 				{
