@@ -51,26 +51,15 @@ namespace LWGUI
 			this.shader = (materialEditor.target as Material).shader;
 			this.lwguiEventType = RevertableHelper.InitAndHasShaderModified(shader, materialEditor.target, props) ? LwguiEventType.Init : LwguiEventType.Repaint;
 
-			// drawer register metadata in Init
+			// reset caches and metadata
 			if (lwguiEventType == LwguiEventType.Init)
 			{
-				// reset all caches
 				MetaDataHelper.ClearCaches(shader);
 				searchResult = null;
 				lastSearchingText = searchingText = string.Empty;
 				lastSearchMode = searchMode = SearchMode.All;
 				updateSearchMode = false;
-				
-				if (Event.current.type != UnityEngine.EventType.Repaint)
-				{
-					foreach (var prop in props)
-					{
-						// var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
-						// var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
-						// materialEditor.ShaderProperty(rect, prop, prop.displayName);
-						MetaDataHelper.DisplayNameToTooltipAndHelpbox(shader, prop);
-					}
-				}
+				MetaDataHelper.ReregisterAllPropertyMetaData(shader, props);
 			}
 			
 			// draw with metadata
@@ -120,7 +109,7 @@ namespace LWGUI
 
 					PresetHelper.DrawAddPropertyToPresetMenu(rect, shader, prop);
 
-					// Process some builtin types display misplaced
+					// fix some builtin types display misplaced
 					switch (prop.type)
 					{
 						case MaterialProperty.PropType.Texture:
@@ -1248,6 +1237,28 @@ namespace LWGUI
 			return str;
 		}
 
+		public static void ReregisterAllPropertyMetaData(Shader shader, MaterialProperty[] props)
+		{
+			foreach (var prop in props)
+			{
+				List<MaterialPropertyDrawer> decoratorDrawers;
+				var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
+				if (decoratorDrawers != null && decoratorDrawers.Count > 0)
+				{
+					foreach (var decoratorDrawer in decoratorDrawers)
+					{
+						if (decoratorDrawer is IBaseDrawer)
+							(decoratorDrawer as IBaseDrawer).InitMetaData(shader, prop, props);
+					}
+				}
+				if (drawer != null)
+				{
+					if (drawer is IBaseDrawer)
+						(drawer as IBaseDrawer).InitMetaData(shader, prop, props);
+				}
+				DisplayNameToTooltipAndHelpbox(shader, prop); 
+			}
+		}
 
 		#region Tooltip
 		public static void RegisterPropertyDefaultValueText(Shader shader, MaterialProperty prop, string text)
@@ -1462,18 +1473,26 @@ namespace LWGUI
 	
 	internal class ReflectionHelper
 	{
-		public static Assembly     UnityEditor_Assembly                         	= Assembly.GetAssembly(typeof(Editor));
-	
-		public static Type         MaterialPropertyHandler_Type                 	= UnityEditor_Assembly.GetType("UnityEditor.MaterialPropertyHandler");
-		public static MethodInfo   MaterialPropertyHandler_GetHandler_Method    	= MaterialPropertyHandler_Type.GetMethod("GetHandler", BindingFlags.Static | BindingFlags.NonPublic);
-		public static PropertyInfo MaterialPropertyHandler_PropertyDrawer_Property  = ReflectionHelper.MaterialPropertyHandler_Type.GetProperty("propertyDrawer");
+		// get private members in UnityEditor class
+		public static Assembly     UnityEditor_Assembly                            = Assembly.GetAssembly(typeof(Editor));
+		public static Type         MaterialPropertyHandler_Type                    = UnityEditor_Assembly.GetType("UnityEditor.MaterialPropertyHandler");
+		public static MethodInfo   MaterialPropertyHandler_GetHandler_Method       = MaterialPropertyHandler_Type.GetMethod("GetHandler", BindingFlags.Static | BindingFlags.NonPublic);
+		public static PropertyInfo MaterialPropertyHandler_PropertyDrawer_Property = ReflectionHelper.MaterialPropertyHandler_Type.GetProperty("propertyDrawer");
+		public static FieldInfo    MaterialPropertyHandler_DecoratorDrawers_Field  = ReflectionHelper.MaterialPropertyHandler_Type.GetField("m_DecoratorDrawers", BindingFlags.NonPublic | BindingFlags.Instance);
 
-		
 		public static MaterialPropertyDrawer GetPropertyDrawer(Shader shader, MaterialProperty prop)
 		{
+			List<MaterialPropertyDrawer> decoratorDrawers;
+			return GetPropertyDrawer(shader, prop, out decoratorDrawers);
+		}
+		
+		public static MaterialPropertyDrawer GetPropertyDrawer(Shader shader, MaterialProperty prop, out List<MaterialPropertyDrawer> decoratorDrawers)
+		{
+			decoratorDrawers = new List<MaterialPropertyDrawer>();
 			var handler = ReflectionHelper.MaterialPropertyHandler_GetHandler_Method.Invoke(null, new System.Object[] { shader, prop.name });
 			if (handler != null && handler.GetType() == ReflectionHelper.MaterialPropertyHandler_Type)
 			{
+				decoratorDrawers = ReflectionHelper.MaterialPropertyHandler_DecoratorDrawers_Field.GetValue(handler) as List<MaterialPropertyDrawer>;
 				return ReflectionHelper.MaterialPropertyHandler_PropertyDrawer_Property.GetValue(handler) as MaterialPropertyDrawer;
 			}
 			return null;
