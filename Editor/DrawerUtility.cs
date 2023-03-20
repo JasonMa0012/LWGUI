@@ -60,6 +60,17 @@ namespace LWGUI
 				lastSearchingText = searchingText = string.Empty;
 				lastSearchMode = searchMode = SearchMode.All;
 				updateSearchMode = false;
+				
+				if (Event.current.type != UnityEngine.EventType.Repaint)
+				{
+					foreach (var prop in props)
+					{
+						// var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
+						// var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
+						// materialEditor.ShaderProperty(rect, prop, prop.displayName);
+						MetaDataHelper.DisplayNameToTooltipAndHelpbox(shader, prop);
+					}
+				}
 			}
 			
 			// draw with metadata
