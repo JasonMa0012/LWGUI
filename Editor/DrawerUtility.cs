@@ -131,10 +131,10 @@ namespace LWGUI
 			
 			EditorGUILayout.Space();
 			EditorGUILayout.Space();
+		#if UNITY_2019_4_OR_NEWER
 			if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
-			{
+		#endif
 				materialEditor.RenderQueueField();
-			}
 			materialEditor.EnableInstancingField();
 			materialEditor.DoubleSidedGIField();
 			
@@ -281,7 +281,7 @@ namespace LWGUI
 		private static void CheckProperty(Shader shader, MaterialProperty prop)
 		{
 			Debug.Assert(_defaultProps.ContainsKey(shader) && _defaultProps[shader].ContainsKey(prop.name),
-						 $"Uninitialized Shader:{shader.name} or Prop:{prop.name}");
+						 "Uninitialized Shader:" + shader.name + "or Prop:" + prop.name);
 		}
 
 		public static void ForceInit() { _forceInit = true; }
@@ -292,7 +292,7 @@ namespace LWGUI
 		public static bool InitAndHasShaderModified(Shader shader, Object material, MaterialProperty[] props)
 		{
 			var shaderPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6) + AssetDatabase.GetAssetPath(shader);
-			Debug.Assert(File.Exists(shaderPath), $"Unable to find Shader: {shader.name} in {shaderPath}!");
+			Debug.Assert(File.Exists(shaderPath), "Unable to find Shader: " + shader.name + " in " + shaderPath + "!");
 
 			var currTime = (new FileInfo(shaderPath)).LastWriteTime;
 
@@ -590,9 +590,10 @@ namespace LWGUI
 		/// </summary>
 		public static LWGUI GetLWGUI(MaterialEditor editor)
 		{
-			if (editor.customShaderGUI != null && editor.customShaderGUI is LWGUI)
+			var customShaderGUI = ReflectionHelper.GetCustomShaderGUI(editor);
+			if (customShaderGUI != null && customShaderGUI is LWGUI)
 			{
-				LWGUI gui = editor.customShaderGUI as LWGUI;
+				LWGUI gui = customShaderGUI as LWGUI;
 				return gui;
 			}
 			else
@@ -1168,7 +1169,7 @@ namespace LWGUI
 								_mainSubDic[shader][mainPropName].Add(prop.name);
 						}
 						else
-							Debug.LogError($"Unregistered Main Property:{mainPropName}");
+							Debug.LogError("Unregistered Main Property:" + mainPropName);
 
 						// add to _propParentDic
 						if (!_propParentDic.ContainsKey(shader))
@@ -1177,10 +1178,10 @@ namespace LWGUI
 							_propParentDic[shader].Add(prop.name, groupName);
 					}
 					else
-						Debug.LogError($"Unregistered Main Group Name:{group}");
+						Debug.LogError("Unregistered Main Group Name: " + group);
 				}
 				else
-					Debug.LogError($"Unregistered Shader:{shader.name}");
+					Debug.LogError("Unregistered Shader: " + shader.name);
 			}
 			
 			// add to _extraPropDic
@@ -1273,7 +1274,8 @@ namespace LWGUI
 
 		private static string GetPropertyDefaultValueText(Shader shader, MaterialProperty prop)
 		{
-			var defaultText = GetPropertyString(shader, prop, _defaultDic, out _);
+			int lineCount;
+			var defaultText = GetPropertyString(shader, prop, _defaultDic, out lineCount);
 			if (string.IsNullOrEmpty(defaultText))
 				// TODO: use Reflection - handle builtin Toggle / Enum
 				defaultText = RevertableHelper.GetPropertyDefaultValueText(shader, prop);
@@ -1283,11 +1285,12 @@ namespace LWGUI
 		
 		public static string GetPropertyTooltip(Shader shader, MaterialProperty prop)
 		{
-			var str = GetPropertyString(shader, prop, _tooltipDic, out _);
+			int lineCount;
+			var str = GetPropertyString(shader, prop, _tooltipDic, out lineCount);
 			if (!string.IsNullOrEmpty(str))
 				str += "\n\n";
-			str += $"Name: {prop.name}\n";
-			str += $"Default: " + GetPropertyDefaultValueText(shader, prop);
+			str += "Name: " + prop.name + "\n";
+			str += "Default: " + GetPropertyDefaultValueText(shader, prop);
 			return str;
 		}
 		#endregion
@@ -1477,8 +1480,21 @@ namespace LWGUI
 		public static Assembly     UnityEditor_Assembly                            = Assembly.GetAssembly(typeof(Editor));
 		public static Type         MaterialPropertyHandler_Type                    = UnityEditor_Assembly.GetType("UnityEditor.MaterialPropertyHandler");
 		public static MethodInfo   MaterialPropertyHandler_GetHandler_Method       = MaterialPropertyHandler_Type.GetMethod("GetHandler", BindingFlags.Static | BindingFlags.NonPublic);
-		public static PropertyInfo MaterialPropertyHandler_PropertyDrawer_Property = ReflectionHelper.MaterialPropertyHandler_Type.GetProperty("propertyDrawer");
-		public static FieldInfo    MaterialPropertyHandler_DecoratorDrawers_Field  = ReflectionHelper.MaterialPropertyHandler_Type.GetField("m_DecoratorDrawers", BindingFlags.NonPublic | BindingFlags.Instance);
+		public static PropertyInfo MaterialPropertyHandler_PropertyDrawer_Property = MaterialPropertyHandler_Type.GetProperty("propertyDrawer");
+		public static FieldInfo    MaterialPropertyHandler_DecoratorDrawers_Field  = MaterialPropertyHandler_Type.GetField("m_DecoratorDrawers", BindingFlags.NonPublic | BindingFlags.Instance);
+
+
+		public static MaterialPropertyDrawer GetPropertyDrawer(Shader shader, MaterialProperty prop, out List<MaterialPropertyDrawer> decoratorDrawers)
+		{
+			decoratorDrawers = new List<MaterialPropertyDrawer>();
+			var handler = MaterialPropertyHandler_GetHandler_Method.Invoke(null, new System.Object[] { shader, prop.name });
+			if (handler != null && handler.GetType() == MaterialPropertyHandler_Type)
+			{
+				decoratorDrawers = MaterialPropertyHandler_DecoratorDrawers_Field.GetValue(handler) as List<MaterialPropertyDrawer>;
+				return MaterialPropertyHandler_PropertyDrawer_Property.GetValue(handler, null) as MaterialPropertyDrawer;
+			}
+			return null;
+		}
 
 		public static MaterialPropertyDrawer GetPropertyDrawer(Shader shader, MaterialProperty prop)
 		{
@@ -1486,16 +1502,19 @@ namespace LWGUI
 			return GetPropertyDrawer(shader, prop, out decoratorDrawers);
 		}
 		
-		public static MaterialPropertyDrawer GetPropertyDrawer(Shader shader, MaterialProperty prop, out List<MaterialPropertyDrawer> decoratorDrawers)
+		
+	#if !UNITY_2019_2_OR_NEWER
+		public static Type      MaterialEditor_Type                  = UnityEditor_Assembly.GetType("UnityEditor.MaterialEditor");
+		public static FieldInfo MaterialEditor_CustomShaderGUI_Field = MaterialEditor_Type.GetField("m_CustomShaderGUI", BindingFlags.NonPublic | BindingFlags.Instance);
+	#endif
+		
+		public static ShaderGUI GetCustomShaderGUI(MaterialEditor editor)
 		{
-			decoratorDrawers = new List<MaterialPropertyDrawer>();
-			var handler = ReflectionHelper.MaterialPropertyHandler_GetHandler_Method.Invoke(null, new System.Object[] { shader, prop.name });
-			if (handler != null && handler.GetType() == ReflectionHelper.MaterialPropertyHandler_Type)
-			{
-				decoratorDrawers = ReflectionHelper.MaterialPropertyHandler_DecoratorDrawers_Field.GetValue(handler) as List<MaterialPropertyDrawer>;
-				return ReflectionHelper.MaterialPropertyHandler_PropertyDrawer_Property.GetValue(handler) as MaterialPropertyDrawer;
-			}
-			return null;
+		#if !UNITY_2019_2_OR_NEWER
+			return MaterialEditor_CustomShaderGUI_Field.GetValue(editor) as ShaderGUI;
+		#else
+			return editor.customShaderGUI;
+		#endif
 		}
 	}
 
@@ -1505,7 +1524,7 @@ namespace LWGUI
 		
 		private static bool _isInitComplete;
 
-		public static bool IsInitComplete { get => _isInitComplete; }
+		public static bool IsInitComplete { get { return _isInitComplete; } }
 
 		public static void Init()
 		{
@@ -1519,7 +1538,7 @@ namespace LWGUI
 		{
 			_loadedPresets.Clear();
 			_isInitComplete = false;
-			var GUIDs = AssetDatabase.FindAssets($"t:{typeof(ShaderPropertyPreset)}");
+			var GUIDs = AssetDatabase.FindAssets("t:" + typeof(ShaderPropertyPreset));
 			foreach (var GUID in GUIDs)
 			{
 				var preset = AssetDatabase.LoadAssetAtPath<ShaderPropertyPreset>(AssetDatabase.GUIDToAssetPath(GUID));
@@ -1533,7 +1552,7 @@ namespace LWGUI
 			if (!preset) return;
 			if (_loadedPresets.ContainsKey(preset.name))
 			{
-				Debug.LogError($"ShaderPropertyPreset: '{preset.name}' already exists!");
+				Debug.LogError("ShaderPropertyPreset: '" + preset.name + "' already exists!");
 				return;
 			}
 			
@@ -1548,7 +1567,7 @@ namespace LWGUI
 			
 			if (!_loadedPresets.ContainsKey(presetFileName) || !_loadedPresets[presetFileName])
 			{
-				Debug.LogError($"Invalid ShaderPropertyPreset: ‘{presetFileName}’ !");
+				Debug.LogError("Invalid ShaderPropertyPreset: ‘" + presetFileName + "’ !");
 				return null;
 			}
 
@@ -1610,17 +1629,17 @@ namespace LWGUI
 						var propertyValue = preset.propertyValues.Find((value => value.propertyName == prop.name));
 						if (propertyValue == null)
 						{
-							var content = new GUIContent($"Add '{prop.displayName}' to '{selectedPresetNames[selected]}'");
+							var content = new GUIContent("Add '" + prop.displayName + "' to '" + selectedPresetNames[selected] + "'");
 							operations.Add(content, PresetOperation.Add);
 							indices.Add(content, selected);
 							return new List<GUIContent>(){content};
 						}
 						else
 						{
-							var contentUpdate = new GUIContent($"Update '{prop.displayName}' in '{selectedPresetNames[selected]}'");
+							var contentUpdate = new GUIContent("Update '" + prop.displayName + "' in '" + selectedPresetNames[selected] + "'");
 							operations.Add(contentUpdate, PresetOperation.Update);
 							indices.Add(contentUpdate, selected);
-							var contentRemove = new GUIContent($"Remove '{prop.displayName}' from '{selectedPresetNames[selected]}'");
+							var contentRemove = new GUIContent("Remove '" + prop.displayName + "' from '" + selectedPresetNames[selected] + "'");
 							operations.Add(contentRemove, PresetOperation.Remove);
 							indices.Add(contentRemove, selected);
 							return new List<GUIContent>(){contentUpdate, contentRemove};

@@ -483,8 +483,8 @@ MaterialToggleUIDrawer(string keyword)
 - [x] Support for search properties
 - [x] Support for Preset Manager
 - [x] Support for adaptive enumeration widths
-- [ ] Support for Unity 2017
-  - [ ] Reflection engine private function
+- [x] Support for Unity 2017
+  - [x] Reflection engine private function
   - [ ] Copy Properties Menu
 
 
