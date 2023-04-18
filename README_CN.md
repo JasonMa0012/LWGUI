@@ -44,12 +44,12 @@
 
 ## Installation
 
-1. 确保你的环境兼容LWGUI: **Unity 2019.2+**
-
-   **Unity 2019以下版本已经停止维护**, 如有需要请自行下载**2017-2018分支**使用.
+1. 确保你的环境兼容LWGUI: **Unity 2017.4+**
 2. 打开已有工程
 3. （可能需要代理）`Window > Package Manager > Add > Add package from git URL` 输入`https://github.com/JasonMa0012/LWGUI.git`
+
    - 你也可以选择手动从Github下载Zip，然后从`Package Manager > Add package from disk`添加Local Package
+   - 对于Unity 2017, 请直接将Zip解压到Assets目录
 
 ## Usage
 
@@ -478,8 +478,8 @@ MaterialToggleUIDrawer(string keyword)
 - [x] **支持仅显示已修改项**
 - [x] 支持预设管理器
 - [x] 支持自适应枚举宽度
-- [ ] 支持2017
-  - [ ] 反射引擎私有函数
+- [x] 支持2017
+  - [x] 反射引擎私有函数
   - [ ] 复制属性菜单
 
 

@@ -46,13 +46,12 @@ Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a 
 
 ## Installation
 
-1. Make sure your environment is compatible with LWGUI: **Unity 2019.2+**
-
-   **The Unity 2017-2018 version has stopped maintenance**, if necessary, please download **2017-2018 branch** to use.
+1. Make sure your environment is compatible with LWGUI: **Unity 2017.4+**
 2. Open your project
 3. `Window > Package Manager > Add > Add package from git URL` , enter: `https://github.com/JasonMa0012/LWGUI.git`
 
    - You can also choose to manually download the Zip from Github，then: `Package Manager > Add package from disk`
+   - For Unity 2017, please extract the Zip directly to the Assets directory
 
 ## Usage
 
@@ -483,8 +482,8 @@ MaterialToggleUIDrawer(string keyword)
 - [x] Support for search properties
 - [x] Support for Preset Manager
 - [x] Support for adaptive enumeration widths
-- [ ] Support for Unity 2017
-  - [ ] Reflection engine private function
+- [x] Support for Unity 2017
+  - [x] Reflection engine private function
   - [ ] Copy Properties Menu
 
 

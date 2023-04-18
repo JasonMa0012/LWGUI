@@ -157,7 +157,7 @@ namespace LWGUI
 				}
 				else
 				{
-					Debug.LogWarning($"Property:'{prop.name}' Type:'{prop.type}' mismatch!");
+					Debug.LogWarning("Property:'" + prop.name + "' Type:'" + prop.type + "' mismatch!");
 					editor.DefaultShaderProperty(rect, prop, label.text);
 				}
 			}
@@ -625,7 +625,11 @@ namespace LWGUI
 				Color src, dst;
 				src = cProp.colorValue;
 				var isHdr = (colorArray[i].flags & MaterialProperty.PropFlags.HDR) != MaterialProperty.PropFlags.None;
-				dst = EditorGUI.ColorField(r, GUIContent.none, src, true, true, isHdr);
+				dst = EditorGUI.ColorField(r, GUIContent.none, src, true, true, isHdr
+										   #if !UNITY_2018_1_OR_NEWER
+												, new ColorPickerHDRConfig(0.0f, float.MaxValue, 0.0f, float.MaxValue)
+										   #endif
+										   );
 				if (EditorGUI.EndChangeCheck())
 				{
 					cProp.colorValue = dst;
@@ -906,7 +910,7 @@ namespace LWGUI
 				index = 5;
 			else
 			{
-				Debug.LogError($"Channel Property:{prop.name} invalid vector found, reset to A");
+				Debug.LogError("Channel Property: " + prop.name + " invalid vector found, reset to A");
 				prop.vectorValue = _vector4Values[3];
 				index = 3;
 			}
@@ -987,7 +991,7 @@ namespace LWGUI
 			{
 				var c = GUI.color;
 				GUI.color = Color.red;
-				label.text += $"  (Invalid Preset File: {presetFileName})";
+				label.text += "  (Invalid Preset File: " + presetFileName + ")";
 				EditorGUI.LabelField(rect, label);
 				GUI.color = c;
 				return;
@@ -1024,6 +1028,8 @@ namespace LWGUI
 		private string _header;
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight + 6f; }
+
+		public override void InitMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps) { }
 
 		public TitleDecorator(string header) : this("_", header) {}
 		public TitleDecorator(string group, string header)
@@ -1107,14 +1113,6 @@ namespace LWGUI
 		public override void InitMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps)
 		{
 			MetaDataHelper.RegisterPropertyHelpbox(inShader, inProp, _message);
-			
-			// To resolve such errors:
-			// ArgumentException: Getting control 26's position in a group with only 26 controls when doing repaint
-			{
-				// When the Drawer draws in the Repaint stage but does not draw in the Init stage, an error will occur.
-				// It is necessary to ensure that the same number of GUIs are drawn in different stages
-				EditorGUI.HelpBox(EditorGUILayout.GetControlRect(), "", MessageType.None);
-			}
 		}
 	}
 
