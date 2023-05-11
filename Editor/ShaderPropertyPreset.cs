@@ -157,13 +157,7 @@ namespace LWGUI
 		private void OnValidate()
 		{
 			// Debug.Log($"{this.name} OnValidate");
-			foreach (var preset in presets)
-			{
-				foreach (var propertyValue in preset.propertyValues)
-				{
-					propertyValue.OnValidate();
-				}
-			}
+			PresetHelper.ForceInit();
 			RevertableHelper.ForceInit();
 		}
 		

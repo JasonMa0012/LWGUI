@@ -320,8 +320,13 @@ namespace LWGUI
 
 		public KWEnumDrawer(string group, string[] names, string[] keyWords = null, float[] values = null)
 		{
+			Init(group, names, keyWords, values);
+		}
+
+		protected void Init(string group, string[] names, string[] keyWords, float[] values)
+		{
 			this.group = group;
-			
+
 			this._names = new GUIContent[names.Length];
 			for (int index = 0; index < names.Length; ++index)
 				this._names[index] = new GUIContent(names[index]);
@@ -410,6 +415,28 @@ namespace LWGUI
 
 	internal class SubEnumDrawer : KWEnumDrawer
 	{
+		// UnityEditor.MaterialEnumDrawer(string enumName)
+		// enumName: like "UnityEngine.Rendering.BlendMode"
+		public SubEnumDrawer(string group, string enumName) : base(group, enumName)
+		{
+			var array = ReflectionHelper.GetAllTypes();
+			try
+			{
+				System.Type enumType = ((IEnumerable<System.Type>) array).FirstOrDefault<System.Type>((Func<System.Type, bool>) (x => x.IsSubclassOf(typeof (Enum)) && (x.Name == enumName || x.FullName == enumName)));
+				string[] names = Enum.GetNames(enumType);
+				Array valuesArray = Enum.GetValues(enumType);
+				var values = new float[valuesArray.Length];
+				for (int index = 0; index < valuesArray.Length; ++index)
+					values[index] = (float) (int) valuesArray.GetValue(index);
+				Init(group, names, null, values);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogWarningFormat("Failed to create SubEnum, enum {0} not found", (object) enumName);
+				throw;
+			}
+		}
+
 		public SubEnumDrawer(string group, string n1, float v1, string n2, float v2)
 			: base(group, new []{n1, n2}, null, new []{v1, v2}){ }
 		public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3)
@@ -424,6 +451,8 @@ namespace LWGUI
 			: base(group, new []{n1, n2, n3, n4, n5, n6, n7}, null, new []{v1, v2, v3, v4, v5, v6, v7}){ }
 
 		protected override string GetKeywordName(string propName, string name) { return "_"; }
+		
+		public override void Apply(MaterialProperty prop) { }
 	}
 
 	internal class SubKeywordEnumDrawer : KWEnumDrawer
@@ -818,7 +847,7 @@ namespace LWGUI
 			EditorGUIUtility.labelWidth = w;
 
 			// draw label
-			EditorGUI.LabelField(controlRect, label);
+			EditorGUI.PrefixLabel(controlRect, label);
 
 			// draw min max slider
 			Rect[] splittedRect = Helper.SplitRect(inputRect, 3);
