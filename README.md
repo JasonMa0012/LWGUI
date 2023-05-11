@@ -170,7 +170,9 @@ KWEnumDrawer(string group, string n1, string k1, string n2, string k2, string n3
 #### SubEnum - SubKeywordEnum
 
 ```c#
-
+// enumName: like "UnityEngine.Rendering.BlendMode"
+SubEnumDrawer(string group, string enumName)
+    
 SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4, string n5, float v5, string n6, float v6, string n7, float v7)
 
 SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5, string kw6, string kw7, string kw8, string kw9)
