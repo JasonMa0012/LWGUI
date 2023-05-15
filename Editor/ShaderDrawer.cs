@@ -382,7 +382,7 @@ namespace LWGUI
 				index = 0;
 				if (!prop.hasMixedValue)
 				{
-					Debug.LogError("Property: " + prop.displayName + " has unknown Enum Value: '" + prop.floatValue + "' !\n"
+					Debug.LogError("Property: " + MetaDataHelper.GetPropertyDisplayName(shader, prop) + " has unknown Enum Value: '" + prop.floatValue + "' !\n"
 								 + "It will be set to: '" + _values[index] + "'!");
 					prop.floatValue = _values[index];
 					Helper.SetShaderKeyWord(editor.targets, keyWords, index);

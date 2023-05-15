@@ -108,7 +108,7 @@ namespace LWGUI
 					if ((prop.flags & MaterialProperty.PropFlags.HideInInspector) != 0 || !searchResult[prop.name])
 						continue;
 
-					var height = materialEditor.GetPropertyHeight(prop, prop.displayName);
+					var height = materialEditor.GetPropertyHeight(prop, MetaDataHelper.GetPropertyDisplayName(shader, prop));
 
 					// ignored when in Folding Group
 					if (height <= 0) continue;
@@ -247,15 +247,14 @@ namespace LWGUI
 			{
 				foreach (var prefix in _groups[material].Keys)
 				{
-					// prefix = group name, suffix = keyWord
+					// prefix = group name
 					if (group.Contains(prefix))
 					{
 						string suffix = group.Substring(prefix.Length, group.Length - prefix.Length).ToUpperInvariant();
-						if (_keywords[material].ContainsKey(suffix))
-						{
-							// visible when keyword is activated and group is not folding 
-							return _keywords[material][suffix] && !_groups[material][prefix];
-						}
+						return _keywords[material].Keys.Any((keyword =>
+																keyword.Contains(suffix)      // fuzzy matching keyword and suffix
+															 && _keywords[material][keyword]  // keyword is enabled
+															 && !_groups[material][prefix])); // group is not folding
 					}
 				}
 				return false;
@@ -1457,7 +1456,7 @@ namespace LWGUI
 					}
 
 					// whole word match search
-					var displayName = prop.displayName.ToLower();
+					var displayName = GetPropertyDisplayName(shader, prop).ToLower();
 					var name = prop.name.ToLower();
 					searchingText = searchingText.ToLower();
 
@@ -1663,6 +1662,7 @@ namespace LWGUI
 		{
 			if (Event.current.type == EventType.ContextClick && rect.Contains(Event.current.mousePosition))
 			{
+				var propDisplayName = MetaDataHelper.GetPropertyDisplayName(shader, prop);
 				List<string> presetFileNames, selectedPresetNames;
 				MetaDataHelper.GetAllPropertyPreset(shader, out presetFileNames, out selectedPresetNames);
 				if (presetFileNames != null && selectedPresetNames != null)
@@ -1678,17 +1678,17 @@ namespace LWGUI
 						var propertyValue = preset.propertyValues.Find((value => value.propertyName == prop.name));
 						if (propertyValue == null)
 						{
-							var content = new GUIContent("Add '" + prop.displayName + "' to '" + selectedPresetNames[selected] + "'");
+							var content = new GUIContent("Add '" + propDisplayName + "' to '" + selectedPresetNames[selected] + "'");
 							operations.Add(content, PresetOperation.Add);
 							indices.Add(content, selected);
 							return new List<GUIContent>() { content };
 						}
 						else
 						{
-							var contentUpdate = new GUIContent("Update '" + prop.displayName + "' in '" + selectedPresetNames[selected] + "'");
+							var contentUpdate = new GUIContent("Update '" + propDisplayName + "' in '" + selectedPresetNames[selected] + "'");
 							operations.Add(contentUpdate, PresetOperation.Update);
 							indices.Add(contentUpdate, selected);
-							var contentRemove = new GUIContent("Remove '" + prop.displayName + "' from '" + selectedPresetNames[selected] + "'");
+							var contentRemove = new GUIContent("Remove '" + propDisplayName + "' from '" + selectedPresetNames[selected] + "'");
 							operations.Add(contentRemove, PresetOperation.Remove);
 							indices.Add(contentRemove, selected);
 							return new List<GUIContent>() { contentUpdate, contentRemove };
