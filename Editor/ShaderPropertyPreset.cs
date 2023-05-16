@@ -187,5 +187,21 @@ namespace LWGUI
 				}
 			}
 		}
+
+		public Preset GetPreset(string presetName)
+		{
+			return presets.Find((inPreset => inPreset.presetName == presetName));
+		}
+
+		public Preset GetPreset(MaterialProperty property)
+		{
+			if (property.floatValue < presets.Count)
+				return presets[(int)property.floatValue];
+			else
+			{
+				Debug.LogError("Preset Property: " + property.name + " Index Out Of Range!");
+				return null;
+			}
+		}
 	}
 }
