@@ -28,23 +28,25 @@ namespace LWGUI
 
 	internal class LWGUI : ShaderGUI
 	{
-		public MaterialProperty[]                                props;
-		public MaterialEditor                                    materialEditor;
-		public Material											 material;
-		public Dictionary<string /*PropName*/, bool /*Display*/> searchResult;
-		public string                                            searchingText     = String.Empty;
-		public string                                            lastSearchingText = String.Empty;
-		public SearchMode                                        searchMode        = SearchMode.All;
-		public SearchMode                                        lastSearchMode    = SearchMode.All;
-		public bool                                              updateSearchMode  = false;
-		public bool                                              forceInit         = false;
-		public LwguiEventType                                    lwguiEventType    = LwguiEventType.Init;
-		public Shader                                            shader;
+		public static bool                                              forceInit = false;
+		public        MaterialProperty[]                                props;
+		public        MaterialEditor                                    materialEditor;
+		public        Material                                          material;
+		public        Dictionary<string /*PropName*/, bool /*Display*/> searchResult;
+		public        string                                            searchingText     = String.Empty;
+		public        string                                            lastSearchingText = String.Empty;
+		public        SearchMode                                        searchMode        = SearchMode.All;
+		public        SearchMode                                        lastSearchMode    = SearchMode.All;
+		public        bool                                              updateSearchMode  = false;
+		public        LwguiEventType                                    lwguiEventType    = LwguiEventType.Init;
+		public        Shader                                            shader;
 
 		/// <summary>
 		/// Called when switch to a new Material Window, each window has a LWGUI instance
 		/// </summary>
 		public LWGUI() { }
+
+		public static void ForceInit() { forceInit = true; }
 
 		public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
 		{
@@ -292,8 +294,11 @@ namespace LWGUI
 
 		private static void CheckProperty(Material material, MaterialProperty prop)
 		{
-			Debug.Assert(_defaultProps.ContainsKey(material) && _defaultProps[material].ContainsKey(prop.name),
-						 "Uninitialized Shader:" + material.name + "or Prop:" + prop.name);
+			if (!(_defaultProps.ContainsKey(material) && _defaultProps[material].ContainsKey(prop.name)))
+			{
+				Debug.LogWarning("Uninitialized Shader:" + material.name + "or Prop:" + prop.name);
+				LWGUI.ForceInit();
+			}
 		}
 
 		public static void ForceInit() { _forceInit = true; }
@@ -324,7 +329,7 @@ namespace LWGUI
 				_lastShaders[material] = shader;
 				_lastShaderModifiedTime[shader] = currTime;
 			}
-			else 
+			else
 				return false;
 
 			// Get and cache new props
@@ -1122,11 +1127,11 @@ namespace LWGUI
 		private static Dictionary<Shader, Dictionary<string /*GroupName*/, string /*MainProp*/>>     _mainGroupNameDic = new Dictionary<Shader, Dictionary<string, string>>();
 		private static Dictionary<Shader, Dictionary<string /*PropName*/, string /*GroupName*/>>     _propParentDic    = new Dictionary<Shader, Dictionary<string, string>>();
 
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*ExtraPropName*/>>>            _extraPropDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*Tooltip*/>>>                  _tooltipDic   = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*DefaultValue*/>>>             _defaultDic   = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*Helpbox*/>>>                  _helpboxDic   = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<ShaderPropertyPreset /*Preset*/>>>	  _presetDic    = new Dictionary<Shader, Dictionary<string, List<ShaderPropertyPreset>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*ExtraPropName*/>>>        _extraPropDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*Tooltip*/>>>              _tooltipDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*DefaultValue*/>>>         _defaultDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*Helpbox*/>>>              _helpboxDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
+		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<ShaderPropertyPreset /*Preset*/>>> _presetDic = new Dictionary<Shader, Dictionary<string, List<ShaderPropertyPreset>>>();
 
 		public static void ClearCaches(Shader shader)
 		{
@@ -1403,7 +1408,7 @@ namespace LWGUI
 		{
 			var result = new Dictionary<MaterialProperty, ShaderPropertyPreset>();
 
-			var presetProps = props.Where((property => 
+			var presetProps = props.Where((property =>
 											  _presetDic.ContainsKey(shader) && _presetDic[shader].ContainsKey(property.name)));
 			foreach (var presetProp in presetProps)
 			{
@@ -1666,8 +1671,7 @@ namespace LWGUI
 				var propDisplayName = MetaDataHelper.GetPropertyDisplayName(shader, prop);
 				var propPresetDic = MetaDataHelper.GetAllPropertyPreset(shader, props);
 				if (propPresetDic.Count == 0) return;
-				
-				
+
 				// Create Menus
 				var operations = new Dictionary<GUIContent, PresetOperation>();
 				var propValues = new Dictionary<GUIContent, ShaderPropertyPreset.PropertyValue>();
@@ -1675,7 +1679,7 @@ namespace LWGUI
 				GUIContent[] menus = propPresetDic.SelectMany(((keyValuePair, i) =>
 				{
 					if (prop.name == keyValuePair.Key.name) return new List<GUIContent>();
-					
+
 					var preset = keyValuePair.Value.GetPreset(keyValuePair.Key);
 					var propertyValue = preset.propertyValues.Find((value => value.propertyName == prop.name));
 					if (propertyValue == null)
