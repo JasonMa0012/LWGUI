@@ -901,9 +901,16 @@ namespace LWGUI
 	/// </summary>
 	internal class ChannelDrawer : SubDrawer
 	{
-		private static GUIContent[] _names  = new[] { new GUIContent("R"), new GUIContent("G"), new GUIContent("B"), new GUIContent("A"),
-			new GUIContent("RGB Average"), new GUIContent("RGB Luminance") };
-		private static int[]     _intValues     = new int[] { 0, 1, 2, 3, 4, 5 };
+		private static GUIContent[] _names  = new[] { 
+			new GUIContent("R"), 
+			new GUIContent("G"), 
+			new GUIContent("B"), 
+			new GUIContent("A"),
+			new GUIContent("RGB Average"), 
+			new GUIContent("RGB Luminance"), 
+			new GUIContent("None") 
+		};
+		private static int[]     _intValues     = new int[] { 0, 1, 2, 3, 4, 5, 6 };
 		private static Vector4[] _vector4Values = new[]
 		{
 			new Vector4(1, 0, 0, 0),
@@ -911,7 +918,8 @@ namespace LWGUI
 			new Vector4(0, 0, 1, 0),
 			new Vector4(0, 0, 0, 1),
 			new Vector4(1f / 3f, 1f / 3f, 1f / 3f, 0),
-			new Vector4(0.2126f, 0.7152f, 0.0722f, 0)
+			new Vector4(0.2126f, 0.7152f, 0.0722f, 0),
+			new Vector4(0, 0, 0, 0)
 		};
 
 		public ChannelDrawer() { }
@@ -924,20 +932,13 @@ namespace LWGUI
 
 		private static int GetChannelIndex(MaterialProperty prop)
 		{
-			int index;
-			if (prop.vectorValue == _vector4Values[0])
-				index = 0;
-			else if (prop.vectorValue == _vector4Values[1])
-				index = 1;
-			else if (prop.vectorValue == _vector4Values[2])
-				index = 2;
-			else if (prop.vectorValue == _vector4Values[3])
-				index = 3;
-			else if (prop.vectorValue == _vector4Values[4])
-				index = 4;
-			else if (prop.vectorValue == _vector4Values[5])
-				index = 5;
-			else
+			int index = -1;
+			for (int i = 0; i < _vector4Values.Length; i++)
+			{
+				if (prop.vectorValue == _vector4Values[i])
+					index = i;
+			}
+			if (index == -1)
 			{
 				Debug.LogError("Channel Property: " + prop.name + " invalid vector found, reset to A");
 				prop.vectorValue = _vector4Values[3];
