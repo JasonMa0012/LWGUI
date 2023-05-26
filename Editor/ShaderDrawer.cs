@@ -895,7 +895,14 @@ namespace LWGUI
 	}
 
 	/// <summary>
-	/// Draw a R/G/B/A drop menu
+	/// Draw a R/G/B/A drop menu:
+	/// 	R = (1, 0, 0, 0)
+	/// 	G = (0, 1, 0, 0)
+	/// 	B = (0, 0, 1, 0)
+	/// 	A = (0, 0, 0, 1)
+	/// 	RGB Average = (1f / 3f, 1f / 3f, 1f / 3f, 0)
+	/// 	RGB Luminance = (0.2126f, 0.7152f, 0.0722f, 0)
+	///		None = (0, 0, 0, 0)
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// Target Property Type: Vector, used to dot() with Texture Sample Value 
 	/// </summary>
