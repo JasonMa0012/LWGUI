@@ -373,8 +373,8 @@ The Property Value in the selected Preset will be the default value
 /// Similar to Header()
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// header: string to display, "SpaceLine" or "_" = none (Default: none)
-/// tips: Modifying the Decorator parameters in Shader requires manually refreshing the GUI instance by throwing an exception
-TitleDecorator(string group, string header)
+/// height: line height (Default: 22)
+TitleDecorator(string group, string header, float height)
 ```
 
 #### Tooltip - Helpbox
@@ -383,7 +383,6 @@ TitleDecorator(string group, string header)
 /// Tooltip, describes the details of the property. (Default: property.name and property default value)
 /// You can also use "#Text" in DisplayName to add Tooltip that supports Multi-Language.
 /// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
-/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 public TooltipDecorator(string tooltip)
 ```
 
@@ -391,7 +390,6 @@ public TooltipDecorator(string tooltip)
 /// Display a Helpbox on the property
 /// You can also use "%Text" in DisplayName to add Helpbox that supports Multi-Language.
 /// message：a single-line string to display, support up to 4 ','. (Default: Newline)
-/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 public HelpboxDecorator(string message)
 ```
 
