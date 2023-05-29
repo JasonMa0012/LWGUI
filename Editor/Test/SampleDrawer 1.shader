@@ -1,4 +1,4 @@
-Shader "Hidden"
+﻿Shader "Hidden"
 {
 	Properties
 	{
@@ -42,7 +42,7 @@ Shader "Hidden"
 		[Helpbox(Test multiline Helpbox)]
 		[Helpbox(Line2)]
 		[Helpbox(Line3)]
-		_float_helpbox ("Float with Helpbox%%这是中文Helpbox%これは日本語Helpboxです", float) = 1
+		_float_helpbox ("Float with Helpbox%这是中文Helpbox%これは日本語Helpboxです", float) = 1
 		
 		[Main(Group3, _, on)] _group3 ("Group - Tex and Color Samples", float) = 0
 		[Tex(Group3, _color)] _tex_color ("Tex with Color", 2D) = "white" { }
