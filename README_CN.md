@@ -398,11 +398,11 @@ Example:
 [Tooltip()]
 [Tooltip(Line 3)]
 [Tooltip(Line 4)]
-_float_tooltip ("Float with Tooltips##这是中文Tooltip#これは日本語Tooltipです", float) = 1
+_float_tooltip ("Float with Tooltips#这是中文Tooltip#これは日本語Tooltipです", float) = 1
 [Helpbox(Test multiline Helpbox)]
 [Helpbox(Line2)]
 [Helpbox(Line3)]
-_float_helpbox ("Float with Helpbox%%这是中文Helpbox%これは日本語Helpboxです", float) = 1
+_float_helpbox ("Float with Helpbox%这是中文Helpbox%これは日本語Helpboxです", float) = 1
 
 ```
 
