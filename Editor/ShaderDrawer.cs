@@ -272,6 +272,45 @@ namespace LWGUI
 	}
 	
 	/// <summary>
+	/// Similar to builtin IntRange()
+	/// group：father group name, support suffix keyword for conditional display (Default: none)
+	/// Target Property Type: Range
+	/// </summary>
+	internal class SubIntRangeDrawer : SubDrawer
+	{
+		public SubIntRangeDrawer(string group)
+		{
+			this.group = group;
+		}
+
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Range; }
+		
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			if (prop.type != MaterialProperty.PropType.Range)
+			{
+				EditorGUI.LabelField(position, "IntRange used on a non-range property: " + prop.name, EditorStyles.helpBox);
+			}
+			else
+			{
+				editor.SetDefaultGUIWidths();
+				EditorGUI.showMixedValue = prop.hasMixedValue;
+				var rect = position; //EditorGUILayout.GetControlRect();
+				
+				EditorGUI.BeginChangeCheck();
+				EditorGUI.showMixedValue = prop.hasMixedValue;
+				float labelWidth = EditorGUIUtility.labelWidth;
+				EditorGUIUtility.labelWidth = 0.0f;
+				int num = EditorGUI.IntSlider(position, label, (int) prop.floatValue, (int) prop.rangeLimits.x, (int) prop.rangeLimits.y);
+				EditorGUI.showMixedValue = false;
+				EditorGUIUtility.labelWidth = labelWidth;
+				if (EditorGUI.EndChangeCheck())
+					prop.floatValue = num;
+			}
+		}
+	}
+	
+	/// <summary>
 	/// Similar to builtin Enum() / KeywordEnum()
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// n(s): display name
@@ -1058,28 +1097,35 @@ namespace LWGUI
 	/// Similar to Header()
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// header: string to display, "SpaceLine" or "_" = none (Default: none)
-	/// tips: Modifying the Decorator parameters in Shader requires manually refreshing the GUI instance by throwing an exception
+	/// height: line height (Default: 22)
 	/// </summary>
 	internal class TitleDecorator : SubDrawer
 	{
 		private string _header;
+		private float _height;
 
-		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight + 6f; }
+		public static readonly float DefaultHeight = EditorGUIUtility.singleLineHeight + 6f;
+
+		protected override float GetVisibleHeight(MaterialProperty prop) { return _height; }
 
 		public override void InitMetaData(Shader inShader, Material inMaterial, MaterialProperty inProp, MaterialProperty[] inProps) { }
 
-		public TitleDecorator(string header) : this("_", header) {}
-		public TitleDecorator(string group, string header)
+		public TitleDecorator(string header) : this("_", header, DefaultHeight) {}
+		public TitleDecorator(string header, float  height) : this("_", header, height) {}
+		public TitleDecorator(string group,  string header) : this(group, header, DefaultHeight) {}
+		public TitleDecorator(string group, string header, float height)
 		{
 			this.group = group;
 			this._header = header == "SpaceLine" || header == "_" ? String.Empty : header;
+			this._height = height;
 		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			position.y += 2;
 			position = EditorGUI.IndentedRect(position);
 			GUIStyle style = new GUIStyle(EditorStyles.boldLabel);
+			style.alignment = TextAnchor.LowerLeft;
+			style.border.bottom = 2;
 			GUI.Label(position, _header, style);
 		}
 	}
@@ -1088,7 +1134,6 @@ namespace LWGUI
 	/// Tooltip, describes the details of the property. (Default: property.name and property default value)
 	/// You can also use "#Text" in DisplayName to add Tooltip that supports Multi-Language.
 	/// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
-	/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 	/// </summary>
 	internal class TooltipDecorator : SubDrawer
 	{
@@ -1125,7 +1170,6 @@ namespace LWGUI
 	/// Display a Helpbox on the property
 	/// You can also use "%Text" in DisplayName to add Helpbox that supports Multi-Language.
 	/// message：a single-line string to display, support up to 4 ','. (Default: Newline)
-	/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 	/// </summary>
 	internal class HelpboxDecorator : TooltipDecorator
 	{

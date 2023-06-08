@@ -148,6 +148,16 @@ SubPowerSliderDrawer(string group, float power)
 ```
 
 
+#### SubIntRange
+
+```c#
+/// Similar to builtin IntRange()
+/// group：father group name, support suffix keyword for conditional display (Default: none)
+/// Target Property Type: Range
+SubIntRangeDrawer(string group)
+```
+
+
 
 #### KWEnum
 
@@ -370,8 +380,8 @@ Result:
 /// Similar to Header()
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// header: string to display, "SpaceLine" or "_" = none (Default: none)
-/// tips: Modifying the Decorator parameters in Shader requires manually refreshing the GUI instance by throwing an exception
-TitleDecorator(string group, string header)
+/// height: line height (Default: 22)
+TitleDecorator(string group, string header, float height)
 ```
 
 #### Tooltip - Helpbox
@@ -380,7 +390,6 @@ TitleDecorator(string group, string header)
 /// Tooltip, describes the details of the property. (Default: property.name and property default value)
 /// You can also use "#Text" in DisplayName to add Tooltip that supports Multi-Language.
 /// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
-/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 public TooltipDecorator(string tooltip)
 ```
 
@@ -388,7 +397,6 @@ public TooltipDecorator(string tooltip)
 /// Display a Helpbox on the property
 /// You can also use "%Text" in DisplayName to add Helpbox that supports Multi-Language.
 /// message：a single-line string to display, support up to 4 ','. (Default: Newline)
-/// tips: Modifying Decorator parameters in Shader requires refreshing the cache by modifying the Property default value
 public HelpboxDecorator(string message)
 ```
 
@@ -400,11 +408,11 @@ Example:
 [Tooltip()]
 [Tooltip(Line 3)]
 [Tooltip(Line 4)]
-_float_tooltip ("Float with Tooltips##这是中文Tooltip#これは日本語Tooltipです", float) = 1
+_float_tooltip ("Float with Tooltips#这是中文Tooltip#これは日本語Tooltipです", float) = 1
 [Helpbox(Test multiline Helpbox)]
 [Helpbox(Line2)]
 [Helpbox(Line3)]
-_float_helpbox ("Float with Helpbox%%这是中文Helpbox%これは日本語Helpboxです", float) = 1
+_float_helpbox ("Float with Helpbox%这是中文Helpbox%これは日本語Helpboxです", float) = 1
 
 ```
 

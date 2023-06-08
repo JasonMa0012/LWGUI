@@ -1,4 +1,4 @@
-Shader "Hidden"
+﻿Shader "Hidden"
 {
 	Properties
 	{
@@ -47,7 +47,7 @@ Shader "Hidden"
 		[Ramp(g2)] _Ramp2 ("Ramp2", 2D) = "white" { }
 		[Tooltip(Test Tooltip)]
 		[Helpbox(Test Helpbox)]
-		[Sub(g2)] _float_tooltip_helpbox ("float tooltip helpbox##这是中文Tooltip%%これは日本語Helpboxです", float) = 0
+		[Sub(g2)] _float_tooltip_helpbox ("float tooltip helpbox#这是中文Tooltip%これは日本語Helpboxです", float) = 0
 
 		
 		[Main(Preset, _, on, off)] _PresetGroup ("Preset Samples", float) = 0

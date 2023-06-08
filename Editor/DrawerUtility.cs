@@ -1,4 +1,4 @@
-// Copyright (c) Jason Ma
+﻿// Copyright (c) Jason Ma
 
 using System;
 using System.IO;
@@ -28,7 +28,6 @@ namespace LWGUI
 
 	internal class LWGUI : ShaderGUI
 	{
-		public static bool                                              forceInit = false;
 		public        MaterialProperty[]                                props;
 		public        MaterialEditor                                    materialEditor;
 		public        Material                                          material;
@@ -41,12 +40,14 @@ namespace LWGUI
 		public        LwguiEventType                                    lwguiEventType    = LwguiEventType.Init;
 		public        Shader                                            shader;
 
+		private static bool                                              _forceInit = false;
+		
 		/// <summary>
 		/// Called when switch to a new Material Window, each window has a LWGUI instance
 		/// </summary>
 		public LWGUI() { }
 
-		public static void ForceInit() { forceInit = true; }
+		public static void ForceInit() { _forceInit = true; }
 
 		public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
 		{
@@ -54,7 +55,7 @@ namespace LWGUI
 			this.materialEditor = materialEditor;
 			this.material = materialEditor.target as Material;
 			this.shader = this.material.shader;
-			this.lwguiEventType = RevertableHelper.InitAndHasShaderModified(shader, material, props) || forceInit
+			this.lwguiEventType = RevertableHelper.InitAndHasShaderModified(shader, material, props) || _forceInit
 				? LwguiEventType.Init
 				: LwguiEventType.Repaint;
 
@@ -66,7 +67,7 @@ namespace LWGUI
 				lastSearchingText = searchingText = string.Empty;
 				lastSearchMode = searchMode = SearchMode.All;
 				updateSearchMode = false;
-				forceInit = false;
+				_forceInit = false;
 				MetaDataHelper.ReregisterAllPropertyMetaData(shader, material, props);
 			}
 
@@ -104,7 +105,7 @@ namespace LWGUI
 					// force init when missing prop
 					if (!searchResult.ContainsKey(prop.name))
 					{
-						forceInit = true;
+						_forceInit = true;
 						return;
 					}
 
@@ -170,15 +171,22 @@ namespace LWGUI
 		/// </returns>
 		public static MaterialProperty FindProp(string propertyName, MaterialProperty[] properties, bool propertyIsMandatory = false)
 		{
+			MaterialProperty outProperty= null;
 			if (properties == null)
 			{
 				Debug.LogWarning("Get other properties form Drawer is only support Unity 2019.2+!");
 				return null;
 			}
-			else if (!string.IsNullOrEmpty(propertyName) && propertyName != "_")
-				return FindProperty(propertyName, properties, propertyIsMandatory);
+			
+			if (!string.IsNullOrEmpty(propertyName) && propertyName != "_")
+				outProperty = FindProperty(propertyName, properties, propertyIsMandatory);
 			else
 				return null;
+			
+			if (outProperty == null)
+				ForceInit();
+			
+			return outProperty;
 		}
 	}
 
@@ -775,7 +783,13 @@ namespace LWGUI
 			var helpboxStr = MetaDataHelper.GetPropertyHelpbox(shader, prop, out lineCount);
 			if (!string.IsNullOrEmpty(helpboxStr))
 			{
-				var helpboxRect = EditorGUILayout.GetControlRect(true, 30f + Mathf.Max(0, lineCount - 2f) * helpboxSingleLineHeight);
+				var content = new GUIContent(helpboxStr, EditorGUIUtility.IconContent("console.infoicon").image as Texture2D);
+				var style = EditorStyles.helpBox;
+				var dpiScale = EditorGUIUtility.pixelsPerPoint;
+				int fontSize = 12;
+				style.fontSize = fontSize;
+				
+				var helpboxRect = EditorGUILayout.GetControlRect(true, style.CalcHeight(content, EditorGUIUtility.currentViewWidth));
 				if (MetaDataHelper.IsSubProperty(shader, prop))
 				{
 					EditorGUI.indentLevel++;
@@ -783,7 +797,8 @@ namespace LWGUI
 					EditorGUI.indentLevel--;
 				}
 				helpboxRect.xMax -= RevertableHelper.revertButtonWidth;
-				EditorGUI.HelpBox(helpboxRect, helpboxStr, MessageType.Info);
+				GUI.Label(helpboxRect, content, style);
+				// EditorGUI.HelpBox(helpboxRect, helpboxStr, MessageType.Info);
 			}
 		}
 
