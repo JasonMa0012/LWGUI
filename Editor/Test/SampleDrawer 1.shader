@@ -19,7 +19,7 @@
 		// Display when the keyword ("group name + keyword") is activated
 		[Sub(Group1_KEY1)] _key1_Float1 ("Key1 Float", float) = 0
 		[Sub(Group1_KEY2)] _key2_Float2 ("Key2 Float", float) = 0
-		[Sub(Group1_KEY3)] _key3_Float3_Range ("Key3 Float Range", Range(0, 1)) = 0
+		[SubIntRange(Group1_KEY3)] _key3_Int_Range ("Key3 Int Range", Range(0, 10)) = 0
 		[SubPowerSlider(Group1_KEY3, 10)] _key3_Float4_PowerSlider ("Key3 Power Slider", Range(0, 1)) = 0
 
 		[Title(Group1, Conditional Display Samples       Toggle)]

@@ -272,6 +272,45 @@ namespace LWGUI
 	}
 	
 	/// <summary>
+	/// Similar to builtin IntRange()
+	/// group：father group name, support suffix keyword for conditional display (Default: none)
+	/// Target Property Type: Range
+	/// </summary>
+	internal class SubIntRangeDrawer : SubDrawer
+	{
+		public SubIntRangeDrawer(string group)
+		{
+			this.group = group;
+		}
+
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Range; }
+		
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			if (prop.type != MaterialProperty.PropType.Range)
+			{
+				EditorGUI.LabelField(position, "IntRange used on a non-range property: " + prop.name, EditorStyles.helpBox);
+			}
+			else
+			{
+				editor.SetDefaultGUIWidths();
+				EditorGUI.showMixedValue = prop.hasMixedValue;
+				var rect = position; //EditorGUILayout.GetControlRect();
+				
+				EditorGUI.BeginChangeCheck();
+				EditorGUI.showMixedValue = prop.hasMixedValue;
+				float labelWidth = EditorGUIUtility.labelWidth;
+				EditorGUIUtility.labelWidth = 0.0f;
+				int num = EditorGUI.IntSlider(position, label, (int) prop.floatValue, (int) prop.rangeLimits.x, (int) prop.rangeLimits.y);
+				EditorGUI.showMixedValue = false;
+				EditorGUIUtility.labelWidth = labelWidth;
+				if (EditorGUI.EndChangeCheck())
+					prop.floatValue = num;
+			}
+		}
+	}
+	
+	/// <summary>
 	/// Similar to builtin Enum() / KeywordEnum()
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// n(s): display name

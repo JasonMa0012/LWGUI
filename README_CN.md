@@ -148,6 +148,16 @@ SubPowerSliderDrawer(string group, float power)
 ```
 
 
+#### SubIntRange
+
+```c#
+/// Similar to builtin IntRange()
+/// group：father group name, support suffix keyword for conditional display (Default: none)
+/// Target Property Type: Range
+SubIntRangeDrawer(string group)
+```
+
+
 
 #### KWEnum
 
