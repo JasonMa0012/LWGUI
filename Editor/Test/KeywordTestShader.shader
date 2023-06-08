@@ -13,7 +13,9 @@ Shader "Hidden"
 		
 		[Toggle(_TOGGLE_KEYWORD)] _toggle1 ("Toggle", float) = 0
 		
-		[Main(g1, _, on, on)] _group ("Group", float) = 1
+		[Main(g1, _, on, on)]
+		[PassSwitch(Always)]
+		_group ("Pass Switch Group", float) = 1
 		[SubEnum(g1, Off, 0, On, 1)] _ZWrite ("ZWrite Mode", Float) = 1
 		[SubToggle(g1, _SUBTOGGLE_KEYWORD)] _toggle ("Sub Toggle", float) = 0
 
@@ -25,11 +27,11 @@ Shader "Hidden"
 	}
 	SubShader
 	{
-		Tags { "RenderType" = "Opaque" }
-		LOD 100
 
 		Pass
 		{
+			Tags { "RenderType" = "Opaque" "LightMode" = "Always" }
+			LOD 100
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag

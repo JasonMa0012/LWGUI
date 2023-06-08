@@ -72,7 +72,6 @@ namespace LWGUI
 
 			EditorGUI.BeginChangeCheck();
 			bool toggleResult = Helper.Foldout(position, ref _isFolding, toggleValue, _defaultToggleDisplayed, label);
-			// EditorGUI.showMixedValue = false;
 
 			if (EditorGUI.EndChangeCheck())
 			{
@@ -93,7 +92,8 @@ namespace LWGUI
 		public override void Apply(MaterialProperty prop)
 		{
 			base.Apply(prop);
-			if (!prop.hasMixedValue && (prop.type == MaterialProperty.PropType.Float 
+			if (!prop.hasMixedValue
+			 && (prop.type == MaterialProperty.PropType.Float
 #if UNITY_2021_1_OR_NEWER
 									 || prop.type == MaterialProperty.PropType.Int
 #endif
@@ -1127,6 +1127,51 @@ namespace LWGUI
 			style.alignment = TextAnchor.LowerLeft;
 			style.border.bottom = 2;
 			GUI.Label(position, _header, style);
+		}
+	}
+
+	
+	/// <summary>
+	/// Cooperate with Toggle to switch certain Passes
+	/// lightModeName(s): Light Mode in Shader Pass (https://docs.unity3d.com/2017.4/Documentation/Manual/SL-PassTags.html)
+	/// </summary>
+	internal class PassSwitchDecorator : SubDrawer
+	{
+		private string[] _lightModeNames;
+		
+		public PassSwitchDecorator(string   lightModeName1) : this(new[] { lightModeName1}){}
+		public PassSwitchDecorator(string   lightModeName1, string lightModeName2) : this(new[] { lightModeName1, lightModeName2}){}
+		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3) : this(new[] { lightModeName1, lightModeName2, lightModeName3}){}
+		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4) : this(new[] { lightModeName1, lightModeName2, lightModeName3, lightModeName4 }){}
+		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5) : this(new[] { lightModeName1, lightModeName2, lightModeName3, lightModeName4, lightModeName5 }){}
+		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5, string lightModeName6) : this(new[] { lightModeName1, lightModeName2, lightModeName3, lightModeName4, lightModeName5, lightModeName6 }){}
+		public PassSwitchDecorator(string[] passNames) { _lightModeNames = passNames.Select((s => s.ToUpper())).ToArray(); }
+		
+
+		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
+
+		protected override bool IsMatchPropType(MaterialProperty property)
+		{
+			return property.type == MaterialProperty.PropType.Float
+#if UNITY_2021_1_OR_NEWER
+									 || property.type == MaterialProperty.PropType.Int
+#endif
+				;
+		}
+
+		public override void InitMetaData(Shader inShader, Material inMaterial, MaterialProperty inProp, MaterialProperty[] inProps) { }
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			if (!prop.hasMixedValue)
+				Helper.SetShaderPassEnabled(prop.targets, _lightModeNames, prop.floatValue > 0);
+		}
+
+		public override void Apply(MaterialProperty prop)
+		{
+			base.Apply(prop);
+			if (!prop.hasMixedValue && IsMatchPropType(prop))
+				Helper.SetShaderPassEnabled(prop.targets, _lightModeNames, prop.floatValue > 0);
 		}
 	}
 

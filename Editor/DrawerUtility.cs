@@ -616,6 +616,19 @@ namespace LWGUI
 			}
 		}
 
+		public static void SetShaderPassEnabled(Object[] materials, string[] lightModeNames, bool enabled)
+		{
+			if (lightModeNames.Length == 0) return;
+
+			foreach (Material material in materials)
+			{
+				for (int i = 0; i < lightModeNames.Length; i++)
+				{
+					material.SetShaderPassEnabled(lightModeNames[i], enabled);
+				}
+			}
+		}
+
 		/// <summary>
 		/// make Drawer can get all current Material props by customShaderGUI
 		/// Unity 2019.2+
