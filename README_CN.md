@@ -420,6 +420,18 @@ _float_helpbox ("Float with Helpbox%这是中文Helpbox%これは日本語Helpbo
 
 ![image-20221231221254101](README_CN.assets/image-20221231221254101.png)
 
+
+
+#### PassSwitch
+
+```c#
+/// Cooperate with Toggle to switch certain Passes
+/// lightModeName(s): Light Mode in Shader Pass (https://docs.unity3d.com/2017.4/Documentation/Manual/SL-PassTags.html)
+PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5, string lightModeName6)
+```
+
+
+
 ### Unity Builtin Drawers
 
 #### Space

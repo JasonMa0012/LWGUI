@@ -616,6 +616,19 @@ namespace LWGUI
 			}
 		}
 
+		public static void SetShaderPassEnabled(Object[] materials, string[] lightModeNames, bool enabled)
+		{
+			if (lightModeNames.Length == 0) return;
+
+			foreach (Material material in materials)
+			{
+				for (int i = 0; i < lightModeNames.Length; i++)
+				{
+					material.SetShaderPassEnabled(lightModeNames[i], enabled);
+				}
+			}
+		}
+
 		/// <summary>
 		/// make Drawer can get all current Material props by customShaderGUI
 		/// Unity 2019.2+
@@ -1677,6 +1690,14 @@ namespace LWGUI
 			Update = 1,
 			Remove = 2
 		}
+		
+		private class MenuItemData
+		{
+			public PresetOperation                    operation;
+			public ShaderPropertyPreset               presetFile;
+			public ShaderPropertyPreset.Preset        preset;
+			public ShaderPropertyPreset.PropertyValue propertyValue;
+		}
 
 		public static void DrawAddPropertyToPresetMenu(Rect rect, Shader shader, MaterialProperty prop, MaterialProperty[] props)
 		{
@@ -1688,9 +1709,7 @@ namespace LWGUI
 				if (propPresetDic.Count == 0) return;
 
 				// Create Menus
-				var operations = new Dictionary<GUIContent, PresetOperation>();
-				var propValues = new Dictionary<GUIContent, ShaderPropertyPreset.PropertyValue>();
-				var presets = new Dictionary<GUIContent, ShaderPropertyPreset.Preset>();
+				var menuItemDatas = new Dictionary<GUIContent, MenuItemData>(); 
 				GUIContent[] menus = propPresetDic.SelectMany(((keyValuePair, i) =>
 				{
 					if (prop.name == keyValuePair.Key.name) return new List<GUIContent>();
@@ -1700,21 +1719,15 @@ namespace LWGUI
 					if (propertyValue == null)
 					{
 						var content = new GUIContent("Add '" + propDisplayName + "' to '" + preset.presetName + "'");
-						operations.Add(content, PresetOperation.Add);
-						propValues.Add(content, propertyValue);
-						presets.Add(content, preset);
+						menuItemDatas.Add(content, new MenuItemData(){operation = PresetOperation.Add, presetFile = keyValuePair.Value, preset = preset, propertyValue = propertyValue});
 						return new List<GUIContent>() { content };
 					}
 					else
 					{
 						var contentUpdate = new GUIContent("Update '" + propDisplayName + "' in '" + preset.presetName + "'");
-						operations.Add(contentUpdate, PresetOperation.Update);
-						propValues.Add(contentUpdate, propertyValue);
-						presets.Add(contentUpdate, preset);
+						menuItemDatas.Add(contentUpdate, new MenuItemData(){operation = PresetOperation.Update, presetFile = keyValuePair.Value, preset = preset, propertyValue = propertyValue});
 						var contentRemove = new GUIContent("Remove '" + propDisplayName + "' from '" + preset.presetName + "'");
-						operations.Add(contentRemove, PresetOperation.Remove);
-						propValues.Add(contentRemove, propertyValue);
-						presets.Add(contentRemove, preset);
+						menuItemDatas.Add(contentRemove, new MenuItemData(){operation = PresetOperation.Remove, presetFile = keyValuePair.Value, preset = preset, propertyValue = propertyValue});
 						return new List<GUIContent>() { contentUpdate, contentRemove };
 					}
 				})).ToArray();
@@ -1724,10 +1737,10 @@ namespace LWGUI
 												menus, -1, (data, options, selected) =>
 												{
 													var menu = menus[selected];
-													var operation = operations[menu];
-													var preset = presets[menu];
-													var propertyValue = propValues[menu];
-													if (propertyValue == null)
+													var operation = menuItemDatas[menu].operation;
+													var preset = menuItemDatas[menu].preset;
+													var propertyValue = menuItemDatas[menu].propertyValue;
+													if (operation == PresetOperation.Add)
 													{
 														propertyValue = new ShaderPropertyPreset.PropertyValue();
 														propertyValue.CopyFromMaterialProperty(prop);
@@ -1741,6 +1754,7 @@ namespace LWGUI
 													{
 														preset.propertyValues.Remove(propertyValue);
 													}
+													EditorUtility.SetDirty(menuItemDatas[menu].presetFile);
 													RevertableHelper.ForceInit();
 												}, null);
 			}
