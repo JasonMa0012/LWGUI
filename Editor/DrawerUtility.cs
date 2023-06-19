@@ -154,6 +154,7 @@ namespace LWGUI
 #endif
 			materialEditor.RenderQueueField();
 			materialEditor.EnableInstancingField();
+			materialEditor.LightmapEmissionProperty();
 			materialEditor.DoubleSidedGIField();
 
 			EditorGUILayout.Space();
