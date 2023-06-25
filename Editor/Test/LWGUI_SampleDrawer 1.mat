@@ -24,7 +24,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Tex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 5acfb805fddadbc4b9edd9681271872f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _normal:
@@ -74,12 +74,13 @@ Material:
     - _key3_Float3: -0.34
     - _key3_Float3_Range: 0.329
     - _key3_Float4_PowerSlider: 0
+    - _key3_Int_Range: 1
     - _minMaxSlider: 1
     - _preset: 1
     - _preset1: 0
     - _range: 0.42
-    - _rangeEnd: 0.67997557
-    - _rangeStart: 0.25601953
+    - _rangeEnd: 0.70471865
+    - _rangeStart: 0.20471871
     - _toggle: 1
     - _toggle1: 1
     m_Colors:

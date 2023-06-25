@@ -60,7 +60,7 @@
 		[HideInInspector] [HDR] _mColor3 (" ", Color) = (0, 0, 1, 1)
 		
 		[Title(Ramp Samples)]
-		[Ramp] _Ramp ("Ramp Map", 2D) = "white" { }
+		[Ramp(_, RampMap, Assets.Art, 512)] _Ramp ("Ramp Map", 2D) = "white" { }
 		
 		[Title(MinMaxSlider Samples)]
 		[MinMaxSlider(_rangeStart, _rangeEnd)] _minMaxSlider ("Min Max Slider (0 - 1)", Range(0.0, 1.0)) = 1.0

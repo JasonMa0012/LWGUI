@@ -295,7 +295,6 @@ namespace LWGUI
 			{
 				editor.SetDefaultGUIWidths();
 				EditorGUI.showMixedValue = prop.hasMixedValue;
-				var rect = position; //EditorGUILayout.GetControlRect();
 				
 				EditorGUI.BeginChangeCheck();
 				EditorGUI.showMixedValue = prop.hasMixedValue;
@@ -471,7 +470,7 @@ namespace LWGUI
 			}
 			catch (Exception ex)
 			{
-				Debug.LogWarningFormat("Failed to create SubEnum, enum {0} not found", (object) enumName);
+				Debug.LogWarningFormat("Failed to create SubEnum, enum {0} not found, {1}.", (object) enumName, ex);
 				throw;
 			}
 		}
@@ -730,20 +729,18 @@ namespace LWGUI
 	/// Draw a Ramp Map Editor (Defaulf Ramp Map Resolution: 512 * 2)
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// defaultFileName: default Ramp Map file name when create a new one (Default: RampMap)
+	/// rootPath: the path where ramp is stored, replace '/' with '.' (for example: Assets.Art.Ramps). when selecting ramp, it will also be filtered according to the path (Default: Assets)
 	/// defaultWidth: default Ramp Width (Default: 512)
 	/// Target Property Type: Texture2D
 	/// </summary>
 	internal class RampDrawer : SubDrawer
 	{
+		private static readonly string DefaultRootPath = "Assets";
+
+		private string _rootPath;
 		private string _defaultFileName;
 		private float  _defaultWidth;
 		private float  _defaultHeight = 2;
-		private bool   _isDirty;
-
-		// used to read/write Gradient value in code
-		private RampHelper.GradientObject _gradientObject;
-		// used to modify Gradient value for users
-		private SerializedObject _serializedObject;
 		
 		private static readonly GUIContent _iconMixImage = EditorGUIUtility.IconContent("darkviewbackground");
 
@@ -751,24 +748,49 @@ namespace LWGUI
 
 		public RampDrawer() : this(String.Empty) { }
 		public RampDrawer(string group) : this(group, "RampMap") { }
-		public RampDrawer(string group, string defaultFileName) : this(group, defaultFileName, 512) { }
+		public RampDrawer(string group, string defaultFileName) : this(group, defaultFileName, DefaultRootPath, 512) { }
+		
+		public RampDrawer(string group, string defaultFileName, float defaultWidth) : this(group, defaultFileName, DefaultRootPath, defaultWidth) { }
 
-		public RampDrawer(string group, string defaultFileName, float defaultWidth)
+		public RampDrawer(string group, string defaultFileName, string rootPath, float defaultWidth)
 		{
+			if (!rootPath.StartsWith(DefaultRootPath))
+			{
+				Debug.LogError("Ramp Root Path: '" + rootPath + "' must start with 'Assets'!");
+				rootPath = DefaultRootPath;
+			}
 			this.group = group;
 			this._defaultFileName = defaultFileName;
+			this._rootPath = rootPath.Replace('.', '/');
 			this._defaultWidth = Mathf.Max(2.0f, defaultWidth);
 		}
 
 		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Texture; }
 
+		protected virtual void OnRampPropUpdate(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor) { }
+		
+		protected virtual void OnSwitchRampMap(Texture newTexture) { }
+		
+		// TODO: undo
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			// TODO: cache these variables between different prop?
-			_gradientObject = ScriptableObject.CreateInstance<RampHelper.GradientObject>();
-			_gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, out _isDirty);
-			_serializedObject = new SerializedObject(_gradientObject);
+			// per prop variables
+			bool isDirty;
+			// used to read/write Gradient value in code
+			RampHelper.GradientObject gradientObject = ScriptableObject.CreateInstance<RampHelper.GradientObject>();
+			// used to modify Gradient value for users
+			SerializedObject serializedObject = new SerializedObject(gradientObject);
+			SerializedProperty serializedProperty = serializedObject.FindProperty("gradient");
 
+			// Tex > GradientObject
+			gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, out isDirty);
+			// GradientObject > SerializedObject
+			serializedObject.Update();
+			
+			
+			OnRampPropUpdate(position, prop, label, editor);
+
+			
 			// Draw Label
 			var labelRect = new Rect(position);//EditorGUILayout.GetControlRect();
 			labelRect.yMax -= position.height * 0.5f;
@@ -777,48 +799,66 @@ namespace LWGUI
 			// Ramp buttons Rect
 			var labelWidth = EditorGUIUtility.labelWidth;
 			var indentLevel = EditorGUI.indentLevel;
-			EditorGUIUtility.labelWidth = 0;
-			EditorGUI.indentLevel = 0;
 			var buttonRect = new Rect(position);//EditorGUILayout.GetControlRect();
-			buttonRect.yMin += position.height * 0.5f;
-			buttonRect = MaterialEditor.GetRectAfterLabelWidth(buttonRect);
-			if (buttonRect.width < 50f) return;
-				
-			// Draw Ramp Editor
-			bool hasChange, doSave, doDiscard;
-			Texture newUserTexture, newCreatedTexture;
-			hasChange = RampHelper.RampEditor(prop, buttonRect, _serializedObject.FindProperty("gradient"), _isDirty,
-											  _defaultFileName, (int)_defaultWidth, (int)_defaultHeight,
-											  out newCreatedTexture, out doSave, out doDiscard);
-
-			if (hasChange || doSave)
 			{
-				// TODO: undo support
-				// Undo.RecordObject(_gradientObject, "Edit Gradient");
-				_serializedObject.ApplyModifiedProperties();
-				RampHelper.SetGradientToTexture(prop.textureValue, _gradientObject, doSave);
-				// EditorUtility.SetDirty(_gradientObject);
+				EditorGUIUtility.labelWidth = 0;
+				EditorGUI.indentLevel = 0;
+				buttonRect.yMin += position.height * 0.5f;
+				buttonRect = MaterialEditor.GetRectAfterLabelWidth(buttonRect);
+				if (buttonRect.width < 50f) return;
 			}
-
-			// Texture object field
-			var textureRect = MaterialEditor.GetRectAfterLabelWidth(labelRect);
-			newUserTexture = (Texture)EditorGUI.ObjectField(textureRect, prop.textureValue, typeof(Texture2D), false);
 			
-			// When tex has changed, update vars
-			if (newUserTexture != prop.textureValue || newCreatedTexture != null || doDiscard)
+			
+			// Draw Ramp Editor
+			bool hasGradientChanges, doSaveGradient, doDiscardGradient;
+			Texture newCreatedTexture;
+			hasGradientChanges = RampHelper.RampEditor(buttonRect, prop, serializedProperty, isDirty,
+											  _defaultFileName, _rootPath, (int)_defaultWidth, (int)_defaultHeight,
+											  out newCreatedTexture, out doSaveGradient, out doDiscardGradient);
+
+			// Save gradient changes
+			if (hasGradientChanges || doSaveGradient)
 			{
-				if (newUserTexture != prop.textureValue)
-					prop.textureValue = newUserTexture;
-				if (newCreatedTexture != null)
-					prop.textureValue = newCreatedTexture;
-				_gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, out _isDirty, doDiscard);
-				_serializedObject.Update();
-				if (doDiscard)
-					RampHelper.SetGradientToTexture(prop.textureValue, _gradientObject, true);
+				// SerializedObject > GradientObject
+				serializedObject.ApplyModifiedProperties();
+				// GradientObject > Tex
+				RampHelper.SetGradientToTexture(prop.textureValue, gradientObject, doSaveGradient);
 			}
+			
+			// Discard gradient changes
+			if (doDiscardGradient)
+			{
+				// Tex > GradientObject
+				gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, out isDirty, true);
+				// GradientObject > SerializedObject
+				serializedObject.Update();
+				RampHelper.SetGradientToTexture(prop.textureValue, gradientObject, true);
+			}
+			
+
+			// When switch new ramp map
+			RampHelper.SwitchRampMapEvent OnSwitchNewRampMap = newRampMap =>
+			{
+				prop.textureValue = newRampMap;
+				OnSwitchRampMap(prop.textureValue);
+			};
+
+			// Texture object field, handle switch texture event
+			var rampFieldRect = MaterialEditor.GetRectAfterLabelWidth(labelRect);
+			var previewRect = new Rect(rampFieldRect.x + 1, rampFieldRect.y + 1, rampFieldRect.width - 19, rampFieldRect.height - 2);
+			{
+				var selectButtonRect = new Rect(previewRect.xMax, rampFieldRect.y, rampFieldRect.width - previewRect.width, rampFieldRect.height);
+				RampHelper.RampSelector(selectButtonRect, _rootPath, OnSwitchNewRampMap);
+				
+				// Manual replace ramp map
+				EditorGUI.BeginChangeCheck();
+				var newManualSelectedTexture = (Texture)EditorGUI.ObjectField(rampFieldRect, prop.textureValue, typeof(Texture2D), false);
+				if (EditorGUI.EndChangeCheck())
+					OnSwitchRampMap(newManualSelectedTexture);
+			}
+			
 
 			// Preview texture override (larger preview, hides texture name)
-			var previewRect = new Rect(textureRect.x + 1, textureRect.y + 1, textureRect.width - 19, textureRect.height - 2);
 			if (prop.hasMixedValue)
 			{
 				EditorGUI.DrawPreviewTexture(previewRect, _iconMixImage.image);
