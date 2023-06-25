@@ -274,25 +274,24 @@ float selectedChannelValue = dot(tex2D(_Tex, uv), _textureChannelMask);
 /// Draw a Ramp Map Editor (Defaulf Ramp Map Resolution: 512 * 2)
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// defaultFileName: default Ramp Map file name when create a new one (Default: RampMap)
+/// rootPath: the path where ramp is stored, replace '/' with '.' (for example: Assets.Art.Ramps). when selecting ramp, it will also be filtered according to the path (Default: Assets)
 /// defaultWidth: default Ramp Width (Default: 512)
 /// Target Property Type: Texture2D
-RampDrawer(string group, string defaultFileName, float defaultWidth)
+RampDrawer(string group, string defaultFileName, string rootPath, float defaultWidth)
 ```
 
 Example:
 
 ```c#
-[Space(50)]
-[Title(_, Ramp Samples)]
-[Ramp] _Ramp ("Ramp Map", 2D) = "white" { }
+[Ramp(_, RampMap, Assets.Art, 512)] _Ramp ("Ramp Map", 2D) = "white" { }
 
 ```
 
 Result:
 
-![image-20220821234224093](README_CN.assets/image-20220821234224093.png)
+![image-20230625185730363](./README_CN.assets/image-20230625185730363.png)
 
-New a Ramp Map and edit:
+Ramp Editor:
 
 ![image-20220821234658509](README_CN.assets/image-20220821234658509.png)
 
@@ -364,15 +363,15 @@ The Property Value in the selected Preset will be the default value
 
 **RenderQueue** is a Hard-Coded Property Name, you need to manually add it to the preset
 
-![image-20221122231655378](README.assets/image-20221122231655378.png)![image-20221122231816714](README.assets/image-20221122231816714.png)
+![image-20221122231655378](README_CN.assets/image-20221122231655378.png)![image-20221122231816714](README_CN.assets/image-20221122231816714.png)
 
 ##### Create Preset File
 
-![image-20221122232307362](README.assets/image-20221122232307362.png)
+![image-20221122232307362](README_CN.assets/image-20221122232307362.png)
 
 ##### Edit Preset
 
-![image-20221122232354623](README.assets/image-20221122232354623.png)![image-20221122232415972](README.assets/image-20221122232415972.png)![image-20221122232425194](README.assets/image-20221122232425194.png)
+![image-20221122232354623](README_CN.assets/image-20221122232354623.png)![image-20221122232415972](README_CN.assets/image-20221122232415972.png)![image-20221122232425194](README_CN.assets/image-20221122232425194.png)
 
 
 
@@ -526,9 +525,6 @@ MaterialToggleUIDrawer(string keyword)
 5. Check whether the functionality works in different Unity versions
 6. Pull requests
 
-### Tips
-
-todo
 
 
 
