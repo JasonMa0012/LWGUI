@@ -771,9 +771,25 @@ namespace LWGUI
 		
 		protected virtual void OnSwitchRampMap(Texture newTexture) { }
 		
+		protected virtual void OnCreateNewRampMap(Texture newTexture) { }
+		
 		// TODO: undo
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
+			// When switch ramp map
+			RampHelper.SwitchRampMapEvent OnSwitchRampMapEvent = newRampMap =>
+			{
+				prop.textureValue = newRampMap;
+				OnSwitchRampMap(prop.textureValue);
+			};
+
+			// When create new ramp map
+			RampHelper.SwitchRampMapEvent OnCreateNewRampMapEvent = newRampMap =>
+			{
+				prop.textureValue = newRampMap;
+				OnCreateNewRampMap(prop.textureValue);
+			};
+
 			// per prop variables
 			bool isDirty;
 			// used to read/write Gradient value in code
@@ -811,10 +827,12 @@ namespace LWGUI
 			
 			// Draw Ramp Editor
 			bool hasGradientChanges, doSaveGradient, doDiscardGradient;
-			Texture newCreatedTexture;
+			Texture2D newCreatedTexture;
 			hasGradientChanges = RampHelper.RampEditor(buttonRect, prop, serializedProperty, isDirty,
 											  _defaultFileName, _rootPath, (int)_defaultWidth, (int)_defaultHeight,
 											  out newCreatedTexture, out doSaveGradient, out doDiscardGradient);
+			if (newCreatedTexture != null)
+				OnCreateNewRampMapEvent(newCreatedTexture);
 
 			// Save gradient changes
 			if (hasGradientChanges || doSaveGradient)
@@ -835,26 +853,19 @@ namespace LWGUI
 				RampHelper.SetGradientToTexture(prop.textureValue, gradientObject, true);
 			}
 			
-
-			// When switch new ramp map
-			RampHelper.SwitchRampMapEvent OnSwitchNewRampMap = newRampMap =>
-			{
-				prop.textureValue = newRampMap;
-				OnSwitchRampMap(prop.textureValue);
-			};
-
+			
 			// Texture object field, handle switch texture event
 			var rampFieldRect = MaterialEditor.GetRectAfterLabelWidth(labelRect);
 			var previewRect = new Rect(rampFieldRect.x + 1, rampFieldRect.y + 1, rampFieldRect.width - 19, rampFieldRect.height - 2);
 			{
 				var selectButtonRect = new Rect(previewRect.xMax, rampFieldRect.y, rampFieldRect.width - previewRect.width, rampFieldRect.height);
-				RampHelper.RampSelector(selectButtonRect, _rootPath, OnSwitchNewRampMap);
+				RampHelper.RampSelector(selectButtonRect, _rootPath, OnSwitchRampMapEvent);
 				
 				// Manual replace ramp map
 				EditorGUI.BeginChangeCheck();
-				var newManualSelectedTexture = (Texture)EditorGUI.ObjectField(rampFieldRect, prop.textureValue, typeof(Texture2D), false);
+				var newManualSelectedTexture = (Texture2D)EditorGUI.ObjectField(rampFieldRect, prop.textureValue, typeof(Texture2D), false);
 				if (EditorGUI.EndChangeCheck())
-					OnSwitchRampMap(newManualSelectedTexture);
+					OnSwitchRampMapEvent(newManualSelectedTexture);
 			}
 			
 

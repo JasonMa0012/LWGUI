@@ -44,7 +44,7 @@ namespace LWGUI
 			string             rootPath,
 			int                defaultWidth,
 			int                defaultHeight,
-			out Texture        newTexture,
+			out Texture2D      newTexture,
 			out bool           doSave,
 			out bool           doDiscard)
 		{
