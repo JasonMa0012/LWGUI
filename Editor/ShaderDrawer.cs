@@ -735,12 +735,12 @@ namespace LWGUI
 	/// </summary>
 	internal class RampDrawer : SubDrawer
 	{
-		private static readonly string DefaultRootPath = "Assets";
+		protected static readonly string DefaultRootPath = "Assets";
 
-		private string _rootPath;
-		private string _defaultFileName;
-		private float  _defaultWidth;
-		private float  _defaultHeight = 2;
+		protected string _rootPath;
+		protected string _defaultFileName;
+		protected float  _defaultWidth;
+		protected float  _defaultHeight = 2;
 		
 		private static readonly GUIContent _iconMixImage = EditorGUIUtility.IconContent("darkviewbackground");
 
