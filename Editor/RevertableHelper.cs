@@ -10,7 +10,7 @@ namespace LWGUI
 	/// <summary>
 	/// Helpers for drawing Unreal Style Revertable Shader GUI 
 	/// </summary>
-	internal class RevertableHelper
+	public class RevertableHelper
 	{
 		public static readonly float revertButtonWidth = 15f;
 		public static          float fieldWidth;

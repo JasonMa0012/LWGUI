@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace LWGUI
 {
-	internal class PresetHelper
+	public class PresetHelper
 	{
 		private static Dictionary<string /*FileName*/, ShaderPropertyPreset> _loadedPresets = new Dictionary<string, ShaderPropertyPreset>();
 
