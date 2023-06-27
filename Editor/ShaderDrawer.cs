@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace LWGUI
 {
-	internal interface IBaseDrawer
+	public interface IBaseDrawer
 	{
 		void InitMetaData(Shader inShader, Material inMaterial, MaterialProperty inProp, MaterialProperty[] inProps);
 	}
@@ -22,7 +22,7 @@ namespace LWGUI
 	/// default Toggle Displayed: "on" or "off" (Default: on)
 	/// Target Property Type: FLoat, express Toggle value
 	/// </summary>
-	internal class MainDrawer : MaterialPropertyDrawer, IBaseDrawer
+	public class MainDrawer : MaterialPropertyDrawer, IBaseDrawer
 	{
 		protected MaterialProperty[] props;
 		protected LWGUI              lwgui;
@@ -107,7 +107,7 @@ namespace LWGUI
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// Target Property Type: Any
 	/// </summary>
-	internal class SubDrawer : MaterialPropertyDrawer, IBaseDrawer
+	public class SubDrawer : MaterialPropertyDrawer, IBaseDrawer
 	{
 		protected string             group = String.Empty;
 		protected MaterialProperty   prop;
@@ -194,7 +194,7 @@ namespace LWGUI
 	/// keyword：keyword used for toggle, "_" = ignore, none or "__" = Property Name +  "_ON", always Upper (Default: none)
 	/// Target Property Type: FLoat
 	/// </summary>
-	internal class SubToggleDrawer : SubDrawer
+	public class SubToggleDrawer : SubDrawer
 	{
 		private string _keyWord = String.Empty;
 		
@@ -247,7 +247,7 @@ namespace LWGUI
 	/// power: power of slider (Default: 1)
 	/// Target Property Type: Range
 	/// </summary>
-	internal class SubPowerSliderDrawer : SubDrawer
+	public class SubPowerSliderDrawer : SubDrawer
 	{
 		private float _power = 1;
 		
@@ -276,7 +276,7 @@ namespace LWGUI
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// Target Property Type: Range
 	/// </summary>
-	internal class SubIntRangeDrawer : SubDrawer
+	public class SubIntRangeDrawer : SubDrawer
 	{
 		public SubIntRangeDrawer(string group)
 		{
@@ -317,7 +317,7 @@ namespace LWGUI
 	/// v(s): value
 	/// Target Property Type: FLoat, express current keyword index
 	/// </summary>
-	internal class KWEnumDrawer : SubDrawer
+	public class KWEnumDrawer : SubDrawer
 	{
 		private GUIContent[] _names;
 		private string[]     _keyWords;
@@ -451,7 +451,7 @@ namespace LWGUI
 		}
 	}
 
-	internal class SubEnumDrawer : KWEnumDrawer
+	public class SubEnumDrawer : KWEnumDrawer
 	{
 		// UnityEditor.MaterialEnumDrawer(string enumName)
 		// enumName: like "UnityEngine.Rendering.BlendMode"
@@ -493,7 +493,7 @@ namespace LWGUI
 		public override void Apply(MaterialProperty prop) { }
 	}
 
-	internal class SubKeywordEnumDrawer : KWEnumDrawer
+	public class SubKeywordEnumDrawer : KWEnumDrawer
 	{
 		public SubKeywordEnumDrawer(string group, string kw1, string kw2)
 			: base(group, new []{kw1, kw2}, new []{kw1, kw2}) { }
@@ -522,7 +522,7 @@ namespace LWGUI
 	/// Target Property Type: Texture
 	/// Extra Property Type: Any, except Texture
 	/// </summary>
-	internal class TexDrawer : SubDrawer
+	public class TexDrawer : SubDrawer
 	{
 		private string        _extraPropName = String.Empty;
 		private ChannelDrawer _channelDrawer = new ChannelDrawer("_");
@@ -626,7 +626,7 @@ namespace LWGUI
 	/// color2-4: extra color property name (Unity 2019.2+ only)
 	/// Target Property Type: Color
 	/// </summary>
-	internal class ColorDrawer : SubDrawer
+	public class ColorDrawer : SubDrawer
 	{
 		private string[] _colorStrings = new string[3];
 		
@@ -733,7 +733,7 @@ namespace LWGUI
 	/// defaultWidth: default Ramp Width (Default: 512)
 	/// Target Property Type: Texture2D
 	/// </summary>
-	internal class RampDrawer : SubDrawer
+	public class RampDrawer : SubDrawer
 	{
 		protected static readonly string DefaultRootPath = "Assets";
 
@@ -772,6 +772,8 @@ namespace LWGUI
 		protected virtual void OnSwitchRampMap(Texture newTexture) { }
 		
 		protected virtual void OnCreateNewRampMap(Texture newTexture) { }
+		
+		protected virtual void OnEditRampMap() { }
 		
 		// TODO: undo
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
@@ -841,6 +843,7 @@ namespace LWGUI
 				serializedObject.ApplyModifiedProperties();
 				// GradientObject > Tex
 				RampHelper.SetGradientToTexture(prop.textureValue, gradientObject, doSaveGradient);
+				OnEditRampMap();
 			}
 			
 			// Discard gradient changes
@@ -851,6 +854,7 @@ namespace LWGUI
 				// GradientObject > SerializedObject
 				serializedObject.Update();
 				RampHelper.SetGradientToTexture(prop.textureValue, gradientObject, true);
+				OnEditRampMap();
 			}
 			
 			
@@ -865,7 +869,12 @@ namespace LWGUI
 				EditorGUI.BeginChangeCheck();
 				var newManualSelectedTexture = (Texture2D)EditorGUI.ObjectField(rampFieldRect, prop.textureValue, typeof(Texture2D), false);
 				if (EditorGUI.EndChangeCheck())
-					OnSwitchRampMapEvent(newManualSelectedTexture);
+				{
+					if (AssetDatabase.GetAssetPath(newManualSelectedTexture).StartsWith(_rootPath))
+						OnSwitchRampMapEvent(newManualSelectedTexture);
+					else 
+						EditorUtility.DisplayDialog("Invalid Path", "Please select the subdirectory of '" + _rootPath + "'", "OK");
+				}
 			}
 			
 
@@ -891,7 +900,7 @@ namespace LWGUI
 	/// Target Property Type: Range, range limits express the MinMaxSlider value range
 	/// Output Min/Max Property Type: Range, it's value is limited by it's range
 	/// </summary>
-	internal class MinMaxSliderDrawer : SubDrawer
+	public class MinMaxSliderDrawer : SubDrawer
 	{
 		private string _minPropName;
 		private string _maxPropName;
@@ -996,7 +1005,7 @@ namespace LWGUI
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// Target Property Type: Vector, used to dot() with Texture Sample Value 
 	/// </summary>
-	internal class ChannelDrawer : SubDrawer
+	public class ChannelDrawer : SubDrawer
 	{
 		private static GUIContent[] _names  = new[] { 
 			new GUIContent("R"), 
@@ -1078,7 +1087,7 @@ namespace LWGUI
 	///		"Right Click > Create > LWGUI > Shader Property Preset" in Project window,
 	///		*any Preset in the entire project cannot have the same name*
 	/// </summary>
-	internal class PresetDrawer : SubDrawer
+	public class PresetDrawer : SubDrawer
 	{
 		public string presetFileName;
 		public PresetDrawer(string presetFileName) : this("_", presetFileName) {}
@@ -1150,7 +1159,7 @@ namespace LWGUI
 	/// header: string to display, "SpaceLine" or "_" = none (Default: none)
 	/// height: line height (Default: 22)
 	/// </summary>
-	internal class TitleDecorator : SubDrawer
+	public class TitleDecorator : SubDrawer
 	{
 		private string _header;
 		private float _height;
@@ -1186,7 +1195,7 @@ namespace LWGUI
 	/// Cooperate with Toggle to switch certain Passes
 	/// lightModeName(s): Light Mode in Shader Pass (https://docs.unity3d.com/2017.4/Documentation/Manual/SL-PassTags.html)
 	/// </summary>
-	internal class PassSwitchDecorator : SubDrawer
+	public class PassSwitchDecorator : SubDrawer
 	{
 		private string[] _lightModeNames;
 		
@@ -1231,7 +1240,7 @@ namespace LWGUI
 	/// You can also use "#Text" in DisplayName to add Tooltip that supports Multi-Language.
 	/// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
 	/// </summary>
-	internal class TooltipDecorator : SubDrawer
+	public class TooltipDecorator : SubDrawer
 	{
 		private string _tooltip;
 
@@ -1267,7 +1276,7 @@ namespace LWGUI
 	/// You can also use "%Text" in DisplayName to add Helpbox that supports Multi-Language.
 	/// message：a single-line string to display, support up to 4 ','. (Default: Newline)
 	/// </summary>
-	internal class HelpboxDecorator : TooltipDecorator
+	public class HelpboxDecorator : TooltipDecorator
 	{
 		private string _message;
 

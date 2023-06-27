@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace LWGUI
 {
-	internal partial class RampHelper
+	public class RampHelper
 	{
 		#region RampEditor
 		[Serializable]
@@ -101,7 +101,7 @@ namespace LWGUI
 						//Create texture and save PNG
 						var saveUnityPath = absPath.Replace(projectPath, String.Empty);
 						CreateAndSaveNewGradientTexture(defaultWidth, defaultHeight, saveUnityPath);
-						VersionControlHelper.Add(saveUnityPath);
+						// VersionControlHelper.Add(saveUnityPath);
 						//Load created texture
 						newTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(saveUnityPath);
 						break;
@@ -162,8 +162,8 @@ namespace LWGUI
 			// Save to texture
 			var path = AssetDatabase.GetAssetPath(texture);
 			var pixels = GetPixelsFromGradient(gradientObject.gradient, texture.width, texture.height);
-			texture2D.SetPixels(pixels);
-			texture2D.Apply(true, false);
+			texture2D.SetPixels32(pixels);
+			texture2D.Apply();
 
 			// Save gradient JSON to userData
 			var assetImporter = AssetImporter.GetAtPath(path);
@@ -224,6 +224,12 @@ namespace LWGUI
 			textureImporter.isReadable = true;
 			textureImporter.textureCompression = TextureImporterCompression.Uncompressed;
 			textureImporter.alphaSource = TextureImporterAlphaSource.FromInput;
+			textureImporter.mipmapEnabled = false;
+			
+			var platformTextureSettings = textureImporter.GetDefaultPlatformTextureSettings();
+			platformTextureSettings.format = TextureImporterFormat.ARGB32;
+			platformTextureSettings.textureCompression = TextureImporterCompression.Uncompressed;
+			textureImporter.SetPlatformTextureSettings(platformTextureSettings);
 
 			//Gradient data embedded in userData
 			textureImporter.userData = EncodeGradientToJSON(gradientObject, gradientObject);
@@ -236,14 +242,14 @@ namespace LWGUI
 		{
 			var ramp = new Texture2D(width, height, TextureFormat.RGBA32, true, true);
 			var colors = GetPixelsFromGradient(gradient, width, height);
-			ramp.SetPixels(colors);
-			ramp.Apply(true);
+			ramp.SetPixels32(colors);
+			ramp.Apply();
 			return ramp;
 		}
 
-		private static Color[] GetPixelsFromGradient(Gradient gradient, int width, int height)
+		private static Color32[] GetPixelsFromGradient(Gradient gradient, int width, int height)
 		{
-			var pixels = new Color[width * height];
+			var pixels = new Color32[width * height];
 			for (var x = 0; x < width; x++)
 			{
 				var delta = x / (float)width;
@@ -287,7 +293,7 @@ namespace LWGUI
 		#endregion
 	}
 
-	internal class RampSelectorWindow : EditorWindow
+	public class RampSelectorWindow : EditorWindow
 	{
 		private Texture2D[]                   _rampMaps;
 		private Vector2                       _scrollPosition;
@@ -297,7 +303,7 @@ namespace LWGUI
 		{
 			RampSelectorWindow window = ScriptableObject.CreateInstance<RampSelectorWindow>();
 			window.titleContent = new GUIContent("Ramp Selector");
-			// window.minSize = new Vector2(250, 1000);
+			window.minSize = new Vector2(400, 500);
 			window._rampMaps = rampMaps;
 			window._switchRampMapEvent = switchRampMapEvent;
 			window.ShowAuxWindow();

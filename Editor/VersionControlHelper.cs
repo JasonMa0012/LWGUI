@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace LWGUI
 {
-	internal class VersionControlHelper
+	public class VersionControlHelper
 	{
 		public static bool isVCEnabled { get { return Provider.enabled && Provider.isActive; } }
 		

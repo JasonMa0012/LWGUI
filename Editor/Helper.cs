@@ -8,7 +8,7 @@ namespace LWGUI
 	/// <summary>
 	/// Misc Function
 	/// </summary>
-	internal class Helper
+	public class Helper
 	{
 		#region Engine Misc
 

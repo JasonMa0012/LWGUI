@@ -9,7 +9,7 @@ namespace LWGUI
 	/// <summary>
 	/// Provide Metadata for drawing
 	/// </summary>
-	internal class MetaDataHelper
+	public class MetaDataHelper
 	{
 		#region Meta Data Container
 

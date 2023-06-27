@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace LWGUI
 {
-	internal class ReflectionHelper
+	public class ReflectionHelper
 	{
 		private static Assembly UnityEditor_Assembly = Assembly.GetAssembly(typeof(Editor));
 		

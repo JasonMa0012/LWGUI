@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace LWGUI
 {
-	internal class GroupStateHelper
+	public class GroupStateHelper
 	{
 		// Used to Folding Group, key: group name, value: is folding
 		private static Dictionary<Object, Dictionary<string, bool>> _groups       = new Dictionary<Object, Dictionary<string, bool>>();

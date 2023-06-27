@@ -10,19 +10,19 @@ namespace LWGUI
 {
 	/// when LwguiEventType.Init:		get all metadata from drawer
 	/// when LwguiEventType.Repaint:	LWGUI decides how to draw each prop according to metadata
-	internal enum LwguiEventType
+	public enum LwguiEventType
 	{
 		Init,
 		Repaint
 	}
 	
-	internal enum SearchMode
+	public enum SearchMode
 	{
 		All,
 		Modified
 	}
 
-	internal class LWGUI : ShaderGUI
+	public class LWGUI : ShaderGUI
 	{
 		public        MaterialProperty[]                                props;
 		public        MaterialEditor                                    materialEditor;
