@@ -21,6 +21,8 @@ namespace LWGUI
 		All,
 		Modified
 	}
+	
+	public delegate void LWGUICustomGUIEvent(LWGUI lwgui);
 
 	public class LWGUI : ShaderGUI
 	{
@@ -36,7 +38,10 @@ namespace LWGUI
 		public        LwguiEventType                                    lwguiEventType    = LwguiEventType.Init;
 		public        Shader                                            shader;
 
-		private static bool                                              _forceInit = false;
+		public static LWGUICustomGUIEvent onCustomHeader;
+		public static LWGUICustomGUIEvent onCustomFooter;
+
+		private static bool _forceInit = false;
 		
 		/// <summary>
 		/// Called when switch to a new Material Window, each window has a LWGUI instance
@@ -69,6 +74,9 @@ namespace LWGUI
 
 			// draw with metadata
 			{
+				if (onCustomHeader != null)
+					onCustomHeader(this);
+				
 				// Search Field
 				if (searchResult == null)
 					searchResult = MetaDataHelper.SearchProperties(shader, material, props, String.Empty, searchMode);
@@ -145,6 +153,10 @@ namespace LWGUI
 
 			EditorGUILayout.Space();
 			EditorGUILayout.Space();
+			
+			if (onCustomFooter != null)
+				onCustomFooter(this);
+			
 #if UNITY_2019_4_OR_NEWER
 			if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
 #endif
