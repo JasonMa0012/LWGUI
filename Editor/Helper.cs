@@ -318,7 +318,12 @@ namespace LWGUI
 		/// <returns>is has changed?</returns>
 		public static bool DrawSearchField(ref string searchingText, ref SearchMode searchMode, LWGUI lwgui)
 		{
-			var toolbarSeachTextFieldPopup = new GUIStyle("ToolbarSeachTextFieldPopup");
+			var toolbarSeachTextFieldPopup = 
+#if UNITY_2022_3_OR_NEWER
+				new GUIStyle("ToolbarSearchTextFieldPopup");
+#else
+				new GUIStyle("ToolbarSeachTextFieldPopup");
+#endif
 
 			bool isHasChanged = false;
 			EditorGUI.BeginChangeCheck();

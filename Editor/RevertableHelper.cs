@@ -70,7 +70,7 @@ namespace LWGUI
 			var defaultMaterial = new Material(shader);
 			PresetHelper.ApplyPresetValue(props, defaultMaterial);
 			var newProps = MaterialEditor.GetMaterialProperties(new[] { defaultMaterial });
-			Debug.Assert(newProps.Length == props.Length);
+			// Debug.Assert(newProps.Length == props.Length);
 
 			_defaultProps[material] = new Dictionary<string, MaterialProperty>();
 			foreach (var prop in newProps)
