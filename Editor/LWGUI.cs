@@ -154,16 +154,18 @@ namespace LWGUI
 			EditorGUILayout.Space();
 			EditorGUILayout.Space();
 			
-			if (onCustomFooter != null)
-				onCustomFooter(this);
-			
 #if UNITY_2019_4_OR_NEWER
 			if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
 #endif
-			materialEditor.RenderQueueField();
+			{
+				materialEditor.RenderQueueField();
+			}
 			materialEditor.EnableInstancingField();
 			materialEditor.LightmapEmissionProperty();
 			materialEditor.DoubleSidedGIField();
+			
+			if (onCustomFooter != null)
+				onCustomFooter(this);
 
 			EditorGUILayout.Space();
 			Helper.DrawLogo();
