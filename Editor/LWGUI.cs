@@ -15,34 +15,35 @@ namespace LWGUI
 		Init,
 		Repaint
 	}
-	
+
 	public enum SearchMode
 	{
-		All,
-		Modified
+		Group    = 0, // Search by group
+		Property = 1, // Search by property
+		Modified = 2, // Search by property and flter modified
+		Num      = 3
 	}
-	
+
 	public delegate void LWGUICustomGUIEvent(LWGUI lwgui);
 
 	public class LWGUI : ShaderGUI
 	{
-		public        MaterialProperty[]                                props;
-		public        MaterialEditor                                    materialEditor;
-		public        Material                                          material;
-		public        Dictionary<string /*PropName*/, bool /*Display*/> searchResult;
-		public        string                                            searchingText     = String.Empty;
-		public        string                                            lastSearchingText = String.Empty;
-		public        SearchMode                                        searchMode        = SearchMode.All;
-		public        SearchMode                                        lastSearchMode    = SearchMode.All;
-		public        bool                                              updateSearchMode  = false;
-		public        LwguiEventType                                    lwguiEventType    = LwguiEventType.Init;
-		public        Shader                                            shader;
+		public MaterialProperty[] props;
+		public MaterialEditor     materialEditor;
+		public Material           material;
+		public LwguiEventType     lwguiEventType = LwguiEventType.Init;
+		public Shader             shader;
 
-		public static LWGUICustomGUIEvent onCustomHeader;
-		public static LWGUICustomGUIEvent onCustomFooter;
+		public static LWGUICustomGUIEvent onDrawCustomHeader;
+		public static LWGUICustomGUIEvent onDrawCustomFooter;
+
+		public  SearchMode                                              searchMode       = SearchMode.Group;
+		public  bool                                                    updateSearchMode = false;
+		private Dictionary<string /*PropName*/, bool /*shouldDisplay*/> _searchResult;
+		private string                                                  _searchingText = String.Empty;
 
 		private static bool _forceInit = false;
-		
+
 		/// <summary>
 		/// Called when switch to a new Material Window, each window has a LWGUI instance
 		/// </summary>
@@ -56,46 +57,50 @@ namespace LWGUI
 			this.materialEditor = materialEditor;
 			this.material = materialEditor.target as Material;
 			this.shader = this.material.shader;
-			this.lwguiEventType = RevertableHelper.InitAndHasShaderModified(shader, material, props) || _forceInit
-				? LwguiEventType.Init
-				: LwguiEventType.Repaint;
+			this.lwguiEventType = (RevertableHelper.InitAndHasShaderModified(shader, material, props)
+									|| _searchResult == null
+									|| _forceInit)
+									? LwguiEventType.Init : LwguiEventType.Repaint;
 
 			// reset caches and metadata
 			if (lwguiEventType == LwguiEventType.Init)
 			{
 				MetaDataHelper.ClearCaches(shader);
-				searchResult = null;
-				lastSearchingText = searchingText = string.Empty;
-				lastSearchMode = searchMode = SearchMode.All;
+				_searchResult = MetaDataHelper.SearchProperties(shader, material, props, String.Empty, searchMode);
 				updateSearchMode = false;
 				_forceInit = false;
 				MetaDataHelper.ReregisterAllPropertyMetaData(shader, material, props);
 			}
 
-			// draw with metadata
+			// Custom Header
+			if (onDrawCustomHeader != null)
+				onDrawCustomHeader(this);
+
+			bool enabled = GUI.enabled;
+			GUI.enabled = true;
+
+			// Search Field
+			if (Helper.DrawSearchField(ref _searchingText, ref searchMode, this) || updateSearchMode)
 			{
-				if (onCustomHeader != null)
-					onCustomHeader(this);
-				
-				// Search Field
-				if (searchResult == null)
-					searchResult = MetaDataHelper.SearchProperties(shader, material, props, String.Empty, searchMode);
+				_searchResult = MetaDataHelper.SearchProperties(shader, material, props, _searchingText, searchMode);
+				updateSearchMode = false;
+			}
 
-				if (Helper.DrawSearchField(ref searchingText, ref searchMode, this) || updateSearchMode)
-				{
-					// change anything to expand all group
-					if ((string.IsNullOrEmpty(lastSearchingText) && lastSearchMode == SearchMode.All)) // last == init 
-						GroupStateHelper.SetAllGroupFoldingAndCache(materialEditor.target, false);
-					// restore to the cached state
-					else if ((string.IsNullOrEmpty(searchingText) && searchMode == SearchMode.All)) // now == init
-						GroupStateHelper.RestoreCachedFoldingState(materialEditor.target);
+			// {
+			// 	var rect = EditorGUILayout.GetControlRect();
+			// 	rect.xMax -= RevertableHelper.revertButtonWidth;
+			// 	rect.yMax -= 1;
+			// 	var buttonRect = new Rect(rect.x, rect.y, rect.height, rect.height);
+			// 	if (GUI.Button(buttonRect, new GUIContent("", null, "tooltip")))
+			// 	{
+			// 		Debug.Log(111);
+			// 	}
+			// }
 
-					searchResult = MetaDataHelper.SearchProperties(shader, material, props, searchingText, searchMode);
-					lastSearchingText = searchingText;
-					lastSearchMode = searchMode;
-					updateSearchMode = false;
-				}
+			Helper.DrawSplitLine();
 
+			// Properties
+			{
 				// move fields left to make rect for Revert Button
 				materialEditor.SetDefaultGUIWidths();
 				EditorGUIUtility.fieldWidth += RevertableHelper.revertButtonWidth;
@@ -107,15 +112,17 @@ namespace LWGUI
 				foreach (var prop in props)
 				{
 					// force init when missing prop
-					if (!searchResult.ContainsKey(prop.name))
+					if (!_searchResult.ContainsKey(prop.name))
 					{
 						_forceInit = true;
 						return;
 					}
 
 					// ignored hidden prop
-					if ((prop.flags & MaterialProperty.PropFlags.HideInInspector) != 0 || !searchResult[prop.name])
+					if ((prop.flags & MaterialProperty.PropFlags.HideInInspector) != 0 || !_searchResult[prop.name])
+					{
 						continue;
+					}
 
 					var height = materialEditor.GetPropertyHeight(prop, MetaDataHelper.GetPropertyDisplayName(shader, prop));
 
@@ -144,16 +151,19 @@ namespace LWGUI
 					}
 
 					RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, materialEditor);
-					var label = new GUIContent(MetaDataHelper.GetPropertyDisplayName(shader, prop), MetaDataHelper.GetPropertyTooltip(shader, material, prop));
+					var label = new GUIContent(MetaDataHelper.GetPropertyDisplayName(shader, prop),
+											   MetaDataHelper.GetPropertyTooltip(shader, material, prop));
 					materialEditor.ShaderProperty(rect, prop, label);
 				}
+
+				materialEditor.SetDefaultGUIWidths();
 			}
 
-			materialEditor.SetDefaultGUIWidths();
+			EditorGUILayout.Space();
+			EditorGUILayout.Space();
+			Helper.DrawSplitLine();
 
-			EditorGUILayout.Space();
-			EditorGUILayout.Space();
-			
+			// Render settings
 #if UNITY_2019_4_OR_NEWER
 			if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
 #endif
@@ -163,10 +173,12 @@ namespace LWGUI
 			materialEditor.EnableInstancingField();
 			materialEditor.LightmapEmissionProperty();
 			materialEditor.DoubleSidedGIField();
-			
-			if (onCustomFooter != null)
-				onCustomFooter(this);
 
+			// Custom Footer
+			if (onDrawCustomFooter != null)
+				onDrawCustomFooter(this);
+
+			// LOGO
 			EditorGUILayout.Space();
 			Helper.DrawLogo();
 		}
@@ -180,23 +192,25 @@ namespace LWGUI
 		/// <returns>
 		///   <para>The material property found, otherwise null.</para>
 		/// </returns>
-		public static MaterialProperty FindProp(string propertyName, MaterialProperty[] properties, bool propertyIsMandatory = false)
+		public static MaterialProperty FindProp(string             propertyName,
+												MaterialProperty[] properties,
+												bool               propertyIsMandatory = false)
 		{
-			MaterialProperty outProperty= null;
+			MaterialProperty outProperty = null;
 			if (properties == null)
 			{
 				Debug.LogWarning("Get other properties form Drawer is only support Unity 2019.2+!");
 				return null;
 			}
-			
+
 			if (!string.IsNullOrEmpty(propertyName) && propertyName != "_")
 				outProperty = FindProperty(propertyName, properties, propertyIsMandatory);
 			else
 				return null;
-			
+
 			if (outProperty == null)
 				ForceInit();
-			
+
 			return outProperty;
 		}
 	}

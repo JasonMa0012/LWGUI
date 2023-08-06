@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -75,7 +76,8 @@ namespace LWGUI
 
 		public static void SetShaderKeyWord(Object[] materials, string[] keyWords, int index)
 		{
-			Debug.Assert(keyWords.Length >= 1 && index < keyWords.Length && index >= 0, "KeyWords Length: " + keyWords.Length + " or Index: " + index + " Error! ");
+			Debug.Assert(keyWords.Length >= 1 && index < keyWords.Length && index >= 0,
+						 "KeyWords Length: " + keyWords.Length + " or Index: " + index + " Error! ");
 			for (int i = 0; i < keyWords.Length; i++)
 			{
 				SetShaderKeyWord(materials, keyWords[i], index == i);
@@ -152,7 +154,8 @@ namespace LWGUI
 
 			for (int i = 0; i < n; i++)
 			{
-				rects[i] = new Rect(rectToSplit.position.x + (i * rectToSplit.width / n), rectToSplit.position.y, rectToSplit.width / n, rectToSplit.height);
+				rects[i] = new Rect(rectToSplit.position.x + (i * rectToSplit.width / n), rectToSplit.position.y,
+									rectToSplit.width / n, rectToSplit.height);
 			}
 
 			int padding = (int)rects[0].width - 50; // use 50, enough to show 0.xx (2 digits)
@@ -169,7 +172,11 @@ namespace LWGUI
 			return rects;
 		}
 
-		public static bool Foldout(Rect position, ref bool isFolding, bool toggleValue, bool hasToggle, GUIContent label)
+		public static bool Foldout(Rect       position,
+								   ref bool   isFolding,
+								   bool       toggleValue,
+								   bool       hasToggle,
+								   GUIContent label)
 		{
 			var style = new GUIStyle("ShurikenModuleTitle");
 			style.border = new RectOffset(15, 7, 4, 4);
@@ -190,7 +197,8 @@ namespace LWGUI
 			if (hasToggle)
 			{
 				EditorGUI.BeginChangeCheck();
-				GUI.Toggle(toggleRect, EditorGUI.showMixedValue ? false : toggleValue, String.Empty, new GUIStyle(EditorGUI.showMixedValue ? "ToggleMixed" : "Toggle"));
+				GUI.Toggle(toggleRect, EditorGUI.showMixedValue ? false : toggleValue, String.Empty,
+						   new GUIStyle(EditorGUI.showMixedValue ? "ToggleMixed" : "Toggle"));
 				if (EditorGUI.EndChangeCheck())
 					toggleValue = !toggleValue;
 			}
@@ -233,7 +241,9 @@ namespace LWGUI
 			sliderRect.xMin += 2;
 			if (sliderRect.width >= 50f)
 				// TODO: Slider Focus
-				value = GUI.Slider(sliderRect, value, 0.0f, start, end, GUI.skin.horizontalSlider, !EditorGUI.showMixedValue ? GUI.skin.horizontalSliderThumb : (GUIStyle)"SliderMixed", true,
+				value = GUI.Slider(sliderRect, value, 0.0f, start, end, GUI.skin.horizontalSlider,
+								   !EditorGUI.showMixedValue ? GUI.skin.horizontalSliderThumb : (GUIStyle)"SliderMixed",
+								   true,
 								   controlId);
 
 			if ((double)power != 1.0)
@@ -254,7 +264,13 @@ namespace LWGUI
 
 		#region Draw GUI for Material
 
-		public static readonly float helpboxSingleLineHeight = 12.5f;
+		public static void DrawSplitLine()
+		{
+			var rect = EditorGUILayout.GetControlRect(true, 1);
+			rect.x = 0;
+			rect.width = EditorGUIUtility.currentViewWidth;
+			EditorGUI.DrawRect(rect, new Color(0, 0, 0, 0.45f));
+		}
 
 		public static void DrawHelpbox(Shader shader, MaterialProperty prop)
 		{
@@ -262,13 +278,15 @@ namespace LWGUI
 			var helpboxStr = MetaDataHelper.GetPropertyHelpbox(shader, prop, out lineCount);
 			if (!string.IsNullOrEmpty(helpboxStr))
 			{
-				var content = new GUIContent(helpboxStr, EditorGUIUtility.IconContent("console.infoicon").image as Texture2D);
+				var content =
+					new GUIContent(helpboxStr, EditorGUIUtility.IconContent("console.infoicon").image as Texture2D);
 				var style = EditorStyles.helpBox;
 				var dpiScale = EditorGUIUtility.pixelsPerPoint;
 				int fontSize = 12;
 				style.fontSize = fontSize;
-				
-				var helpboxRect = EditorGUILayout.GetControlRect(true, style.CalcHeight(content, EditorGUIUtility.currentViewWidth));
+
+				var helpboxRect =
+					EditorGUILayout.GetControlRect(true, style.CalcHeight(content, EditorGUIUtility.currentViewWidth));
 				if (MetaDataHelper.IsSubProperty(shader, prop))
 				{
 					EditorGUI.indentLevel++;
@@ -281,7 +299,8 @@ namespace LWGUI
 			}
 		}
 
-		private static Texture _logo = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("26b9d845eb7b1a747bf04dc84e5bcc2c"));
+		private static Texture _logo =
+			AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("26b9d845eb7b1a747bf04dc84e5bcc2c"));
 
 		public static void DrawLogo()
 		{
@@ -309,16 +328,19 @@ namespace LWGUI
 		}
 
 		private static readonly int s_TextFieldHash = "EditorTextField".GetHashCode();
-		private static readonly GUIContent[] _searchModeMenus = new[]
-		{
-			new GUIContent(SearchMode.All.ToString()),
-			new GUIContent(SearchMode.Modified.ToString())
-		};
+		private static readonly GUIContent[] _searchModeMenus =
+			(new GUIContent[(int)SearchMode.Num]).Select(((guiContent, i) =>
+			{
+				if (i == (int)SearchMode.Num)
+					return null;
+
+				return new GUIContent(((SearchMode)i).ToString());
+			})).ToArray();
 
 		/// <returns>is has changed?</returns>
 		public static bool DrawSearchField(ref string searchingText, ref SearchMode searchMode, LWGUI lwgui)
 		{
-			var toolbarSeachTextFieldPopup = 
+			var toolbarSeachTextFieldPopup =
 #if UNITY_2022_3_OR_NEWER
 				new GUIStyle("ToolbarSearchTextFieldPopup");
 #else
@@ -358,24 +380,30 @@ namespace LWGUI
 				isHasChanged = true;
 
 			// revert button
-			if ((!string.IsNullOrEmpty(searchingText) || searchMode != SearchMode.All) && RevertableHelper.DrawRevertButton(revertButtonRect))
+			if ((!string.IsNullOrEmpty(searchingText) || searchMode != SearchMode.Group)
+			 && RevertableHelper.DrawRevertButton(revertButtonRect))
 			{
 				searchingText = string.Empty;
-				searchMode = SearchMode.All;
+				searchMode = SearchMode.Group;
 				isHasChanged = true;
 				GUIUtility.keyboardControl = 0;
 			}
 
 			// display search mode
-			if (GUIUtility.keyboardControl != controlId && string.IsNullOrEmpty(searchingText) && Event.current.type == UnityEngine.EventType.Repaint)
+			if (GUIUtility.keyboardControl != controlId
+			 && string.IsNullOrEmpty(searchingText)
+			 && Event.current.type == UnityEngine.EventType.Repaint)
 			{
 				using (new EditorGUI.DisabledScope(true))
 				{
-					Rect position1 = toolbarSeachTextFieldPopup.padding.Remove(new Rect(rect.x, rect.y, rect.width,
-																						toolbarSeachTextFieldPopup.fixedHeight > 0.0 ? toolbarSeachTextFieldPopup.fixedHeight : rect.height));
+					var disableTextRect = new Rect(rect.x, rect.y, rect.width,
+												   toolbarSeachTextFieldPopup.fixedHeight > 0.0
+													   ? toolbarSeachTextFieldPopup.fixedHeight
+													   : rect.height);
+					disableTextRect = toolbarSeachTextFieldPopup.padding.Remove(disableTextRect);
 					int fontSize = EditorStyles.label.fontSize;
 					EditorStyles.label.fontSize = toolbarSeachTextFieldPopup.fontSize;
-					EditorStyles.label.Draw(position1, new GUIContent(searchMode.ToString()), false, false, false, false);
+					EditorStyles.label.Draw(disableTextRect, new GUIContent(searchMode.ToString()), false, false, false, false);
 					EditorStyles.label.fontSize = fontSize;
 				}
 			}

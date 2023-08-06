@@ -15,7 +15,7 @@ namespace LWGUI.CustomGUISample
 		[InitializeOnLoadMethod]
 		private static void RegisterEvent()
 		{
-			LWGUI.onCustomFooter += DoCustomFooter;
+			LWGUI.onDrawCustomFooter += DoCustomFooter;
 		}
 	}
 }

@@ -67,8 +67,8 @@ namespace LWGUI
 			
 			var toggleValue = prop.floatValue > 0;
 			string finalGroupName = (_group != String.Empty && _group != "_") ? _group : prop.name;
-			bool isFirstFrame = !GroupStateHelper.ContainsGroup(editor.target, finalGroupName);
-			_isFolding = isFirstFrame ? !_defaultFoldingState : GroupStateHelper.GetGroupFolding(editor.target, finalGroupName);
+			bool isFirstFrame = !GroupStateHelper.ContainsGroup(shader, finalGroupName);
+			_isFolding = isFirstFrame ? !_defaultFoldingState : GroupStateHelper.GetGroupFolding(shader, finalGroupName);
 
 			EditorGUI.BeginChangeCheck();
 			bool toggleResult = Helper.Foldout(position, ref _isFolding, toggleValue, _defaultToggleDisplayed, label);
@@ -79,7 +79,7 @@ namespace LWGUI
 				Helper.SetShaderKeyWord(editor.targets, Helper.GetKeyWord(_keyword, prop.name), toggleResult);
 			}
 
-			GroupStateHelper.SetGroupFolding(editor.target, finalGroupName, _isFolding);
+			GroupStateHelper.SetGroupFolding(shader, finalGroupName, _isFolding);
 		}
 
 		// Call in custom shader gui
@@ -148,7 +148,7 @@ namespace LWGUI
 			if (group != String.Empty && group != "_")
 				EditorGUI.indentLevel++;
 			
-			if (GroupStateHelper.IsSubVisible(editor.target, group))
+			if (GroupStateHelper.IsSubVisible(shader, group))
 			{
 				if (IsMatchPropType(prop))
 				{
@@ -168,7 +168,7 @@ namespace LWGUI
 
 		public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
 		{
-			return GroupStateHelper.IsSubVisible(editor.target, group) ? GetVisibleHeight(prop) : 0;
+			return GroupStateHelper.IsSubVisible(Helper.GetLWGUI(editor).shader, group) ? GetVisibleHeight(prop) : 0;
 		}
 
 		// Draws a custom style property
@@ -229,7 +229,7 @@ namespace LWGUI
 				Helper.SetShaderKeyWord(editor.targets, k, value);
 			}
 
-			GroupStateHelper.SetKeywordConditionalDisplay(editor.target, k, value);
+			GroupStateHelper.SetKeywordConditionalDisplay(shader, k, value);
 			EditorGUI.showMixedValue = false;
 		}
 
@@ -439,7 +439,7 @@ namespace LWGUI
 			// set keyword for conditional display
 			for (int i = 0; i < keyWords.Length; i++)
 			{
-				GroupStateHelper.SetKeywordConditionalDisplay(editor.target, keyWords[i], newIndex == i);
+				GroupStateHelper.SetKeywordConditionalDisplay(shader, keyWords[i], newIndex == i);
 			}
 		}
 
