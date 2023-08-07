@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -340,12 +341,22 @@ namespace LWGUI
 		/// <returns>is has changed?</returns>
 		public static bool DrawSearchField(ref string searchingText, ref SearchMode searchMode, LWGUI lwgui)
 		{
-			var toolbarSeachTextFieldPopup =
-#if UNITY_2022_3_OR_NEWER
-				new GUIStyle("ToolbarSearchTextFieldPopup");
-#else
-				new GUIStyle("ToolbarSeachTextFieldPopup");
+			string toolbarSeachTextFieldPopupStr = "ToolbarSeachTextFieldPopup";
+			{
+				// ToolbarSeachTextFieldPopup has renamed at Unity 2021.3.29+
+#if !UNITY_2022_3_OR_NEWER
+				string[] versionParts = Application.unityVersion.Split('.');
+				int majorVersion = int.Parse(versionParts[0]);
+				int minorVersion = int.Parse(versionParts[1]);
+				Match patchVersionMatch = Regex.Match(versionParts[2], @"\d+");
+				int patchVersion = int.Parse(patchVersionMatch.Value);
+				if (majorVersion >= 2021 && minorVersion >= 3 && patchVersion >= 29)
 #endif
+				{
+					toolbarSeachTextFieldPopupStr = "ToolbarSearchTextFieldPopup";
+				}
+			}
+			var toolbarSeachTextFieldPopup = new GUIStyle(toolbarSeachTextFieldPopupStr);
 
 			bool isHasChanged = false;
 			EditorGUI.BeginChangeCheck();
@@ -396,10 +407,15 @@ namespace LWGUI
 			{
 				using (new EditorGUI.DisabledScope(true))
 				{
+#if UNITY_2019_2_OR_NEWER
 					var disableTextRect = new Rect(rect.x, rect.y, rect.width,
 												   toolbarSeachTextFieldPopup.fixedHeight > 0.0
 													   ? toolbarSeachTextFieldPopup.fixedHeight
 													   : rect.height);
+#else
+					var disableTextRect = rect;
+					disableTextRect.yMin -= 3f;
+#endif
 					disableTextRect = toolbarSeachTextFieldPopup.padding.Remove(disableTextRect);
 					int fontSize = EditorStyles.label.fontSize;
 					EditorStyles.label.fontSize = toolbarSeachTextFieldPopup.fontSize;
