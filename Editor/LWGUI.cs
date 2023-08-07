@@ -76,8 +76,8 @@ namespace LWGUI
 			if (onDrawCustomHeader != null)
 				onDrawCustomHeader(this);
 
-			bool enabled = GUI.enabled;
-			GUI.enabled = true;
+			// bool enabled = GUI.enabled;
+			// GUI.enabled = true;
 
 			// Search Field
 			if (Helper.DrawSearchField(ref _searchingText, ref searchMode, this) || updateSearchMode)
