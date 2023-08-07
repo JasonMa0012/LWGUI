@@ -343,14 +343,14 @@ namespace LWGUI
 		{
 			string toolbarSeachTextFieldPopupStr = "ToolbarSeachTextFieldPopup";
 			{
-				// ToolbarSeachTextFieldPopup has renamed at Unity 2021.3.29+
+				// ToolbarSeachTextFieldPopup has renamed at Unity 2021.3.28+
 #if !UNITY_2022_3_OR_NEWER
 				string[] versionParts = Application.unityVersion.Split('.');
 				int majorVersion = int.Parse(versionParts[0]);
 				int minorVersion = int.Parse(versionParts[1]);
 				Match patchVersionMatch = Regex.Match(versionParts[2], @"\d+");
 				int patchVersion = int.Parse(patchVersionMatch.Value);
-				if (majorVersion >= 2021 && minorVersion >= 3 && patchVersion >= 29)
+				if (majorVersion >= 2021 && minorVersion >= 3 && patchVersion >= 28)
 #endif
 				{
 					toolbarSeachTextFieldPopupStr = "ToolbarSearchTextFieldPopup";

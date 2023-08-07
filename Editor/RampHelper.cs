@@ -94,6 +94,9 @@ namespace LWGUI
 			{
 				while (true)
 				{
+					if (!Directory.Exists(projectPath + rootPath))
+						Directory.CreateDirectory(projectPath + rootPath);
+
 					var absPath = EditorUtility.SaveFilePanel("Create New Ramp Texture", rootPath, defaultFileName, "png");
 					
 					if (absPath.StartsWith(projectPath + rootPath))
