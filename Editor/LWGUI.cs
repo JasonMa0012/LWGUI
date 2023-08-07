@@ -66,8 +66,7 @@ namespace LWGUI
 			if (lwguiEventType == LwguiEventType.Init)
 			{
 				MetaDataHelper.ClearCaches(shader);
-				_searchResult = MetaDataHelper.SearchProperties(shader, material, props, String.Empty, searchMode);
-				updateSearchMode = false;
+				updateSearchMode = true;
 				_forceInit = false;
 				MetaDataHelper.ReregisterAllPropertyMetaData(shader, material, props);
 			}
@@ -160,8 +159,8 @@ namespace LWGUI
 			}
 
 			EditorGUILayout.Space();
-			EditorGUILayout.Space();
 			Helper.DrawSplitLine();
+			EditorGUILayout.Space();
 
 			// Render settings
 #if UNITY_2019_4_OR_NEWER
