@@ -12,6 +12,13 @@ Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a 
 
 ![image-20220926025611208](README_CN.assets/image-20220926025611208.png)
 
+| With your sponsorship, I will update more actively. | 有你的赞助我会更加积极地更新                                 |
+| --------------------------------------------------- | ------------------------------------------------------------ |
+| PayPal                                              | 支付宝                                                       |
+| [paypal.me/JasonMa0012](paypal.me/JasonMa0012)      | ![723ddce6-fb86-48ff-9683-a12cf6cff7a0](./README_CN.assets/723ddce6-fb86-48ff-9683-a12cf6cff7a0.jpg) |
+
+
+
 - [LWGUI (Light Weight Shader GUI)](#lwgui--light-weight-shader-gui-)
   * [Installation](#installation)
   * [Usage](#usage)
@@ -524,7 +531,6 @@ MaterialToggleUIDrawer(string keyword)
 4. Inherit the `Subdrawer` in` shadeerdrawer.cs` to start developing your custom Drawer
 5. Check whether the functionality works in different Unity versions
 6. Pull requests
-
 
 
 
