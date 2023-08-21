@@ -145,6 +145,12 @@ namespace LWGUI
 		#endregion
 
 
+		#region GUI Styles
+
+		public static GUIStyle guiStyles_IconButton = new GUIStyle("IconButton") { fixedHeight = 0, fixedWidth = 0};
+
+		#endregion
+
 		#region Draw GUI for Drawer
 
 		// TODO: use Reflection
@@ -179,19 +185,31 @@ namespace LWGUI
 								   bool       hasToggle,
 								   GUIContent label)
 		{
-			var style = new GUIStyle("ShurikenModuleTitle");
-			style.border = new RectOffset(15, 7, 4, 4);
-			style.fixedHeight = 30;
-			// Text
-			style.font = new GUIStyle(EditorStyles.boldLabel).font;
-			style.fontSize = (int)(style.fontSize * 1.5f);
-			style.contentOffset = new Vector2(30f, -2f);
+			var rect = position;
 
-			var rect = position; //GUILayoutUtility.GetRect(position.width, 24f, style);
+			// Background
+			{
+				var style = new GUIStyle("ShurikenModuleTitle");
+				style.border = new RectOffset(15, 7, 4, 4);
+				style.fixedHeight = 30;
+				// Text
+				style.font = new GUIStyle(EditorStyles.boldLabel).font;
+				style.fontSize = (int)(style.fontSize * 1.5f);
+				style.contentOffset = new Vector2(30f, -2f);
 
-			GUI.backgroundColor = isFolding ? Color.white : new Color(0.85f, 0.85f, 0.85f);
-			GUI.Box(rect, label, style);
-			GUI.backgroundColor = Color.white;
+				var enabled = GUI.enabled;
+				GUI.enabled = true;
+				GUI.backgroundColor = isFolding ? Color.white : new Color(0.85f, 0.85f, 0.85f);
+				GUI.Box(rect, label, style);
+				GUI.backgroundColor = Color.white;
+				var e = Event.current;
+				if (e.type == UnityEngine.EventType.MouseDown && rect.Contains(e.mousePosition))
+				{
+					isFolding = !isFolding;
+					e.Use();
+				}
+				GUI.enabled = enabled;
+			}
 
 			var toggleRect = new Rect(rect.x + 8f, rect.y + 7f, 13f, 13f);
 
@@ -204,12 +222,6 @@ namespace LWGUI
 					toggleValue = !toggleValue;
 			}
 
-			var e = Event.current;
-			if (e.type == UnityEngine.EventType.MouseDown && rect.Contains(e.mousePosition))
-			{
-				isFolding = !isFolding;
-				e.Use();
-			}
 			return toggleValue;
 		}
 
@@ -300,8 +312,12 @@ namespace LWGUI
 			}
 		}
 
-		private static Texture _logo =
-			AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("26b9d845eb7b1a747bf04dc84e5bcc2c"));
+
+		private static Texture _logo = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("26b9d845eb7b1a747bf04dc84e5bcc2c"));
+		private static GUIContent _logoGuiContent = new GUIContent(string.Empty, _logo,
+																   "LWGUI (Light Weight Shader GUI)\n\n"
+																	+ "A Lightweight, Flexible, Powerful Unity Shader GUI system.\n\n"
+																	+ "Copyright (c) Jason Ma");
 
 		public static void DrawLogo()
 		{
@@ -310,23 +326,170 @@ namespace LWGUI
 			logoRect.xMin += w * 0.5f - _logo.width * 0.5f;
 			logoRect.xMax -= w * 0.5f - _logo.width * 0.5f;
 
-			if (EditorGUIUtility.currentViewWidth >= logoRect.width)
+			if (EditorGUIUtility.currentViewWidth >= logoRect.width && GUI.Button(logoRect, _logoGuiContent, guiStyles_IconButton))
 			{
-				var c = GUI.color;
-				GUI.color = new Color(c.r, c.g, c.b, 0.4f);
-				if (logoRect.Contains(Event.current.mousePosition))
-				{
-					GUI.color = new Color(c.r, c.g, c.b, 0.8f);
-					if (Event.current.type == UnityEngine.EventType.MouseDown)
-						Application.OpenURL("https://github.com/JasonMa0012/LWGUI");
-				}
-				GUI.DrawTexture(logoRect, _logo);
-				GUI.color = c;
-				GUI.Label(logoRect, new GUIContent(String.Empty, "LWGUI (Light Weight Shader GUI)\n\n"
-															   + "A Lightweight, Flexible, Powerful Unity Shader GUI system.\n\n"
-															   + "Copyright (c) Jason Ma"));
+				Application.OpenURL("https://github.com/JasonMa0012/LWGUI");
 			}
 		}
+
+
+		private static Material _copiedMaterial;
+
+		private static Texture _iconCopy = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("9cdef444d18d2ce4abb6bbc4fed4d109"));
+		private static Texture _iconPaste = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("8e7a78d02e4c3574998524a0842a8ccb"));
+		private static Texture _iconSelect = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("6f44e40b24300974eb607293e4224ecc"));
+		private static Texture _iconCheckout = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("72488141525eaa8499e65e52755cb6d0"));
+		private static Texture _iconExpand = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("2382450e7f4ddb94c9180d6634c41378"));
+		private static Texture _iconCollapse = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("929b6e5dfacc42b429d715a3e1ca2b57"));
+
+		private static GUIContent _guiContentCopy = new GUIContent("", _iconCopy, "Copy Material Properties");
+		private static GUIContent _guiContentPaste = new GUIContent("", _iconPaste, "Paste Material Properties");
+		private static GUIContent _guiContentSelect = new GUIContent("", _iconSelect, "Select the Material Asset \n\nUsed to jump from a Runtime Material Instance to a Material Asset.");
+		private static GUIContent _guiContentChechout = new GUIContent("", _iconCheckout, "Checkout selected Material Assets");
+		private static GUIContent _guiContentExpand = new GUIContent("", _iconExpand, "Expand All Groups");
+		private static GUIContent _guiContentCollapse = new GUIContent("", _iconCollapse, "Collapse All Groups");
+
+		private static string[] _materialInstanceNameEnd = new[] { "_Instantiated", " (Instance)" };
+		public static void DrawToolbarButtons(ref Rect toolBarRect, LWGUI lwgui)
+		{
+			// Copy
+			var buttonRectOffset = toolBarRect.height + 2;
+			var buttonRect = new Rect(toolBarRect.x, toolBarRect.y, toolBarRect.height, toolBarRect.height);
+			toolBarRect.xMin += buttonRectOffset;
+			if (GUI.Button(buttonRect, _guiContentCopy, Helper.guiStyles_IconButton))
+			{
+				_copiedMaterial = UnityEngine.Object.Instantiate(lwgui.material);
+			}
+
+			// Paste
+			buttonRect.x += buttonRectOffset;
+			toolBarRect.xMin += buttonRectOffset;
+			if (GUI.Button(buttonRect, _guiContentPaste, Helper.guiStyles_IconButton))
+			{
+				if (_copiedMaterial)
+				{
+					if (VersionControlHelper.Checkout(lwgui.material))
+					{
+						Undo.RecordObject(lwgui.material, "Paste Material");
+						for (int i = 0; i < ShaderUtil.GetPropertyCount(_copiedMaterial.shader); i++)
+						{
+							var name = ShaderUtil.GetPropertyName(_copiedMaterial.shader, i);
+							var type = ShaderUtil.GetPropertyType(_copiedMaterial.shader, i);
+							switch (type)
+							{
+								case ShaderUtil.ShaderPropertyType.Color:
+									lwgui.material.SetColor(name, _copiedMaterial.GetColor(name));
+									break;
+								case ShaderUtil.ShaderPropertyType.Vector:
+									lwgui.material.SetVector(name, _copiedMaterial.GetVector(name));
+									break;
+								case ShaderUtil.ShaderPropertyType.TexEnv:
+									lwgui.material.SetTexture(name, _copiedMaterial.GetTexture(name));
+									break;
+								// Float
+								default:
+									lwgui.material.SetFloat(name, _copiedMaterial.GetFloat(name));
+									break;
+							}
+						}
+						lwgui.material.shaderKeywords = _copiedMaterial.shaderKeywords;
+						lwgui.material.renderQueue = _copiedMaterial.renderQueue;
+					}
+					else
+					{
+						Debug.LogError("Material: '" + lwgui.material.name + "' unable to write!");
+					}
+				}
+				else
+				{
+					Debug.LogError("Please copy Material Properties first!");
+				}
+			}
+
+			// Select Material Asset, jump from a Runtime Material Instance to a Material Asset
+			buttonRect.x += buttonRectOffset;
+			toolBarRect.xMin += buttonRectOffset;
+			if (GUI.Button(buttonRect, _guiContentSelect, Helper.guiStyles_IconButton))
+			{
+				if (AssetDatabase.Contains(lwgui.material))
+				{
+					Selection.activeObject = lwgui.material;
+				}
+				else
+				{
+					// Get Material Asset name
+					var name = lwgui.material.name;
+					foreach (var nameEnd in _materialInstanceNameEnd)
+					{
+						if (name.EndsWith(nameEnd))
+						{
+							name = name.Substring(0, name.Length - nameEnd.Length);
+							break;
+						}
+					}
+
+					// Get path
+					var guids = AssetDatabase.FindAssets("t:Material " + name);
+					var paths = guids.Select(((guid, i) =>
+					{
+						var filePath = AssetDatabase.GUIDToAssetPath(guid);
+						var fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+						return (fileName == name && filePath.EndsWith(".mat")) ? filePath : null;
+					})).Where((s => !string.IsNullOrEmpty(s))).ToArray();
+
+					// Select Asset
+					if (paths.Length == 0)
+					{
+						Debug.LogError("Can not find Material Assets with name: " + name);
+					}
+					else if (paths.Length > 1)
+					{
+						var str = string.Empty;
+						foreach (string path in paths)
+						{
+							str += "\n" + path;
+						}
+						Debug.LogWarning("Multiple Material Assets with the same name have been found, select only the first one:" + str);
+						Selection.activeObject = AssetDatabase.LoadAssetAtPath<Material>(paths[0]);
+					}
+					else
+					{
+						Selection.activeObject = AssetDatabase.LoadAssetAtPath<Material>(paths[0]);
+					}
+				}
+			}
+
+			// Checkout
+			buttonRect.x += buttonRectOffset;
+			toolBarRect.xMin += buttonRectOffset;
+			if (GUI.Button(buttonRect, _guiContentChechout, Helper.guiStyles_IconButton))
+			{
+				foreach (var material in lwgui.materialEditor.targets)
+				{
+					VersionControlHelper.Checkout(material);
+				}
+			}
+
+			// Expand
+			buttonRect.x += buttonRectOffset;
+			toolBarRect.xMin += buttonRectOffset;
+			if (GUI.Button(buttonRect, _guiContentExpand, Helper.guiStyles_IconButton))
+			{
+				GroupStateHelper.SetAllGroupFoldingAndCache(lwgui.shader, false);
+			}
+
+			// Collapse
+			buttonRect.x += buttonRectOffset;
+			toolBarRect.xMin += buttonRectOffset;
+			if (GUI.Button(buttonRect, _guiContentCollapse, Helper.guiStyles_IconButton))
+			{
+				GroupStateHelper.SetAllGroupFoldingAndCache(lwgui.shader, true);
+			}
+
+
+			toolBarRect.xMin += 2;
+		}
+
 
 		private static readonly int s_TextFieldHash = "EditorTextField".GetHashCode();
 		private static readonly GUIContent[] _searchModeMenus =
@@ -339,7 +502,7 @@ namespace LWGUI
 			})).ToArray();
 
 		/// <returns>is has changed?</returns>
-		public static bool DrawSearchField(ref string searchingText, ref SearchMode searchMode, LWGUI lwgui)
+		public static bool DrawSearchField(Rect rect, LWGUI lwgui, ref string searchingText, ref SearchMode searchMode)
 		{
 			string toolbarSeachTextFieldPopupStr = "ToolbarSeachTextFieldPopup";
 			{
@@ -361,7 +524,6 @@ namespace LWGUI
 			bool isHasChanged = false;
 			EditorGUI.BeginChangeCheck();
 
-			var rect = EditorGUILayout.GetControlRect();
 			var revertButtonRect = RevertableHelper.GetRevertButtonRect(EditorGUIUtility.singleLineHeight, rect);
 			rect.xMax -= RevertableHelper.revertButtonWidth;
 			// Get internal TextField ControlID

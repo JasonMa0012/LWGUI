@@ -28,11 +28,11 @@ namespace LWGUI
 
 	public class LWGUI : ShaderGUI
 	{
-		public MaterialProperty[] props;
-		public MaterialEditor     materialEditor;
-		public Material           material;
-		public LwguiEventType     lwguiEventType = LwguiEventType.Init;
-		public Shader             shader;
+		public MaterialProperty[]   props;
+		public MaterialEditor       materialEditor;
+		public Material             material;
+		public LwguiEventType       lwguiEventType = LwguiEventType.Init;
+		public Shader               shader;
 
 		public static LWGUICustomGUIEvent onDrawCustomHeader;
 		public static LWGUICustomGUIEvent onDrawCustomFooter;
@@ -42,7 +42,7 @@ namespace LWGUI
 		private Dictionary<string /*PropName*/, bool /*shouldDisplay*/> _searchResult;
 		private string                                                  _searchingText = String.Empty;
 
-		private static bool _forceInit = false;
+		private static bool     _forceInit = false;
 
 		/// <summary>
 		/// Called when switch to a new Material Window, each window has a LWGUI instance
@@ -62,6 +62,7 @@ namespace LWGUI
 									|| _forceInit)
 									? LwguiEventType.Init : LwguiEventType.Repaint;
 
+
 			// reset caches and metadata
 			if (lwguiEventType == LwguiEventType.Init)
 			{
@@ -71,32 +72,30 @@ namespace LWGUI
 				MetaDataHelper.ReregisterAllPropertyMetaData(shader, material, props);
 			}
 
+
 			// Custom Header
 			if (onDrawCustomHeader != null)
 				onDrawCustomHeader(this);
 
-			// bool enabled = GUI.enabled;
-			// GUI.enabled = true;
 
-			// Search Field
-			if (Helper.DrawSearchField(ref _searchingText, ref searchMode, this) || updateSearchMode)
+			// Toolbar
+			bool enabled = GUI.enabled;
+			GUI.enabled = true;
+			var toolBarRect = EditorGUILayout.GetControlRect();
+			toolBarRect.xMin = 2;
+
+			Helper.DrawToolbarButtons(ref toolBarRect, this);
+
+			if (Helper.DrawSearchField(toolBarRect, this, ref _searchingText, ref searchMode) || updateSearchMode)
 			{
 				_searchResult = MetaDataHelper.SearchProperties(shader, material, props, _searchingText, searchMode);
 				updateSearchMode = false;
 			}
 
-			// {
-			// 	var rect = EditorGUILayout.GetControlRect();
-			// 	rect.xMax -= RevertableHelper.revertButtonWidth;
-			// 	rect.yMax -= 1;
-			// 	var buttonRect = new Rect(rect.x, rect.y, rect.height, rect.height);
-			// 	if (GUI.Button(buttonRect, new GUIContent("", null, "tooltip")))
-			// 	{
-			// 		Debug.Log(111);
-			// 	}
-			// }
-
+			GUILayoutUtility.GetRect(0, 0); // Space(0)
+			GUI.enabled = enabled;
 			Helper.DrawSplitLine();
+
 
 			// Properties
 			{
@@ -158,9 +157,11 @@ namespace LWGUI
 				materialEditor.SetDefaultGUIWidths();
 			}
 
+
 			EditorGUILayout.Space();
 			Helper.DrawSplitLine();
 			EditorGUILayout.Space();
+
 
 			// Render settings
 #if UNITY_2019_4_OR_NEWER
@@ -173,14 +174,17 @@ namespace LWGUI
 			materialEditor.LightmapEmissionProperty();
 			materialEditor.DoubleSidedGIField();
 
+
 			// Custom Footer
 			if (onDrawCustomFooter != null)
 				onDrawCustomFooter(this);
+
 
 			// LOGO
 			EditorGUILayout.Space();
 			Helper.DrawLogo();
 		}
+
 
 		/// <summary>
 		///   <para>Find shader properties.</para>

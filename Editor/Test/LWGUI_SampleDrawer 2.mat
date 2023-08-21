@@ -74,12 +74,15 @@ Material:
     - _key3_Float3: 0
     - _key3_Float3_Range: 0.137
     - _key3_Float4_PowerSlider: 0.0033800516
+    - _key3_Int_Range: 0
     - _minMaxSlider: 1
     - _preset: 0
     - _preset1: 0
     - _range: 0
     - _rangeEnd: 0.7474536
     - _rangeStart: 0.24745372
+    - _rangeStart1: 0
+    - _rangeStart2: 0
     - _toggle: 0
     - _toggle1: 0
     m_Colors:
