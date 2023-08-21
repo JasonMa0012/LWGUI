@@ -14,7 +14,7 @@
 
 | ![image-20220926025611208](./README_CN.assets/image-20220926025611208.png) | ![image-20230821205439889](./README_CN.assets/image-20230821205439889.png) |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| 搜索栏亦可筛选已修改的属性                                   | 可以按类型粘贴属性值                                         |
+| 搜索栏亦可筛选已修改的属性                                   | 右键以按类型粘贴属性值                                       |
 
 
 
@@ -24,35 +24,42 @@
 | [paypal.me/JasonMa0012](paypal.me/JasonMa0012)      | ![723ddce6-fb86-48ff-9683-a12cf6cff7a0](./README_CN.assets/723ddce6-fb86-48ff-9683-a12cf6cff7a0.jpg) |
 
 
-- [LWGUI (Light Weight Shader GUI)](#lwgui--light-weight-shader-gui-)
-  * [Installation](#installation)
-  * [Usage](#usage)
-    + [Getting Started](#getting-started)
-    + [LWGUI Drawers](#lwgui-drawers)
-      - [Main - Sub](#main---sub)
-      - [SubToggle](#subtoggle)
-      - [SubPower](#subpower)
-      - [KWEnum](#kwenum)
-      - [SubEnum - SubKeywordEnum](#subenum---subkeywordenum)
-      - [Tex - Color](#tex---color)
-      - [Channel](#channel)
-      - [Ramp](#ramp)
-      - [MinMaxSlider](#minmaxslider)
-    + [LWGUI Decorator](#lwgui-decorator)
-      - [Title](#title)
-      - [Tooltip - Helpbox](#tooltip---helpbox)
-    + [Unity Builtin Drawers](#unity-builtin-drawers)
-      - [Space](#space)
-      - [Header](#header)
-      - [Enum](#enum)
-      - [IntRange](#intrange)
-      - [KeywordEnum](#keywordenum)
-      - [PowerSlider](#powerslider)
-      - [Toggle](#toggle)
-    + [Tips](#tips)
-  * [TODO](#todo)
-  * [Contribution](#contribution)
-    + [Tips](#tips-1)
+- [Installation](#installation)
+- [Usage](#usage)
+  * [Getting Started](#getting-started)
+  * [LWGUI Drawers](#lwgui-drawers)
+    + [Main - Sub](#main---sub)
+    + [SubToggle](#subtoggle)
+    + [SubPower](#subpower)
+    + [SubIntRange](#subintrange)
+    + [KWEnum](#kwenum)
+    + [SubEnum - SubKeywordEnum](#subenum---subkeywordenum)
+    + [Tex - Color](#tex---color)
+    + [Channel](#channel)
+    + [Ramp](#ramp)
+    + [MinMaxSlider](#minmaxslider)
+    + [Preset](#preset)
+      - [Create Preset File](#create-preset-file)
+      - [Edit Preset](#edit-preset)
+  * [LWGUI Decorator](#lwgui-decorator)
+    + [Title](#title)
+    + [Tooltip - Helpbox](#tooltip---helpbox)
+    + [PassSwitch](#passswitch)
+  * [Unity Builtin Drawers](#unity-builtin-drawers)
+    + [Space](#space)
+    + [Header](#header)
+    + [Enum](#enum)
+    + [IntRange](#intrange)
+    + [KeywordEnum](#keywordenum)
+    + [PowerSlider](#powerslider)
+    + [Toggle](#toggle)
+  * [Tips](#tips)
+- [Custom Shader GUI](#custom-shader-gui)
+  * [Custom Header and Footer](#custom-header-and-footer)
+  * [Custom Drawer](#custom-drawer)
+- [TODO](#todo)
+- [Contribution](#contribution)
+
 
 ## Installation
 

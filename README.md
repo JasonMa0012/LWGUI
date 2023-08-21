@@ -11,9 +11,13 @@ Having been validated through numerous large-scale commercial projects, employin
 ![LWGUI](README_CN.assets/LWGUI.png)
 
 
+
+
 | ![image-20220926025611208](./README_CN.assets/image-20220926025611208.png) | ![image-20230821205439889](./README_CN.assets/image-20230821205439889.png) |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| 搜索栏亦可筛选已修改的属性                                   | 可以按类型粘贴属性值                                         |
+| The search bar also enables filtering of modified properties | Right-click to paste property values according to their type |
+
+
 
 
 | With your sponsorship, I will update more actively. | 有你的赞助我会更加积极地更新                                 |
