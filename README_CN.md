@@ -20,7 +20,6 @@
 
 | With your sponsorship, I will update more actively. | 有你的赞助我会更加积极地更新                                 |
 | --------------------------------------------------- | ------------------------------------------------------------ |
-| PayPal                                              | 支付宝                                                       |
 | [paypal.me/JasonMa0012](paypal.me/JasonMa0012)      | ![723ddce6-fb86-48ff-9683-a12cf6cff7a0](./README_CN.assets/723ddce6-fb86-48ff-9683-a12cf6cff7a0.jpg) |
 
 
