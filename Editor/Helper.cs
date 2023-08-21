@@ -331,8 +331,10 @@ namespace LWGUI
 				Application.OpenURL("https://github.com/JasonMa0012/LWGUI");
 			}
 		}
+		#endregion
 
 
+		#region Toolbar Buttons
 		private static Material _copiedMaterial;
 
 		private static Texture _iconCopy = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("9cdef444d18d2ce4abb6bbc4fed4d109"));
@@ -343,13 +345,89 @@ namespace LWGUI
 		private static Texture _iconCollapse = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("929b6e5dfacc42b429d715a3e1ca2b57"));
 
 		private static GUIContent _guiContentCopy = new GUIContent("", _iconCopy, "Copy Material Properties");
-		private static GUIContent _guiContentPaste = new GUIContent("", _iconPaste, "Paste Material Properties");
-		private static GUIContent _guiContentSelect = new GUIContent("", _iconSelect, "Select the Material Asset \n\nUsed to jump from a Runtime Material Instance to a Material Asset.");
+		private static GUIContent _guiContentPaste = new GUIContent("", _iconPaste, "Paste Material Properties\n\nRight-click to paste values by type.");
+		private static GUIContent _guiContentSelect = new GUIContent("", _iconSelect, "Select the Material Asset\n\nUsed to jump from a Runtime Material Instance to a Material Asset.");
 		private static GUIContent _guiContentChechout = new GUIContent("", _iconCheckout, "Checkout selected Material Assets");
 		private static GUIContent _guiContentExpand = new GUIContent("", _iconExpand, "Expand All Groups");
 		private static GUIContent _guiContentCollapse = new GUIContent("", _iconCollapse, "Collapse All Groups");
 
 		private static string[] _materialInstanceNameEnd = new[] { "_Instantiated", " (Instance)" };
+
+		private enum CopyMaterialValueMask
+		{
+			Float       = 1 << 0,
+			Vector      = 1 << 1,
+			Texture     = 1 << 2,
+			Keyword     = 1 << 3,
+			RenderQueue = 1 << 4,
+			Number      = Float | Vector,
+			All         = (1 << 5) - 1,
+		}
+
+		private static GUIContent[] _pasteMaterialMenus = new[]
+		{
+			new GUIContent("Paste Number Values"),
+			new GUIContent("Paste Texture Values"),
+			new GUIContent("Paste Keywords"),
+			new GUIContent("Paste RenderQueue"),
+		};
+
+		private static uint[] _pasteMaterialMenuValueMasks = new[]
+		{
+			(uint)CopyMaterialValueMask.Number,
+			(uint)CopyMaterialValueMask.Texture,
+			(uint)CopyMaterialValueMask.Keyword,
+			(uint)CopyMaterialValueMask.RenderQueue,
+		};
+
+		private static void DoPasteMaterialProperties(LWGUI lwgui , uint valueMask)
+		{
+			if (!_copiedMaterial)
+			{
+				Debug.LogError("Please copy Material Properties first!");
+				return;
+			}
+			foreach (Material material in lwgui.materialEditor.targets)
+			{
+				if (!VersionControlHelper.Checkout(material))
+				{
+					Debug.LogError("Material: '" + lwgui.material.name + "' unable to write!");
+					return;
+				}
+
+				Undo.RecordObject(material, "Paste Material Properties");
+				for (int i = 0; i < ShaderUtil.GetPropertyCount(_copiedMaterial.shader); i++)
+				{
+					var name = ShaderUtil.GetPropertyName(_copiedMaterial.shader, i);
+					var type = ShaderUtil.GetPropertyType(_copiedMaterial.shader, i);
+					switch (type)
+					{
+						case ShaderUtil.ShaderPropertyType.Color:
+							if ((valueMask & (uint)CopyMaterialValueMask.Vector) != 0)
+								material.SetColor(name, _copiedMaterial.GetColor(name));
+							break;
+						case ShaderUtil.ShaderPropertyType.Vector:
+							if ((valueMask & (uint)CopyMaterialValueMask.Vector) != 0)
+								material.SetVector(name, _copiedMaterial.GetVector(name));
+							break;
+						case ShaderUtil.ShaderPropertyType.TexEnv:
+							if ((valueMask & (uint)CopyMaterialValueMask.Texture) != 0)
+								material.SetTexture(name, _copiedMaterial.GetTexture(name));
+							break;
+						// Float
+						default:
+							if ((valueMask & (uint)CopyMaterialValueMask.Float) != 0)
+								material.SetFloat(name, _copiedMaterial.GetFloat(name));
+							break;
+					}
+				}
+				if ((valueMask & (uint)CopyMaterialValueMask.Keyword) != 0)
+					material.shaderKeywords = _copiedMaterial.shaderKeywords;
+				if ((valueMask & (uint)CopyMaterialValueMask.RenderQueue) != 0)
+					material.renderQueue = _copiedMaterial.renderQueue;
+			}
+		}
+
 		public static void DrawToolbarButtons(ref Rect toolBarRect, LWGUI lwgui)
 		{
 			// Copy
@@ -364,46 +442,22 @@ namespace LWGUI
 			// Paste
 			buttonRect.x += buttonRectOffset;
 			toolBarRect.xMin += buttonRectOffset;
+			// Right Click
+			if (Event.current.type == EventType.MouseDown
+			 && Event.current.button == 1
+			 && buttonRect.Contains(Event.current.mousePosition))
+			{
+				EditorUtility.DisplayCustomMenu(new Rect(Event.current.mousePosition.x, Event.current.mousePosition.y, 0, 0), _pasteMaterialMenus, -1,
+												(data, options, selected) =>
+												{
+													DoPasteMaterialProperties(lwgui, _pasteMaterialMenuValueMasks[selected]);
+												}, null);
+				Event.current.Use();
+			}
+			// Left Click
 			if (GUI.Button(buttonRect, _guiContentPaste, Helper.guiStyles_IconButton))
 			{
-				if (_copiedMaterial)
-				{
-					if (VersionControlHelper.Checkout(lwgui.material))
-					{
-						Undo.RecordObject(lwgui.material, "Paste Material");
-						for (int i = 0; i < ShaderUtil.GetPropertyCount(_copiedMaterial.shader); i++)
-						{
-							var name = ShaderUtil.GetPropertyName(_copiedMaterial.shader, i);
-							var type = ShaderUtil.GetPropertyType(_copiedMaterial.shader, i);
-							switch (type)
-							{
-								case ShaderUtil.ShaderPropertyType.Color:
-									lwgui.material.SetColor(name, _copiedMaterial.GetColor(name));
-									break;
-								case ShaderUtil.ShaderPropertyType.Vector:
-									lwgui.material.SetVector(name, _copiedMaterial.GetVector(name));
-									break;
-								case ShaderUtil.ShaderPropertyType.TexEnv:
-									lwgui.material.SetTexture(name, _copiedMaterial.GetTexture(name));
-									break;
-								// Float
-								default:
-									lwgui.material.SetFloat(name, _copiedMaterial.GetFloat(name));
-									break;
-							}
-						}
-						lwgui.material.shaderKeywords = _copiedMaterial.shaderKeywords;
-						lwgui.material.renderQueue = _copiedMaterial.renderQueue;
-					}
-					else
-					{
-						Debug.LogError("Material: '" + lwgui.material.name + "' unable to write!");
-					}
-				}
-				else
-				{
-					Debug.LogError("Please copy Material Properties first!");
-				}
+				DoPasteMaterialProperties(lwgui, (uint)CopyMaterialValueMask.All);
 			}
 
 			// Select Material Asset, jump from a Runtime Material Instance to a Material Asset
@@ -490,7 +544,10 @@ namespace LWGUI
 			toolBarRect.xMin += 2;
 		}
 
+		#endregion
 
+
+		#region Search Field
 		private static readonly int s_TextFieldHash = "EditorTextField".GetHashCode();
 		private static readonly GUIContent[] _searchModeMenus =
 			(new GUIContent[(int)SearchMode.Num]).Select(((guiContent, i) =>

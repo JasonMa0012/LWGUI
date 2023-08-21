@@ -4,13 +4,17 @@
 
 A Lightweight, Flexible, Powerful **Unity Shader GUI** system.
 
-Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a lot of development time, easy to use and expand, effectively improve the user experience of artists.
+Having been validated through numerous large-scale commercial projects, employing a succinct Material Property Drawer syntax allows for the realization of powerful Shader GUIs, substantially reducing development time, fostering ease of use and extensibility, and elevating the user experience for artists effectively.
 
 ![809c4a1c-ce80-48b1-b415-7e8d4bea716e](README_CN.assets/809c4a1c-ce80-48b1-b415-7e8d4bea716e-16616214059841.png)
 
 ![LWGUI](README_CN.assets/LWGUI.png)
 
-![image-20220926025611208](README_CN.assets/image-20220926025611208.png)
+
+| ![image-20220926025611208](./README_CN.assets/image-20220926025611208.png) | ![image-20230821205439889](./README_CN.assets/image-20230821205439889.png) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 搜索栏亦可筛选已修改的属性                                   | 可以按类型粘贴属性值                                         |
+
 
 | With your sponsorship, I will update more actively. | 有你的赞助我会更加积极地更新                                 |
 | --------------------------------------------------- | ------------------------------------------------------------ |
@@ -18,37 +22,41 @@ Use simple MaterialProperty Drawer syntax to achieve complex Shader GUI, save a 
 | [paypal.me/JasonMa0012](paypal.me/JasonMa0012)      | ![723ddce6-fb86-48ff-9683-a12cf6cff7a0](./README_CN.assets/723ddce6-fb86-48ff-9683-a12cf6cff7a0.jpg) |
 
 
-
-- [LWGUI (Light Weight Shader GUI)](#lwgui--light-weight-shader-gui-)
-  * [Installation](#installation)
-  * [Usage](#usage)
-    + [Getting Started](#getting-started)
-    + [LWGUI Drawers](#lwgui-drawers)
-      - [Main - Sub](#main---sub)
-      - [SubToggle](#subtoggle)
-      - [SubPower](#subpower)
-      - [KWEnum](#kwenum)
-      - [SubEnum - SubKeywordEnum](#subenum---subkeywordenum)
-      - [Tex - Color](#tex---color)
-      - [Channel](#channel)
-      - [Ramp](#ramp)
-      - [MinMaxSlider](#minmaxslider)
-    + [LWGUI Decorator](#lwgui-decorator)
-      - [Title](#title)
-      - [Tooltip - Helpbox](#tooltip---helpbox)
-    + [Unity Builtin Drawers](#unity-builtin-drawers)
-      - [Space](#space)
-      - [Header](#header)
-      - [Enum](#enum)
-      - [IntRange](#intrange)
-      - [KeywordEnum](#keywordenum)
-      - [PowerSlider](#powerslider)
-      - [Toggle](#toggle)
-    + [Tips](#tips)
-  * [TODO](#todo)
-  * [Contribution](#contribution)
-    + [Tips](#tips-1)
-
+- [Installation](#installation)
+- [Usage](#usage)
+  * [Getting Started](#getting-started)
+  * [LWGUI Drawers](#lwgui-drawers)
+    + [Main - Sub](#main---sub)
+    + [SubToggle](#subtoggle)
+    + [SubPower](#subpower)
+    + [SubIntRange](#subintrange)
+    + [KWEnum](#kwenum)
+    + [SubEnum - SubKeywordEnum](#subenum---subkeywordenum)
+    + [Tex - Color](#tex---color)
+    + [Channel](#channel)
+    + [Ramp](#ramp)
+    + [MinMaxSlider](#minmaxslider)
+    + [Preset](#preset)
+      - [Create Preset File](#create-preset-file)
+      - [Edit Preset](#edit-preset)
+  * [LWGUI Decorator](#lwgui-decorator)
+    + [Title](#title)
+    + [Tooltip - Helpbox](#tooltip---helpbox)
+    + [PassSwitch](#passswitch)
+  * [Unity Builtin Drawers](#unity-builtin-drawers)
+    + [Space](#space)
+    + [Header](#header)
+    + [Enum](#enum)
+    + [IntRange](#intrange)
+    + [KeywordEnum](#keywordenum)
+    + [PowerSlider](#powerslider)
+    + [Toggle](#toggle)
+  * [Tips](#tips)
+- [Custom Shader GUI](#custom-shader-gui)
+  * [Custom Header and Footer](#custom-header-and-footer)
+  * [Custom Drawer](#custom-drawer)
+- [TODO](#todo)
+- [Contribution](#contribution)
 
 
 ## Installation
@@ -503,23 +511,44 @@ MaterialToggleUIDrawer(string keyword)
 1. It is best to use `Title()` instead of the built-in `Header()` , otherwise there will be misplaced.
 1. If you change the Shader but the GUI is not updated, manually change the Shader to throw an error, and then change it back to refresh the GUI.
 
+
+## Custom Shader GUI
+
+### Custom Header and Footer
+
+![image-20230821211652918](./README_CN.assets/image-20230821211652918.png)
+
+1. Custom Headers and Footers enable you to integrate bespoke modules at the top or bottom of the ShaderGUI without altering LWGUI plugin code.
+
+2. Depending on the desired location for the custom GUI, duplicate the following script into an Editor folder within your project:
+   - Top: Packages/com.jasonma.lwgui/Editor/CustomGUISample/CustomHeader.cs
+   - Bottom: Packages/com.jasonma.lwgui/Editor/CustomGUISample/CustomFooter.cs
+3. Modify the file name and class name accordingly.
+4. Implement your custom GUI code within the DoCustomHeader() / DoCustomFooter() functions.
+5. It is advisable to examine the lwgui object definition to obtain any requisite data.
+
+### Custom Drawer
+
+TODO
+
+
 ## TODO
 
 - [x] Per material save the Folding Group open state
 - [x] Support for Unreal Style Revertable GUI
 - [x] Support for HelpBox
 - [x] Support for Tooltip, displays default values and custom content
-- [ ] Support for upper-right menu, can be all expanded or collapsed
+- [x] Support for upper-right menu, can be all expanded or collapsed
 - [ ] Support for ShaderGraph or ASE
 - [ ] Support for change text format
-- [ ] Support for Pass switch
+- [x] Support for Pass switch
 - [ ] Support for Curve
 - [x] Support for search properties
 - [x] Support for Preset Manager
 - [x] Support for adaptive enumeration widths
 - [x] Support for Unity 2017
   - [x] Reflection engine private function
-  - [ ] Copy Properties Menu
+  - [x] Copy Properties Menu
 
 
 

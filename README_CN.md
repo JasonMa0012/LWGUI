@@ -4,13 +4,19 @@
 
 一个轻量, 灵活, 强大的**Unity Shader GUI**系统.
 
-使用简洁的MaterialPropertyDrawer语法实现功能复杂的Shader GUI, 节省大量开发时间, 易于使用和扩展, 有效提升美术的使用体验.
+已经过诸多大型商业项目的验证, 使用简洁的Material Property Drawer语法实现功能强大的Shader GUI, 节省大量开发时间, 易于使用和扩展, 有效提升美术人员的使用体验.
 
 ![809c4a1c-ce80-48b1-b415-7e8d4bea716e](README_CN.assets/809c4a1c-ce80-48b1-b415-7e8d4bea716e-16616214059841.png)
 
 ![LWGUI](README_CN.assets/LWGUI.png)
 
-![image-20220926025611208](README_CN.assets/image-20220926025611208.png)
+
+
+| ![image-20220926025611208](./README_CN.assets/image-20220926025611208.png) | ![image-20230821205439889](./README_CN.assets/image-20230821205439889.png) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 搜索栏亦可筛选已修改的属性                                   | 可以按类型粘贴属性值                                         |
+
+
 
 | With your sponsorship, I will update more actively. | 有你的赞助我会更加积极地更新                                 |
 | --------------------------------------------------- | ------------------------------------------------------------ |
@@ -50,12 +56,12 @@
 
 ## Installation
 
-1. 确保你的环境兼容LWGUI: **Unity 2017.4+**
+1. 确保你的Unity版本兼容LWGUI: **Unity 2017.4+**
 2. 打开已有工程
 3. （可能需要全局代理）`Window > Package Manager > Add > Add package from git URL` 输入`https://github.com/JasonMa0012/LWGUI.git`
 
    - 你也可以选择手动从Github下载Zip，然后从`Package Manager > Add package from disk`添加Local Package
-   - 对于Unity 2017, 请直接将Zip解压到Assets目录
+   - **对于Unity 2017, 请直接将Zip解压到Assets目录**
 
 ## Usage
 
@@ -497,6 +503,25 @@ MaterialToggleUIDrawer(string keyword)
 1. 最好使用Title()替代内置的Header(), 否则会有错位
 1. 如果出现改了Shader但GUI没有更新的情况请手动修改Shader使其报错, 然后再改回来以刷新GUI
 
+## Custom Shader GUI
+
+### Custom Header and Footer
+
+![image-20230821211652918](./README_CN.assets/image-20230821211652918.png)
+
+Custom Header和Footer可以让你无需修改LWGUI插件的代码即可在ShaderGUI的顶部或底部添加自定义的模块.
+
+1. 根据你要添加自定义GUI的位置复制以下脚本到你的项目某个Editor文件夹中:
+   - 顶部: Packages/com.jasonma.lwgui/Editor/CustomGUISample/CustomHeader.cs
+   - 底部: Packages/com.jasonma.lwgui/Editor/CustomGUISample/CustomFooter.cs
+2. 修改文件名和类名
+3. 在DoCustomHeader() / DoCustomFooter()中添加你自定义的GUI代码
+4. 建议查看lwgui对象的定义以获取你所需要的数据
+
+### Custom Drawer
+
+TODO
+
 ## TODO
 
 - [ ] 支持ShaderGraph or ASE
@@ -505,8 +530,8 @@ MaterialToggleUIDrawer(string keyword)
 - [x] **支持HelpBox**
 - [ ] 支持改文字格式
 - [x] **支持Tooltip, 显示默认值和自定义内容**
-- [ ] **支持右上角菜单全部展开或折叠**
-- [ ] 支持Pass开关
+- [x] **支持右上角菜单全部展开或折叠**
+- [x] 支持Pass开关
 - [ ] 支持Curve
 - [x] **支持搜索框**
 - [x] **支持仅显示已修改项**
@@ -514,7 +539,7 @@ MaterialToggleUIDrawer(string keyword)
 - [x] 支持自适应枚举宽度
 - [x] 支持2017
   - [x] 反射引擎私有函数
-  - [ ] 复制属性菜单
+  - [x] 复制属性菜单
 
 
 
