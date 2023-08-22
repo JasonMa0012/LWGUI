@@ -202,12 +202,6 @@ namespace LWGUI
 				GUI.backgroundColor = isFolding ? Color.white : new Color(0.85f, 0.85f, 0.85f);
 				GUI.Box(rect, label, style);
 				GUI.backgroundColor = Color.white;
-				var e = Event.current;
-				if (e.type == UnityEngine.EventType.MouseDown && rect.Contains(e.mousePosition))
-				{
-					isFolding = !isFolding;
-					e.Use();
-				}
 				GUI.enabled = enabled;
 			}
 
@@ -220,6 +214,19 @@ namespace LWGUI
 						   new GUIStyle(EditorGUI.showMixedValue ? "ToggleMixed" : "Toggle"));
 				if (EditorGUI.EndChangeCheck())
 					toggleValue = !toggleValue;
+			}
+
+			// Background Click Event
+			{
+				var enabled = GUI.enabled;
+				GUI.enabled = true;
+				var e = Event.current;
+				if (e.type == UnityEngine.EventType.MouseDown && rect.Contains(e.mousePosition))
+				{
+					isFolding = !isFolding;
+					e.Use();
+				}
+				GUI.enabled = enabled;
 			}
 
 			return toggleValue;
