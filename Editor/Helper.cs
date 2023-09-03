@@ -179,29 +179,35 @@ namespace LWGUI
 			return rects;
 		}
 
-		public static bool Foldout(Rect       position,
-								   ref bool   isFolding,
-								   bool       toggleValue,
-								   bool       hasToggle,
-								   GUIContent label)
+		private static GUIStyle _foldoutStyle = new GUIStyle("minibutton")
 		{
-			var rect = position;
+			contentOffset = new Vector2(22, 0),
+			fixedHeight = 27,
+			alignment = TextAnchor.MiddleLeft,
+			font = EditorStyles.boldLabel.font,
+			fontSize = EditorStyles.boldLabel.fontSize
+#if UNITY_2019_4_OR_NEWER
+					 + 1,
+#endif
+		};
 
-			// Background
+		public static bool DrawFoldout(Rect       rect,
+									   ref bool   isFolding,
+									   bool       toggleValue,
+									   bool       hasToggle,
+									   GUIContent label)
+		{
+			// Button
 			{
-				var style = new GUIStyle("ShurikenModuleTitle");
-				style.border = new RectOffset(15, 7, 4, 4);
-				style.fixedHeight = 30;
-				// Text
-				style.font = new GUIStyle(EditorStyles.boldLabel).font;
-				style.fontSize = (int)(style.fontSize * 1.5f);
-				style.contentOffset = new Vector2(30f, -2f);
-
 				var enabled = GUI.enabled;
 				GUI.enabled = true;
+				var guiColor = GUI.backgroundColor;
 				GUI.backgroundColor = isFolding ? Color.white : new Color(0.85f, 0.85f, 0.85f);
-				GUI.Box(rect, label, style);
-				GUI.backgroundColor = Color.white;
+				if (GUI.Button(rect, label, _foldoutStyle))
+				{
+					isFolding = !isFolding;
+				}
+				GUI.backgroundColor = guiColor;
 				GUI.enabled = enabled;
 			}
 
@@ -214,19 +220,6 @@ namespace LWGUI
 						   new GUIStyle(EditorGUI.showMixedValue ? "ToggleMixed" : "Toggle"));
 				if (EditorGUI.EndChangeCheck())
 					toggleValue = !toggleValue;
-			}
-
-			// Background Click Event
-			{
-				var enabled = GUI.enabled;
-				GUI.enabled = true;
-				var e = Event.current;
-				if (e.type == UnityEngine.EventType.MouseDown && rect.Contains(e.mousePosition))
-				{
-					isFolding = !isFolding;
-					e.Use();
-				}
-				GUI.enabled = enabled;
 			}
 
 			return toggleValue;

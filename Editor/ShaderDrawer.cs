@@ -71,7 +71,7 @@ namespace LWGUI
 			_isFolding = isFirstFrame ? !_defaultFoldingState : GroupStateHelper.GetGroupFolding(shader, finalGroupName);
 
 			EditorGUI.BeginChangeCheck();
-			bool toggleResult = Helper.Foldout(position, ref _isFolding, toggleValue, _defaultToggleDisplayed, label);
+			bool toggleResult = Helper.DrawFoldout(position, ref _isFolding, toggleValue, _defaultToggleDisplayed, label);
 
 			if (EditorGUI.EndChangeCheck())
 			{
