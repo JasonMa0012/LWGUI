@@ -308,7 +308,108 @@ namespace LWGUI
 			}
 		}
 	}
-	
+
+	/// <summary>
+	/// Draw a min max slider (Unity 2019.2+ only)
+	/// group：father group name, support suffix keyword for conditional display (Default: none)
+	/// minPropName: Output Min Property Name
+	/// maxPropName: Output Max Property Name
+	/// Target Property Type: Range, range limits express the MinMaxSlider value range
+	/// Output Min/Max Property Type: Range, it's value is limited by it's range
+	/// </summary>
+	public class MinMaxSliderDrawer : SubDrawer
+	{
+		private string _minPropName;
+		private string _maxPropName;
+
+		public MinMaxSliderDrawer(string minPropName, string maxPropName) : this("_", minPropName, maxPropName) { }
+		public MinMaxSliderDrawer(string group, string minPropName, string maxPropName)
+		{
+			this.group = group;
+			this._minPropName = minPropName;
+			this._maxPropName = maxPropName;
+		}
+
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Range; }
+
+		public override void InitMetaData(Shader inShader, Material inMaterial, MaterialProperty inProp, MaterialProperty[] inProps)
+		{
+			var minProp = LWGUI.FindProp(_minPropName, inProps, true);
+			var maxProp = LWGUI.FindProp(_maxPropName, inProps, true);
+			MetaDataHelper.RegisterSubProp(inShader, inProp, group, new []{ minProp, maxProp });
+			MetaDataHelper.RegisterPropertyDefaultValueText(inShader, inProp,
+															RevertableHelper.GetDefaultProperty(inMaterial, minProp).floatValue + " - " +
+															RevertableHelper.GetDefaultProperty(inMaterial, maxProp).floatValue);
+		}
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			// read min max
+			MaterialProperty minProp = LWGUI.FindProp(_minPropName, props, true);
+			MaterialProperty maxProp = LWGUI.FindProp(_maxPropName, props, true);
+			if (minProp == null || maxProp == null)
+			{
+				Debug.LogError("MinMaxSliderDrawer: minProp: " + (minProp == null ? "null" : minProp.name) + " or maxProp: " + (maxProp == null ? "null" : maxProp.name) + " not found!");
+				return;
+			}
+			float minf = minProp.floatValue;
+			float maxf = maxProp.floatValue;
+
+			// define draw area
+			Rect controlRect = position; //EditorGUILayout.GetControlRect(); // this is the full length rect area
+			var w = EditorGUIUtility.labelWidth;
+			EditorGUIUtility.labelWidth = 0;
+			Rect inputRect = MaterialEditor.GetRectAfterLabelWidth(controlRect); // this is the remaining rect area after label's area
+			EditorGUIUtility.labelWidth = w;
+
+			// draw label
+			EditorGUI.PrefixLabel(controlRect, label);
+
+			// draw min max slider
+			Rect[] splittedRect = Helper.SplitRect(inputRect, 3);
+
+			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = minProp.hasMixedValue;
+			var newMinf = EditorGUI.FloatField(splittedRect[0], minf);
+			if (EditorGUI.EndChangeCheck())
+			{
+				minf = Mathf.Clamp(newMinf, minProp.rangeLimits.x, minProp.rangeLimits.y);
+				minProp.floatValue = minf;
+			}
+
+			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = maxProp.hasMixedValue;
+			var newMaxf = EditorGUI.FloatField(splittedRect[2], maxf);
+			if (EditorGUI.EndChangeCheck())
+			{
+				maxf = Mathf.Clamp(newMaxf, maxProp.rangeLimits.x, maxProp.rangeLimits.y);
+				maxProp.floatValue = maxf;
+			}
+
+			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = prop.hasMixedValue;
+			if (splittedRect[1].width > 50f)
+				EditorGUI.MinMaxSlider(splittedRect[1], ref minf, ref maxf, prop.rangeLimits.x, prop.rangeLimits.y);
+			EditorGUI.showMixedValue = false;
+
+			// write back min max if changed
+			if (EditorGUI.EndChangeCheck())
+			{
+				minProp.floatValue = Mathf.Clamp(minf, minProp.rangeLimits.x, minProp.rangeLimits.y);
+				maxProp.floatValue = Mathf.Clamp(maxf, maxProp.rangeLimits.x, maxProp.rangeLimits.y);
+			}
+
+			var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, position, true);
+			if (RevertableHelper.DrawRevertableProperty(revertButtonRect, minProp, editor) ||
+				RevertableHelper.DrawRevertableProperty(revertButtonRect, maxProp, editor))
+			{
+				RevertableHelper.SetPropertyToDefault(lwgui.material, minProp);
+				RevertableHelper.SetPropertyToDefault(lwgui.material, maxProp);
+			}
+
+		}
+	}
+
 	/// <summary>
 	/// Similar to builtin Enum() / KeywordEnum()
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
@@ -619,7 +720,7 @@ namespace LWGUI
 			EditorGUI.showMixedValue = false;
 		}
 	}
-	
+
 	/// <summary>
 	/// Display up to 4 colors in a single line
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
@@ -722,6 +823,93 @@ namespace LWGUI
 			}
 
 			EditorGUI.showMixedValue = false;
+		}
+	}
+
+	/// <summary>
+	/// Draw a R/G/B/A drop menu:
+	/// 	R = (1, 0, 0, 0)
+	/// 	G = (0, 1, 0, 0)
+	/// 	B = (0, 0, 1, 0)
+	/// 	A = (0, 0, 0, 1)
+	/// 	RGB Average = (1f / 3f, 1f / 3f, 1f / 3f, 0)
+	/// 	RGB Luminance = (0.2126f, 0.7152f, 0.0722f, 0)
+	///		None = (0, 0, 0, 0)
+	/// group：father group name, support suffix keyword for conditional display (Default: none)
+	/// Target Property Type: Vector, used to dot() with Texture Sample Value
+	/// </summary>
+	public class ChannelDrawer : SubDrawer
+	{
+		private static GUIContent[] _names = new[] {
+			new GUIContent("R"),
+			new GUIContent("G"),
+			new GUIContent("B"),
+			new GUIContent("A"),
+			new GUIContent("RGB Average"),
+			new GUIContent("RGB Luminance"),
+			new GUIContent("None")
+		};
+		private static int[] _intValues = new int[] { 0, 1, 2, 3, 4, 5, 6 };
+		private static Vector4[] _vector4Values = new[]
+		{
+			new Vector4(1, 0, 0, 0),
+			new Vector4(0, 1, 0, 0),
+			new Vector4(0, 0, 1, 0),
+			new Vector4(0, 0, 0, 1),
+			new Vector4(1f / 3f, 1f / 3f, 1f / 3f, 0),
+			new Vector4(0.2126f, 0.7152f, 0.0722f, 0),
+			new Vector4(0, 0, 0, 0)
+		};
+
+		public ChannelDrawer() { }
+		public ChannelDrawer(string group)
+		{
+			this.group = group;
+		}
+
+		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Vector; }
+
+		private static int GetChannelIndex(MaterialProperty prop)
+		{
+			int index = -1;
+			for (int i = 0; i < _vector4Values.Length; i++)
+			{
+				if (prop.vectorValue == _vector4Values[i])
+					index = i;
+			}
+			if (index == -1)
+			{
+				Debug.LogError("Channel Property: " + prop.name + " invalid vector found, reset to A");
+				prop.vectorValue = _vector4Values[3];
+				index = 3;
+			}
+			return index;
+		}
+
+		public static string GetChannelName(MaterialProperty prop)
+		{
+			return _names[GetChannelIndex(prop)].text;
+		}
+
+		public override void InitMetaData(Shader inShader, Material inMaterial, MaterialProperty inProp, MaterialProperty[] inProps)
+		{
+			base.InitMetaData(inShader, inMaterial, inProp, inProps);
+			MetaDataHelper.RegisterPropertyDefaultValueText(inShader, inProp, GetChannelName(RevertableHelper.GetDefaultProperty(inMaterial, inProp)));
+		}
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			var rect = position; //EditorGUILayout.GetControlRect();
+			var index = GetChannelIndex(prop);
+
+			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = prop.hasMixedValue;
+			int num = EditorGUI.IntPopup(rect, label, index, _names, _intValues);
+			EditorGUI.showMixedValue = false;
+			if (EditorGUI.EndChangeCheck())
+			{
+				prop.vectorValue = _vector4Values[num];
+			}
 		}
 	}
 
@@ -893,194 +1081,6 @@ namespace LWGUI
 	}
 
 	/// <summary>
-	/// Draw a min max slider (Unity 2019.2+ only)
-	/// group：father group name, support suffix keyword for conditional display (Default: none)
-	/// minPropName: Output Min Property Name
-	/// maxPropName: Output Max Property Name
-	/// Target Property Type: Range, range limits express the MinMaxSlider value range
-	/// Output Min/Max Property Type: Range, it's value is limited by it's range
-	/// </summary>
-	public class MinMaxSliderDrawer : SubDrawer
-	{
-		private string _minPropName;
-		private string _maxPropName;
-
-		public MinMaxSliderDrawer(string minPropName, string maxPropName) : this("_", minPropName, maxPropName) { }
-		public MinMaxSliderDrawer(string group, string minPropName, string maxPropName)
-		{
-			this.group = group;
-			this._minPropName = minPropName;
-			this._maxPropName = maxPropName;
-		}
-
-		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Range; }
-
-		public override void InitMetaData(Shader inShader, Material inMaterial, MaterialProperty inProp, MaterialProperty[] inProps)
-		{
-			var minProp = LWGUI.FindProp(_minPropName, inProps, true);
-			var maxProp = LWGUI.FindProp(_maxPropName, inProps, true);
-			MetaDataHelper.RegisterSubProp(inShader, inProp, group, new []{ minProp, maxProp });
-			MetaDataHelper.RegisterPropertyDefaultValueText(inShader, inProp,
-															RevertableHelper.GetDefaultProperty(inMaterial, minProp).floatValue + " - " + 
-															RevertableHelper.GetDefaultProperty(inMaterial, maxProp).floatValue);
-		}
-
-		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
-		{
-			// read min max
-			MaterialProperty minProp = LWGUI.FindProp(_minPropName, props, true);
-			MaterialProperty maxProp = LWGUI.FindProp(_maxPropName, props, true);
-			if (minProp == null || maxProp == null)
-			{
-				Debug.LogError("MinMaxSliderDrawer: minProp: " + (minProp == null ? "null" : minProp.name) + " or maxProp: " + (maxProp == null ? "null" : maxProp.name) + " not found!");
-				return;
-			}
-			float minf = minProp.floatValue;
-			float maxf = maxProp.floatValue;
-
-			// define draw area
-			Rect controlRect = position; //EditorGUILayout.GetControlRect(); // this is the full length rect area
-			var w = EditorGUIUtility.labelWidth;
-			EditorGUIUtility.labelWidth = 0;
-			Rect inputRect = MaterialEditor.GetRectAfterLabelWidth(controlRect); // this is the remaining rect area after label's area
-			EditorGUIUtility.labelWidth = w;
-
-			// draw label
-			EditorGUI.PrefixLabel(controlRect, label);
-
-			// draw min max slider
-			Rect[] splittedRect = Helper.SplitRect(inputRect, 3);
-
-			EditorGUI.BeginChangeCheck();
-			EditorGUI.showMixedValue = minProp.hasMixedValue;
-			var newMinf = EditorGUI.FloatField(splittedRect[0], minf);
-			if (EditorGUI.EndChangeCheck())
-			{
-				minf = Mathf.Clamp(newMinf, minProp.rangeLimits.x, minProp.rangeLimits.y);
-				minProp.floatValue = minf;
-			}
-			
-			EditorGUI.BeginChangeCheck();
-			EditorGUI.showMixedValue = maxProp.hasMixedValue;
-			var newMaxf = EditorGUI.FloatField(splittedRect[2], maxf);
-			if (EditorGUI.EndChangeCheck())
-			{
-				maxf = Mathf.Clamp(newMaxf, maxProp.rangeLimits.x, maxProp.rangeLimits.y);
-				maxProp.floatValue = maxf;
-			}
-
-			EditorGUI.BeginChangeCheck();
-			EditorGUI.showMixedValue = prop.hasMixedValue;
-			if (splittedRect[1].width > 50f)
-				EditorGUI.MinMaxSlider(splittedRect[1], ref minf, ref maxf, prop.rangeLimits.x, prop.rangeLimits.y);
-			EditorGUI.showMixedValue = false;
-
-			// write back min max if changed
-			if (EditorGUI.EndChangeCheck())
-			{
-				minProp.floatValue = Mathf.Clamp(minf, minProp.rangeLimits.x, minProp.rangeLimits.y);
-				maxProp.floatValue = Mathf.Clamp(maxf, maxProp.rangeLimits.x, maxProp.rangeLimits.y);
-			}
-
-			var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, position, true);
-			if (RevertableHelper.DrawRevertableProperty(revertButtonRect, minProp, editor) ||
-				RevertableHelper.DrawRevertableProperty(revertButtonRect, maxProp, editor))
-			{
-				RevertableHelper.SetPropertyToDefault(lwgui.material, minProp);
-				RevertableHelper.SetPropertyToDefault(lwgui.material, maxProp);
-			}
-
-		}
-	}
-
-	/// <summary>
-	/// Draw a R/G/B/A drop menu:
-	/// 	R = (1, 0, 0, 0)
-	/// 	G = (0, 1, 0, 0)
-	/// 	B = (0, 0, 1, 0)
-	/// 	A = (0, 0, 0, 1)
-	/// 	RGB Average = (1f / 3f, 1f / 3f, 1f / 3f, 0)
-	/// 	RGB Luminance = (0.2126f, 0.7152f, 0.0722f, 0)
-	///		None = (0, 0, 0, 0)
-	/// group：father group name, support suffix keyword for conditional display (Default: none)
-	/// Target Property Type: Vector, used to dot() with Texture Sample Value 
-	/// </summary>
-	public class ChannelDrawer : SubDrawer
-	{
-		private static GUIContent[] _names  = new[] { 
-			new GUIContent("R"), 
-			new GUIContent("G"), 
-			new GUIContent("B"), 
-			new GUIContent("A"),
-			new GUIContent("RGB Average"), 
-			new GUIContent("RGB Luminance"), 
-			new GUIContent("None") 
-		};
-		private static int[]     _intValues     = new int[] { 0, 1, 2, 3, 4, 5, 6 };
-		private static Vector4[] _vector4Values = new[]
-		{
-			new Vector4(1, 0, 0, 0),
-			new Vector4(0, 1, 0, 0),
-			new Vector4(0, 0, 1, 0),
-			new Vector4(0, 0, 0, 1),
-			new Vector4(1f / 3f, 1f / 3f, 1f / 3f, 0),
-			new Vector4(0.2126f, 0.7152f, 0.0722f, 0),
-			new Vector4(0, 0, 0, 0)
-		};
-
-		public ChannelDrawer() { }
-		public ChannelDrawer(string group)
-		{
-			this.group = group;
-		}
-
-		protected override bool IsMatchPropType(MaterialProperty property) { return property.type == MaterialProperty.PropType.Vector; }
-
-		private static int GetChannelIndex(MaterialProperty prop)
-		{
-			int index = -1;
-			for (int i = 0; i < _vector4Values.Length; i++)
-			{
-				if (prop.vectorValue == _vector4Values[i])
-					index = i;
-			}
-			if (index == -1)
-			{
-				Debug.LogError("Channel Property: " + prop.name + " invalid vector found, reset to A");
-				prop.vectorValue = _vector4Values[3];
-				index = 3;
-			}
-			return index;
-		}
-
-		public static string GetChannelName(MaterialProperty prop)
-		{
-			return _names[GetChannelIndex(prop)].text;
-		}
-
-		public override void InitMetaData(Shader inShader, Material inMaterial, MaterialProperty inProp, MaterialProperty[] inProps)
-		{
-			base.InitMetaData(inShader, inMaterial, inProp, inProps);
-			MetaDataHelper.RegisterPropertyDefaultValueText(inShader, inProp, GetChannelName(RevertableHelper.GetDefaultProperty(inMaterial, inProp)));
-		}
-
-		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
-		{
-			var rect = position; //EditorGUILayout.GetControlRect();
-			var index = GetChannelIndex(prop);
-
-			EditorGUI.BeginChangeCheck();
-			EditorGUI.showMixedValue = prop.hasMixedValue;
-			int num = EditorGUI.IntPopup(rect, label, index, _names, _intValues);
-			EditorGUI.showMixedValue = false;
-			if (EditorGUI.EndChangeCheck())
-			{
-				prop.vectorValue = _vector4Values[num];
-			}
-		}
-	}
-
-	/// <summary>
 	/// Popping a menu, you can select the Shader Property Preset, the Preset values will replaces the default values
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	///	presetFileName: "Shader Property Preset" asset name, you can create new Preset by
@@ -1190,49 +1190,16 @@ namespace LWGUI
 		}
 	}
 
-	
 	/// <summary>
-	/// Cooperate with Toggle to switch certain Passes
-	/// lightModeName(s): Light Mode in Shader Pass (https://docs.unity3d.com/2017.4/Documentation/Manual/SL-PassTags.html)
+	/// Similar to Title()
+	/// group：father group name, support suffix keyword for conditional display (Default: none)
+	/// header: string to display, "SpaceLine" or "_" = none (Default: none)
+	/// height: line height (Default: 22)
 	/// </summary>
-	public class PassSwitchDecorator : SubDrawer
+	public class SubTitleDecorator : TitleDecorator
 	{
-		private string[] _lightModeNames;
-		
-		public PassSwitchDecorator(string   lightModeName1) : this(new[] { lightModeName1}){}
-		public PassSwitchDecorator(string   lightModeName1, string lightModeName2) : this(new[] { lightModeName1, lightModeName2}){}
-		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3) : this(new[] { lightModeName1, lightModeName2, lightModeName3}){}
-		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4) : this(new[] { lightModeName1, lightModeName2, lightModeName3, lightModeName4 }){}
-		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5) : this(new[] { lightModeName1, lightModeName2, lightModeName3, lightModeName4, lightModeName5 }){}
-		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5, string lightModeName6) : this(new[] { lightModeName1, lightModeName2, lightModeName3, lightModeName4, lightModeName5, lightModeName6 }){}
-		public PassSwitchDecorator(string[] passNames) { _lightModeNames = passNames.Select((s => s.ToUpper())).ToArray(); }
-		
-
-		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
-
-		protected override bool IsMatchPropType(MaterialProperty property)
-		{
-			return property.type == MaterialProperty.PropType.Float
-#if UNITY_2021_1_OR_NEWER
-									 || property.type == MaterialProperty.PropType.Int
-#endif
-				;
-		}
-
-		public override void InitMetaData(Shader inShader, Material inMaterial, MaterialProperty inProp, MaterialProperty[] inProps) { }
-
-		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
-		{
-			if (!prop.hasMixedValue)
-				Helper.SetShaderPassEnabled(prop.targets, _lightModeNames, prop.floatValue > 0);
-		}
-
-		public override void Apply(MaterialProperty prop)
-		{
-			base.Apply(prop);
-			if (!prop.hasMixedValue && IsMatchPropType(prop))
-				Helper.SetShaderPassEnabled(prop.targets, _lightModeNames, prop.floatValue > 0);
-		}
+		public SubTitleDecorator(string group,  string header) : base(group, header, DefaultHeight) {}
+		public SubTitleDecorator(string group, string header, float height) : base(group, header, height) {}
 	}
 
 	/// <summary>
@@ -1247,8 +1214,6 @@ namespace LWGUI
 
 		#region 
 
-		public TooltipDecorator() { }
-		
 		public TooltipDecorator(string s1, string s2) : this(s1 + ", " + s2) { }
 		
 		public TooltipDecorator(string s1, string s2, string s3) : this(s1 + ", " + s2 + ", " + s3) { }
@@ -1282,8 +1247,6 @@ namespace LWGUI
 
 
 		#region 
-		public HelpboxDecorator() { }
-		
 		public HelpboxDecorator(string s1, string s2) : this(s1 + ", " + s2) { }
 		
 		public HelpboxDecorator(string s1, string s2, string s3) : this(s1 + ", " + s2 + ", " + s3) { }
@@ -1292,7 +1255,7 @@ namespace LWGUI
 		
 		public HelpboxDecorator(string s1, string s2, string s3, string s4, string s5) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5) { }
 
-		public HelpboxDecorator(string message) { this._message = message; }
+		public HelpboxDecorator(string message) : base(string.Empty) { this._message = message; }
 		#endregion
 
 
@@ -1302,4 +1265,53 @@ namespace LWGUI
 		}
 	}
 
+	/// <summary>
+	/// Cooperate with Toggle to switch certain Passes
+	/// lightModeName(s): Light Mode in Shader Pass (https://docs.unity3d.com/2017.4/Documentation/Manual/SL-PassTags.html)
+	/// </summary>
+	public class PassSwitchDecorator : SubDrawer
+	{
+		private string[] _lightModeNames;
+
+		public PassSwitchDecorator(string   lightModeName1)
+			: this(new[] { lightModeName1}){}
+		public PassSwitchDecorator(string   lightModeName1, string lightModeName2)
+			: this(new[] { lightModeName1, lightModeName2}){}
+		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3)
+			: this(new[] { lightModeName1, lightModeName2, lightModeName3}){}
+		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4)
+			: this(new[] { lightModeName1, lightModeName2, lightModeName3, lightModeName4 }){}
+		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5)
+			: this(new[] { lightModeName1, lightModeName2, lightModeName3, lightModeName4, lightModeName5 }){}
+		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5, string lightModeName6)
+			: this(new[] { lightModeName1, lightModeName2, lightModeName3, lightModeName4, lightModeName5, lightModeName6 }){}
+		public PassSwitchDecorator(string[] passNames) { _lightModeNames = passNames.Select((s => s.ToUpper())).ToArray(); }
+
+
+		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
+
+		protected override bool IsMatchPropType(MaterialProperty property)
+		{
+			return property.type == MaterialProperty.PropType.Float
+#if UNITY_2021_1_OR_NEWER
+									 || property.type == MaterialProperty.PropType.Int
+#endif
+				;
+		}
+
+		public override void InitMetaData(Shader inShader, Material inMaterial, MaterialProperty inProp, MaterialProperty[] inProps) { }
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+		{
+			if (!prop.hasMixedValue)
+				Helper.SetShaderPassEnabled(prop.targets, _lightModeNames, prop.floatValue > 0);
+		}
+
+		public override void Apply(MaterialProperty prop)
+		{
+			base.Apply(prop);
+			if (!prop.hasMixedValue && IsMatchPropType(prop))
+				Helper.SetShaderPassEnabled(prop.targets, _lightModeNames, prop.floatValue > 0);
+		}
+	}
 } //namespace LWGUI

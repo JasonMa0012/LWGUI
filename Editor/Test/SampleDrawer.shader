@@ -28,7 +28,7 @@
 		
 		[Tex(g1)][Normal] _normal ("normal", 2D) = "bump" { }
 		[Sub(g1)][HDR] _hdr ("hdr", Color) = (1, 1, 1, 1)
-		[Title(g1, Sample Title)]
+		[SubTitle(g1, Sample SubTitle)]
 		[SubToggle(g1, _)] _toggle ("toggle", float) = 0
 		[SubToggle(g1, _KEYWORD)] _toggle_keyword ("toggle_keyword", float) = 0
 		[Sub(g1_KEYWORD)]  _float_keyword ("float_keyword", float) = 0

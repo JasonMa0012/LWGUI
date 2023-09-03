@@ -27,22 +27,22 @@
 - [Usage](#usage)
   * [Getting Started](#getting-started)
   * [LWGUI Drawers](#lwgui-drawers)
-    + [Main - Sub](#main---sub)
+    + [Main & Sub](#main---sub)
     + [SubToggle](#subtoggle)
-    + [SubPower](#subpower)
+    + [SubPowerSlider](#subpowerslider)
     + [SubIntRange](#subintrange)
+    + [MinMaxSlider](#minmaxslider)
     + [KWEnum](#kwenum)
-    + [SubEnum - SubKeywordEnum](#subenum---subkeywordenum)
-    + [Tex - Color](#tex---color)
+    + [SubEnum & SubKeywordEnum](#subenum---subkeywordenum)
+    + [Tex & Color](#tex---color)
     + [Channel](#channel)
     + [Ramp](#ramp)
-    + [MinMaxSlider](#minmaxslider)
     + [Preset](#preset)
       - [Create Preset File](#create-preset-file)
       - [Edit Preset](#edit-preset)
   * [LWGUI Decorator](#lwgui-decorator)
-    + [Title](#title)
-    + [Tooltip - Helpbox](#tooltip---helpbox)
+    + [Title & SubTitle](#title---subtitle)
+    + [Tooltip & Helpbox](#tooltip---helpbox)
     + [PassSwitch](#passswitch)
   * [Unity Builtin Drawers](#unity-builtin-drawers)
     + [Space](#space)
@@ -78,10 +78,13 @@
 3. 在Shader最底部, 最后一个大括号之前, 添加行:`CustomEditor "LWGUI.LWGUI"`
 4. 完成! 开始使用以下功能强大的Drawer轻松绘制你的ShaderGUI吧
    - MaterialPropertyDrawer是一种类似C# Attribute的语法, 在MaterialProperty前加上Drawer可以更改绘制方式, 更多信息可以查看官方文档:`https://docs.unity3d.com/ScriptReference/MaterialPropertyDrawer.html`
+   - 每个Property只能有一个Drawer
+   - 每个Property可以有多个Decorator
+
 
 ### LWGUI Drawers
 
-#### Main - Sub
+#### Main & Sub
 
 ```c#
 /// Create a Folding Group
@@ -90,14 +93,21 @@
 /// default Folding State: "on" or "off" (Default: off)
 /// default Toggle Displayed: "on" or "off" (Default: on)
 /// Target Property Type: FLoat, express Toggle value
-MainDrawer(string group, string keyword, string defaultFoldingState, string defaultToggleDisplayed)
+public MainDrawer() : this(String.Empty) { }
+public MainDrawer(string group) : this(group, String.Empty) { }
+public MainDrawer(string group, string keyword) : this(group, keyword, "off") { }
+public MainDrawer(string group, string keyword, string defaultFoldingState) : this(group, keyword, defaultFoldingState, "on") { }
+public MainDrawer(string group, string keyword, string defaultFoldingState, string defaultToggleDisplayed)
+
 ```
 
 ```c#
 /// Draw a property with default style in the folding group
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// Target Property Type: Any
-SubDrawer(string group)
+public SubDrawer() { }
+public SubDrawer(string group)
+
 ```
 
 Example:
@@ -150,19 +160,23 @@ Then change values:
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// keyword：keyword used for toggle, "_" = ignore, none or "__" = Property Name +  "_ON", always Upper (Default: none)
 /// Target Property Type: FLoat
-SubToggleDrawer(string group, string keyWord)
+public SubToggleDrawer() { }
+public SubToggleDrawer(string group) : this(group, String.Empty) { }
+public SubToggleDrawer(string group, string keyWord)
+
 ```
 
 
 
-#### SubPower
+#### SubPowerSlider
 
 ```c#
 /// Similar to builtin PowerSlider()
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// power: power of slider (Default: 1)
 /// Target Property Type: Range
-SubPowerSliderDrawer(string group, float power)
+public SubPowerSliderDrawer(float power) : this("_", power) { }
+public SubPowerSliderDrawer(string group, float power)
 ```
 
 
@@ -172,8 +186,39 @@ SubPowerSliderDrawer(string group, float power)
 /// Similar to builtin IntRange()
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// Target Property Type: Range
-SubIntRangeDrawer(string group)
+public SubIntRangeDrawer(string group)
+
 ```
+
+
+
+#### MinMaxSlider
+
+```c#
+/// Draw a min max slider (Unity 2019.2+ only)
+/// group：father group name, support suffix keyword for conditional display (Default: none)
+/// minPropName: Output Min Property Name
+/// maxPropName: Output Max Property Name
+/// Target Property Type: Range, range limits express the MinMaxSlider value range
+/// Output Min/Max Property Type: Range, it's value is limited by it's range
+public MinMaxSliderDrawer(string minPropName, string maxPropName) : this("_", minPropName, maxPropName) { }
+public MinMaxSliderDrawer(string group, string minPropName, string maxPropName)
+
+```
+
+Example:
+
+```c#
+[Title(MinMaxSlider Samples)]
+[MinMaxSlider(_rangeStart, _rangeEnd)] _minMaxSlider("Min Max Slider (0 - 1)", Range(0.0, 1.0)) = 1.0
+/*[HideInInspector]*/_rangeStart("Range Start", Range(0.0, 0.5)) = 0.0
+/*[HideInInspector]*/[PowerSlider(10)] _rangeEnd("Range End PowerSlider", Range(0.5, 1.0)) = 1.0
+
+```
+
+Result:
+
+![image-20220828003810353](README_CN.assets/image-20220828003810353.png)
 
 
 
@@ -188,25 +233,50 @@ SubIntRangeDrawer(string group)
 /// v(s): value
 /// Target Property Type: FLoat, express current keyword index
 /// </summary>
-KWEnumDrawer(string group, string n1, string k1, string n2, string k2, string n3, string k3, string n4, string k4, string n5, string k5)
+public KWEnumDrawer(string n1, string k1)
+public KWEnumDrawer(string n1, string k1, string n2, string k2)
+public KWEnumDrawer(string n1, string k1, string n2, string k2, string n3, string k3)
+public KWEnumDrawer(string n1, string k1, string n2, string k2, string n3, string k3, string n4, string k4)
+public KWEnumDrawer(string n1, string k1, string n2, string k2, string n3, string k3, string n4, string k4, string n5, string k5)
+    
+public KWEnumDrawer(string group, string n1, string k1)
+public KWEnumDrawer(string group, string n1, string k1, string n2, string k2)
+public KWEnumDrawer(string group, string n1, string k1, string n2, string k2, string n3, string k3)
+public KWEnumDrawer(string group, string n1, string k1, string n2, string k2, string n3, string k3, string n4, string k4)
+public KWEnumDrawer(string group, string n1, string k1, string n2, string k2, string n3, string k3, string n4, string k4, string n5, string k5)
 ```
 
 
 
-#### SubEnum - SubKeywordEnum
+#### SubEnum & SubKeywordEnum
 
 ```c#
 // enumName: like "UnityEngine.Rendering.BlendMode"
-SubEnumDrawer(string group, string enumName)
-    
-SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4, string n5, float v5, string n6, float v6, string n7, float v7)
+public SubEnumDrawer(string group, string enumName) : base(group, enumName)
 
-SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5, string kw6, string kw7, string kw8, string kw9)
+
+public SubEnumDrawer(string group, string n1, float v1, string n2, float v2)
+public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3)
+public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4)
+public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4, string n5, float v5)
+public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4, string n5, float v5, string n6, float v6)
+public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3, string n4, float v4, string n5, float v5, string n6, float v6, string n7, float v7)
+
+
+public SubKeywordEnumDrawer(string group, string kw1, string kw2)
+public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3)
+public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4)
+public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5)
+public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5, string kw6)
+public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5, string kw6, string kw7)
+public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5, string kw6, string kw7, string kw8)
+public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw4, string kw5, string kw6, string kw7, string kw8, string kw9)
+
 ```
 
 
 
-#### Tex - Color
+#### Tex & Color
 
 ```c#
 /// Draw a Texture property in single line with a extra property
@@ -214,7 +284,10 @@ SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, string kw
 /// extraPropName: extra property name (Unity 2019.2+ only) (Default: none)
 /// Target Property Type: Texture
 /// Extra Property Type: Any, except Texture
-TexDrawer(string group, string extraPropName)
+public TexDrawer() { }
+public TexDrawer(string group) : this(group, String.Empty) { }
+public TexDrawer(string group, string extraPropName)
+
 ```
 
 ```c#
@@ -222,7 +295,10 @@ TexDrawer(string group, string extraPropName)
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// color2-4: extra color property name (Unity 2019.2+ only)
 /// Target Property Type: Color
-ColorDrawer(string group, string color2, string color3, string color4)
+public ColorDrawer(string group, string color2) : this(group, color2, String.Empty, String.Empty) { }
+public ColorDrawer(string group, string color2, string color3) : this(group, color2, color3, String.Empty) { }
+public ColorDrawer(string group, string color2, string color3, string color4)
+
 ```
 
 Example:
@@ -264,7 +340,8 @@ Result:
 ///		None = (0, 0, 0, 0)
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// Target Property Type: Vector, used to dot() with Texture Sample Value 
-ChannelDrawer(string group)
+public ChannelDrawer() { }
+public ChannelDrawer(string group)
 ```
 
 Example:
@@ -291,7 +368,12 @@ float selectedChannelValue = dot(tex2D(_Tex, uv), _textureChannelMask);
 /// rootPath: the path where ramp is stored, replace '/' with '.' (for example: Assets.Art.Ramps). when selecting ramp, it will also be filtered according to the path (Default: Assets)
 /// defaultWidth: default Ramp Width (Default: 512)
 /// Target Property Type: Texture2D
-RampDrawer(string group, string defaultFileName, string rootPath, float defaultWidth)
+public RampDrawer() : this(String.Empty) { }
+public RampDrawer(string group) : this(group, "RampMap") { }
+public RampDrawer(string group, string defaultFileName) : this(group, defaultFileName, DefaultRootPath, 512) { }
+public RampDrawer(string group, string defaultFileName, float defaultWidth) : this(group, defaultFileName, DefaultRootPath, defaultWidth) { }
+public RampDrawer(string group, string defaultFileName, string rootPath, float defaultWidth)
+
 ```
 
 Example:
@@ -313,31 +395,6 @@ Ramp编辑器:
 
 **在你移动或者复制RampMap的时候, 切记要连同.meta文件一起移动, 否则将无法再次编辑!**
 
-#### MinMaxSlider
-
-```c#
-/// Draw a min max slider (Unity 2019.2+ only)
-/// group：father group name, support suffix keyword for conditional display (Default: none)
-/// minPropName: Output Min Property Name
-/// maxPropName: Output Max Property Name
-/// Target Property Type: Range, range limits express the MinMaxSlider value range
-/// Output Min/Max Property Type: Range, it's value is limited by it's range
-MinMaxSliderDrawer(string group, string minPropName, string maxPropName)
-```
-Example:
-
-```c#
-[Title(MinMaxSlider Samples)]
-[MinMaxSlider(_rangeStart, _rangeEnd)] _minMaxSlider("Min Max Slider (0 - 1)", Range(0.0, 1.0)) = 1.0
-_rangeStart("Range Start", Range(0.0, 0.5)) = 0.0
-[PowerSlider(10)] _rangeEnd("Range End PowerSlider", Range(0.5, 1.0)) = 1.0
-
-```
-
-Result:
-
-![image-20220828003810353](README_CN.assets/image-20220828003810353.png)
-
 
 
 #### Preset
@@ -348,7 +405,9 @@ Result:
 ///	presetFileName: "Shader Property Preset" asset name, you can create new Preset by
 ///		"Right Click > Create > LWGUI > Shader Property Preset" in Project window,
 ///		*any Preset in the entire project cannot have the same name*
+public PresetDrawer(string presetFileName) : this("_", presetFileName) {}
 public PresetDrawer(string group, string presetFileName)
+
 ```
 
 Example:
@@ -391,30 +450,52 @@ Result:
 
 ### LWGUI Decorator
 
-#### Title
+#### Title & SubTitle
 
 ```c#
 /// Similar to Header()
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// header: string to display, "SpaceLine" or "_" = none (Default: none)
 /// height: line height (Default: 22)
-TitleDecorator(string group, string header, float height)
+public TitleDecorator(string header) : this("_", header, DefaultHeight) {}
+public TitleDecorator(string header, float  height) : this("_", header, height) {}
+public TitleDecorator(string group,  string header) : this(group, header, DefaultHeight) {}
+public TitleDecorator(string group, string header, float height)
+
+
+/// Similar to Title()
+/// group：father group name, support suffix keyword for conditional display (Default: none)
+/// header: string to display, "SpaceLine" or "_" = none (Default: none)
+/// height: line height (Default: 22)
+public SubTitleDecorator(string group,  string header) : base(group, header, DefaultHeight) {}
+public SubTitleDecorator(string group, string header, float height) : base(group, header, height) {}
+
 ```
 
-#### Tooltip - Helpbox
+#### Tooltip & Helpbox
 
 ```c#
 /// Tooltip, describes the details of the property. (Default: property.name and property default value)
 /// You can also use "#Text" in DisplayName to add Tooltip that supports Multi-Language.
 /// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
-public TooltipDecorator(string tooltip)
+public TooltipDecorator(string s1, string s2) : this(s1 + ", " + s2) { }
+public TooltipDecorator(string s1, string s2, string s3) : this(s1 + ", " + s2 + ", " + s3) { }
+public TooltipDecorator(string s1, string s2, string s3, string s4) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4) { }
+public TooltipDecorator(string s1, string s2, string s3, string s4, string s5) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5) { }
+public TooltipDecorator(string tooltip) 
+
 ```
 
 ```c#
 /// Display a Helpbox on the property
 /// You can also use "%Text" in DisplayName to add Helpbox that supports Multi-Language.
 /// message：a single-line string to display, support up to 4 ','. (Default: Newline)
+public HelpboxDecorator(string s1, string s2) : this(s1 + ", " + s2) { }
+public HelpboxDecorator(string s1, string s2, string s3) : this(s1 + ", " + s2 + ", " + s3) { }
+public HelpboxDecorator(string s1, string s2, string s3, string s4) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4) { }
+public HelpboxDecorator(string s1, string s2, string s3, string s4, string s5) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5) { }
 public HelpboxDecorator(string message)
+
 ```
 
 Example:
@@ -444,7 +525,13 @@ _float_helpbox ("Float with Helpbox%这是中文Helpbox%これは日本語Helpbo
 ```c#
 /// Cooperate with Toggle to switch certain Passes
 /// lightModeName(s): Light Mode in Shader Pass (https://docs.unity3d.com/2017.4/Documentation/Manual/SL-PassTags.html)
-PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5, string lightModeName6)
+public PassSwitchDecorator(string   lightModeName1) 
+public PassSwitchDecorator(string   lightModeName1, string lightModeName2) 
+public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3) 
+public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4) 
+public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5) 
+public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5, string lightModeName6) 
+
 ```
 
 
