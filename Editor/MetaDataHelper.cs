@@ -313,29 +313,18 @@ namespace LWGUI
 		public static Dictionary<string, bool> SearchProperties(Shader shader, Material material, MaterialProperty[] props, string searchingText, SearchMode searchMode)
 		{
 			var result = new Dictionary<string, bool>();
-			var isDefaultProps = new Dictionary<string, bool>();
-			
-			
+
 			searchingText = searchingText.ToLower();
 			var searchingKeywords = searchingText.Split(' ', ',', ';', '|', '，', '；'); // Some possible separators
 
 			// init prop
 			foreach (var prop in props)
 			{
-				result.Add(prop.name, true);
-			}
-
-			// init default prop
-			if (searchMode == SearchMode.Modified)
-			{
-				foreach (var prop in props)
-				{
-					isDefaultProps.Add(prop.name, RevertableHelper.IsDefaultProperty(material, prop));
-				}
+				result.Add(prop.name, IsWholeWordMatch(shader, prop, searchingKeywords));
 			}
 
 			// show all
-			if (string.IsNullOrEmpty(searchingText) && searchMode != SearchMode.Modified)
+			if (string.IsNullOrEmpty(searchingText))
 			{
 				return result;
 			}
@@ -344,33 +333,19 @@ namespace LWGUI
 			{
 				Debug.Assert(_mainSubDic.ContainsKey(shader));
 
-				if (searchMode != SearchMode.Group)
+				// Auto: search by group first, and search by property when there are no results
+				if (searchMode == SearchMode.Auto)
 				{
-					foreach (var prop in props)
-					{
-						bool contains = true;
+					// if has no group
+					if (!props.Any((prop => result[prop.name] && _mainSubDic[shader].ContainsKey(prop.name))))
+						searchMode = SearchMode.Property;
+					else
+						searchMode = SearchMode.Group;
+				}
 
-						// filter modified props
-						if (searchMode == SearchMode.Modified)
-						{
-							contains = !isDefaultProps[prop.name];
-							
-							// check extra prop value
-							if (!contains && _extraPropDic.ContainsKey(shader) && _extraPropDic[shader].ContainsKey(prop.name))
-							{
-								foreach (var extraPropName in _extraPropDic[shader][prop.name])
-								{
-									contains = !isDefaultProps[extraPropName];
-									if (contains) break;
-								}
-							}
-						}
-
-						contains &= IsWholeWordMatch(shader, prop, searchingKeywords);
-
-						result[prop.name] = contains;
-					}
-					
+				// search by property
+				if (searchMode == SearchMode.Property)
+				{
 					// when a SubProp is displayed, the MainProp is also displayed
 					foreach (var prop in props)
 					{
@@ -395,13 +370,9 @@ namespace LWGUI
 						}
 					}
 				}
+				// search by group
 				else
 				{
-					foreach (var prop in props)
-					{
-						result[prop.name] = IsWholeWordMatch(shader, prop, searchingKeywords);
-					}
-					
 					// when search by group, all SubProps should display with MainProp
 					foreach (var prop in props)
 					{

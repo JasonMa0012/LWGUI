@@ -149,6 +149,30 @@ namespace LWGUI
 
 		public static GUIStyle guiStyles_IconButton = new GUIStyle("IconButton") { fixedHeight = 0, fixedWidth = 0};
 
+		public static GUIStyle guiStyles_ToolbarSearchTextFieldPopup
+		{
+			get
+			{
+				string toolbarSeachTextFieldPopupStr = "ToolbarSeachTextFieldPopup";
+				{
+					// ToolbarSeachTextFieldPopup has renamed at Unity 2021.3.28+
+#if !UNITY_2022_3_OR_NEWER
+					string[] versionParts = Application.unityVersion.Split('.');
+					int majorVersion = int.Parse(versionParts[0]);
+					int minorVersion = int.Parse(versionParts[1]);
+					Match patchVersionMatch = Regex.Match(versionParts[2], @"\d+");
+					int patchVersion = int.Parse(patchVersionMatch.Value);
+					if (majorVersion >= 2021 && minorVersion >= 3 && patchVersion >= 28)
+#endif
+					{
+						toolbarSeachTextFieldPopupStr = "ToolbarSearchTextFieldPopup";
+					}
+				}
+				return new GUIStyle(toolbarSeachTextFieldPopupStr);
+			}
+		}
+
+
 		#endregion
 
 		#region Draw GUI for Drawer
@@ -558,26 +582,10 @@ namespace LWGUI
 				return new GUIContent(((SearchMode)i).ToString());
 			})).ToArray();
 
+
 		/// <returns>is has changed?</returns>
 		public static bool DrawSearchField(Rect rect, LWGUI lwgui, ref string searchingText, ref SearchMode searchMode)
 		{
-			string toolbarSeachTextFieldPopupStr = "ToolbarSeachTextFieldPopup";
-			{
-				// ToolbarSeachTextFieldPopup has renamed at Unity 2021.3.28+
-#if !UNITY_2022_3_OR_NEWER
-				string[] versionParts = Application.unityVersion.Split('.');
-				int majorVersion = int.Parse(versionParts[0]);
-				int minorVersion = int.Parse(versionParts[1]);
-				Match patchVersionMatch = Regex.Match(versionParts[2], @"\d+");
-				int patchVersion = int.Parse(patchVersionMatch.Value);
-				if (majorVersion >= 2021 && minorVersion >= 3 && patchVersion >= 28)
-#endif
-				{
-					toolbarSeachTextFieldPopupStr = "ToolbarSearchTextFieldPopup";
-				}
-			}
-			var toolbarSeachTextFieldPopup = new GUIStyle(toolbarSeachTextFieldPopupStr);
-
 			bool isHasChanged = false;
 			EditorGUI.BeginChangeCheck();
 
@@ -604,17 +612,17 @@ namespace LWGUI
 			}
 
 			// TODO: use Reflection -> controlId
-			searchingText = EditorGUI.TextField(rect, String.Empty, searchingText, toolbarSeachTextFieldPopup);
+			searchingText = EditorGUI.TextField(rect, String.Empty, searchingText, guiStyles_ToolbarSearchTextFieldPopup);
 
 			if (EditorGUI.EndChangeCheck())
 				isHasChanged = true;
 
 			// revert button
-			if ((!string.IsNullOrEmpty(searchingText) || searchMode != SearchMode.Group)
+			if ((!string.IsNullOrEmpty(searchingText)/* || searchMode != SearchMode.Auto*/)
 			 && RevertableHelper.DrawRevertButton(revertButtonRect))
 			{
 				searchingText = string.Empty;
-				searchMode = SearchMode.Group;
+				// searchMode = SearchMode.Auto;
 				isHasChanged = true;
 				GUIUtility.keyboardControl = 0;
 			}
@@ -635,9 +643,9 @@ namespace LWGUI
 					var disableTextRect = rect;
 					disableTextRect.yMin -= 3f;
 #endif
-					disableTextRect = toolbarSeachTextFieldPopup.padding.Remove(disableTextRect);
+					disableTextRect = guiStyles_ToolbarSearchTextFieldPopup.padding.Remove(disableTextRect);
 					int fontSize = EditorStyles.label.fontSize;
-					EditorStyles.label.fontSize = toolbarSeachTextFieldPopup.fontSize;
+					EditorStyles.label.fontSize = guiStyles_ToolbarSearchTextFieldPopup.fontSize;
 					EditorStyles.label.Draw(disableTextRect, new GUIContent(searchMode.ToString()), false, false, false, false);
 					EditorStyles.label.fontSize = fontSize;
 				}

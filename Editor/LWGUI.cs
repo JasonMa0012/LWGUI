@@ -18,10 +18,10 @@ namespace LWGUI
 
 	public enum SearchMode
 	{
-		Group    = 0, // Search by group
-		Property = 1, // Search by property
-		Modified = 2, // Search by property and flter modified
-		Num      = 3
+		Auto		= 0, // Search by group first, and search by property when there are no results
+		Property	= 1, // Search by property
+		Group		= 2, // Search by group
+		Num			= 3
 	}
 
 	public delegate void LWGUICustomGUIEvent(LWGUI lwgui);
@@ -37,7 +37,7 @@ namespace LWGUI
 		public static LWGUICustomGUIEvent onDrawCustomHeader;
 		public static LWGUICustomGUIEvent onDrawCustomFooter;
 
-		public  SearchMode                                              searchMode       = SearchMode.Group;
+		public  SearchMode                                              searchMode       = SearchMode.Auto;
 		public  bool                                                    updateSearchMode = false;
 		private Dictionary<string /*PropName*/, bool /*shouldDisplay*/> _searchResult;
 		private string                                                  _searchingText = String.Empty;
