@@ -636,8 +636,8 @@ namespace LWGUI
 				{
 #if UNITY_2019_2_OR_NEWER
 					var disableTextRect = new Rect(rect.x, rect.y, rect.width,
-												   toolbarSeachTextFieldPopup.fixedHeight > 0.0
-													   ? toolbarSeachTextFieldPopup.fixedHeight
+												   guiStyles_ToolbarSearchTextFieldPopup.fixedHeight > 0.0
+													   ? guiStyles_ToolbarSearchTextFieldPopup.fixedHeight
 													   : rect.height);
 #else
 					var disableTextRect = rect;
