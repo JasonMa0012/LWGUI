@@ -78,11 +78,18 @@ namespace LWGUI
 
 		#region GUI Setting
 
-		public static Rect GetRevertButtonRect(MaterialProperty prop, Rect rect, bool isCallInDrawer = false)
+		public static void IndentRect(ref Rect rect)
+		{
+			rect.xMax -= RevertableHelper.revertButtonWidth;
+		}
+
+		public static Rect SplitRevertButtonRect(ref Rect rect, bool isCallInDrawer = false)
 		{
 			// TODO: use Reflection
 			float defaultHeightWithoutDrawers = EditorGUIUtility.singleLineHeight;
-			return GetRevertButtonRect(defaultHeightWithoutDrawers, rect, isCallInDrawer);
+			var revertButtonRect = GetRevertButtonRect(defaultHeightWithoutDrawers, rect, isCallInDrawer);
+			IndentRect(ref rect);
+			return revertButtonRect;
 		}
 
 		public static Rect GetRevertButtonRect(float propHeight, Rect rect, bool isCallInDrawer = false)
@@ -95,10 +102,32 @@ namespace LWGUI
 			return revertButtonRect;
 		}
 
+		public static void InitRevertableGUIWidths()
+		{
+			EditorGUIUtility.fieldWidth += RevertableHelper.revertButtonWidth;
+			EditorGUIUtility.labelWidth -= RevertableHelper.revertButtonWidth;
+			RevertableHelper.fieldWidth = EditorGUIUtility.fieldWidth;
+			RevertableHelper.labelWidth = EditorGUIUtility.labelWidth;
+		}
+
 		public static void SetRevertableGUIWidths()
 		{
 			EditorGUIUtility.fieldWidth = RevertableHelper.fieldWidth;
 			EditorGUIUtility.labelWidth = RevertableHelper.labelWidth;
+		}
+
+		public static void FixGUIWidthMismatch(MaterialProperty.PropType propType, MaterialEditor materialEditor)
+		{
+			switch (propType)
+			{
+				case MaterialProperty.PropType.Texture:
+				case MaterialProperty.PropType.Range:
+					materialEditor.SetDefaultGUIWidths();
+					break;
+				default:
+					RevertableHelper.SetRevertableGUIWidths();
+					break;
+			}
 		}
 
 		#endregion

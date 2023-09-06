@@ -589,8 +589,8 @@ namespace LWGUI
 			bool isHasChanged = false;
 			EditorGUI.BeginChangeCheck();
 
-			var revertButtonRect = RevertableHelper.GetRevertButtonRect(EditorGUIUtility.singleLineHeight, rect);
-			rect.xMax -= RevertableHelper.revertButtonWidth;
+			var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
+
 			// Get internal TextField ControlID
 			int controlId = GUIUtility.GetControlID(s_TextFieldHash, FocusType.Keyboard, rect) + 1;
 

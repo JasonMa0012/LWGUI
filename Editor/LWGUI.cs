@@ -101,10 +101,7 @@ namespace LWGUI
 			{
 				// move fields left to make rect for Revert Button
 				materialEditor.SetDefaultGUIWidths();
-				EditorGUIUtility.fieldWidth += RevertableHelper.revertButtonWidth;
-				EditorGUIUtility.labelWidth -= RevertableHelper.revertButtonWidth;
-				RevertableHelper.fieldWidth = EditorGUIUtility.fieldWidth;
-				RevertableHelper.labelWidth = EditorGUIUtility.labelWidth;
+				RevertableHelper.InitRevertableGUIWidths();
 
 				// start drawing properties
 				foreach (var prop in props)
@@ -131,27 +128,18 @@ namespace LWGUI
 
 					// get rect
 					var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
-					var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, rect);
-					rect.xMax -= RevertableHelper.revertButtonWidth;
+					var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
 
 					PresetHelper.DrawAddPropertyToPresetMenu(rect, shader, prop, props);
 
-					// fix some builtin types display misplaced
-					switch (prop.type)
-					{
-						case MaterialProperty.PropType.Texture:
-						case MaterialProperty.PropType.Range:
-							materialEditor.SetDefaultGUIWidths();
-							break;
-						default:
-							RevertableHelper.SetRevertableGUIWidths();
-							break;
-					}
+					RevertableHelper.FixGUIWidthMismatch(prop.type, materialEditor);
 
 					RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, materialEditor);
 					var label = new GUIContent(MetaDataHelper.GetPropertyDisplayName(shader, prop),
 											   MetaDataHelper.GetPropertyTooltip(shader, material, prop));
 					materialEditor.ShaderProperty(rect, prop, label);
+
+					RevertableHelper.SetRevertableGUIWidths();
 				}
 
 				materialEditor.SetDefaultGUIWidths();

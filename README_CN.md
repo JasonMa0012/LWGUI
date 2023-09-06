@@ -195,7 +195,7 @@ public SubIntRangeDrawer(string group)
 #### MinMaxSlider
 
 ```c#
-/// Draw a min max slider (Unity 2019.2+ only)
+/// Draw a min max slider 
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// minPropName: Output Min Property Name
 /// maxPropName: Output Max Property Name
@@ -281,7 +281,7 @@ public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, st
 ```c#
 /// Draw a Texture property in single line with a extra property
 /// group：father group name, support suffix keyword for conditional display (Default: none)
-/// extraPropName: extra property name (Unity 2019.2+ only) (Default: none)
+/// extraPropName: extra property name  (Default: none)
 /// Target Property Type: Texture
 /// Extra Property Type: Any, except Texture
 public TexDrawer() { }
@@ -293,7 +293,7 @@ public TexDrawer(string group, string extraPropName)
 ```c#
 /// Display up to 4 colors in a single line
 /// group：father group name, support suffix keyword for conditional display (Default: none)
-/// color2-4: extra color property name (Unity 2019.2+ only)
+/// color2-4: extra color property name 
 /// Target Property Type: Color
 public ColorDrawer(string group, string color2) : this(group, color2, String.Empty, String.Empty) { }
 public ColorDrawer(string group, string color2, string color3) : this(group, color2, color3, String.Empty) { }

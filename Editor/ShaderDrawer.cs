@@ -152,7 +152,7 @@ namespace LWGUI
 			{
 				if (IsMatchPropType(prop))
 				{
-					RevertableHelper.SetRevertableGUIWidths();
+					// RevertableHelper.SetRevertableGUIWidths();
 					DrawProp(rect, prop, label, editor);
 				}
 				else
@@ -174,14 +174,7 @@ namespace LWGUI
 		// Draws a custom style property
 		public virtual void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			// Process some builtin types display misplaced
-			switch (prop.type)
-			{
-				case MaterialProperty.PropType.Texture:
-				case MaterialProperty.PropType.Range:
-					editor.SetDefaultGUIWidths();
-					break;
-			}
+			RevertableHelper.FixGUIWidthMismatch(prop.type, editor);
 			// TODO: use Reflection
 			editor.DefaultShaderProperty(position, prop, label.text);
 			GUI.Label(position, new GUIContent(String.Empty, label.tooltip));
@@ -263,9 +256,9 @@ namespace LWGUI
 		
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			editor.SetDefaultGUIWidths();
+			RevertableHelper.FixGUIWidthMismatch(prop.type, editor);
 			EditorGUI.showMixedValue = prop.hasMixedValue;
-			var rect = position; //EditorGUILayout.GetControlRect();
+			var rect = position;
 			Helper.PowerSlider(prop, _power, rect, label);
 			EditorGUI.showMixedValue = false;
 		}
@@ -287,13 +280,14 @@ namespace LWGUI
 		
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
+			RevertableHelper.FixGUIWidthMismatch(prop.type, editor);
+
 			if (prop.type != MaterialProperty.PropType.Range)
 			{
 				EditorGUI.LabelField(position, "IntRange used on a non-range property: " + prop.name, EditorStyles.helpBox);
 			}
 			else
 			{
-				editor.SetDefaultGUIWidths();
 				EditorGUI.showMixedValue = prop.hasMixedValue;
 				
 				EditorGUI.BeginChangeCheck();
@@ -310,7 +304,7 @@ namespace LWGUI
 	}
 
 	/// <summary>
-	/// Draw a min max slider (Unity 2019.2+ only)
+	/// Draw a min max slider
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// minPropName: Output Min Property Name
 	/// maxPropName: Output Max Property Name
@@ -356,7 +350,7 @@ namespace LWGUI
 			float maxf = maxProp.floatValue;
 
 			// define draw area
-			Rect controlRect = position; //EditorGUILayout.GetControlRect(); // this is the full length rect area
+			Rect controlRect = position; // this is the full length rect area
 			var w = EditorGUIUtility.labelWidth;
 			EditorGUIUtility.labelWidth = 0;
 			Rect inputRect = MaterialEditor.GetRectAfterLabelWidth(controlRect); // this is the remaining rect area after label's area
@@ -399,7 +393,7 @@ namespace LWGUI
 				maxProp.floatValue = Mathf.Clamp(maxf, maxProp.rangeLimits.x, maxProp.rangeLimits.y);
 			}
 
-			var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, position, true);
+			var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref position, true);
 			if (RevertableHelper.DrawRevertableProperty(revertButtonRect, minProp, editor) ||
 				RevertableHelper.DrawRevertableProperty(revertButtonRect, maxProp, editor))
 			{
@@ -619,7 +613,7 @@ namespace LWGUI
 	/// <summary>
 	/// Draw a Texture property in single line with a extra property
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
-	/// extraPropName: extra property name (Unity 2019.2+ only) (Default: none)
+	/// extraPropName: extra property name (Default: none)
 	/// Target Property Type: Texture
 	/// Extra Property Type: Any, except Texture
 	/// </summary>
@@ -662,12 +656,14 @@ namespace LWGUI
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
-			var rect = position; //EditorGUILayout.GetControlRect();
+			var rect = position;
 			var texLabel = label.text;
 
 			MaterialProperty extraProp = LWGUI.FindProp(_extraPropName, props, true);
 			if (extraProp != null && extraProp.type != MaterialProperty.PropType.Texture)
 			{
+				RevertableHelper.FixGUIWidthMismatch(extraProp.type, editor);
+
 				var i = EditorGUI.indentLevel;
 				Rect indentedRect, extraPropRect = new Rect(rect);
 				switch (extraProp.type)
@@ -680,7 +676,6 @@ namespace LWGUI
 					case MaterialProperty.PropType.Vector:
 						texLabel = string.Empty;
 						indentedRect = EditorGUI.IndentedRect(extraPropRect);
-						RevertableHelper.SetRevertableGUIWidths();
 						EditorGUIUtility.labelWidth -= (indentedRect.xMin - extraPropRect.xMin) + 30f;
 						extraPropRect = indentedRect;
 						extraPropRect.xMin += 30f;
@@ -689,7 +684,6 @@ namespace LWGUI
 					case MaterialProperty.PropType.Range:
 						label.text = string.Empty;
 						indentedRect = EditorGUI.IndentedRect(extraPropRect);
-						editor.SetDefaultGUIWidths();
 						EditorGUIUtility.fieldWidth += 1f;
 						EditorGUIUtility.labelWidth = 0;
 						EditorGUI.indentLevel = 0;
@@ -705,7 +699,7 @@ namespace LWGUI
 				
 				EditorGUI.indentLevel = i;
 
-				var revertButtonRect = RevertableHelper.GetRevertButtonRect(extraProp, position, true);
+				var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref position, true);
 				if (RevertableHelper.IsPropertyShouldRevert(editor.target, prop.name) ||
 					RevertableHelper.DrawRevertableProperty(revertButtonRect, extraProp, editor))
 				{
@@ -724,7 +718,7 @@ namespace LWGUI
 	/// <summary>
 	/// Display up to 4 colors in a single line
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
-	/// color2-4: extra color property name (Unity 2019.2+ only)
+	/// color2-4: extra color property name
 	/// Target Property Type: Color
 	/// </summary>
 	public class ColorDrawer : SubDrawer
@@ -804,7 +798,7 @@ namespace LWGUI
 				}
 			}
 
-			var revertButtonRect = RevertableHelper.GetRevertButtonRect(prop, position, true);
+			var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref position, true);
 			bool[] shouldRevert = new bool[count];
 			shouldRevert[count - 1] = RevertableHelper.IsPropertyShouldRevert(editor.target, prop.name);
 			for (int i = 0; i < shouldRevert.Length - 1; i++)
