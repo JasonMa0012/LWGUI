@@ -1212,17 +1212,20 @@ namespace LWGUI
 		private string _tooltip;
 
 
-		#region 
+		#region
+
+		public TooltipDecorator() : this(string.Empty) {}
+
+		public TooltipDecorator(string tooltip) { this._tooltip = tooltip; }
 
 		public TooltipDecorator(string s1, string s2) : this(s1 + ", " + s2) { }
-		
+
 		public TooltipDecorator(string s1, string s2, string s3) : this(s1 + ", " + s2 + ", " + s3) { }
-		
+
 		public TooltipDecorator(string s1, string s2, string s3, string s4) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4) { }
-		
+
 		public TooltipDecorator(string s1, string s2, string s3, string s4, string s5) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5) { }
-		
-		public TooltipDecorator(string tooltip) { this._tooltip = tooltip; }
+
 		#endregion
 
 
@@ -1246,16 +1249,20 @@ namespace LWGUI
 		private string _message;
 
 
-		#region 
+		#region
+
+		public HelpboxDecorator() : this(string.Empty) {}
+
+		public HelpboxDecorator(string message) { this._message = message; }
+
 		public HelpboxDecorator(string s1, string s2) : this(s1 + ", " + s2) { }
-		
+
 		public HelpboxDecorator(string s1, string s2, string s3) : this(s1 + ", " + s2 + ", " + s3) { }
-		
+
 		public HelpboxDecorator(string s1, string s2, string s3, string s4) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4) { }
-		
+
 		public HelpboxDecorator(string s1, string s2, string s3, string s4, string s5) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5) { }
 
-		public HelpboxDecorator(string message) : base(string.Empty) { this._message = message; }
 		#endregion
 
 

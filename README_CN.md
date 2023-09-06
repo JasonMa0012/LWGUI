@@ -478,11 +478,13 @@ public SubTitleDecorator(string group, string header, float height) : base(group
 /// Tooltip, describes the details of the property. (Default: property.name and property default value)
 /// You can also use "#Text" in DisplayName to add Tooltip that supports Multi-Language.
 /// tooltip：a single-line string to display, support up to 4 ','. (Default: Newline)
+public TooltipDecorator() : this(string.Empty) {}
+public TooltipDecorator(string tooltip) { this._tooltip = tooltip; }
 public TooltipDecorator(string s1, string s2) : this(s1 + ", " + s2) { }
 public TooltipDecorator(string s1, string s2, string s3) : this(s1 + ", " + s2 + ", " + s3) { }
 public TooltipDecorator(string s1, string s2, string s3, string s4) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4) { }
 public TooltipDecorator(string s1, string s2, string s3, string s4, string s5) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5) { }
-public TooltipDecorator(string tooltip) 
+
 
 ```
 
@@ -490,11 +492,13 @@ public TooltipDecorator(string tooltip)
 /// Display a Helpbox on the property
 /// You can also use "%Text" in DisplayName to add Helpbox that supports Multi-Language.
 /// message：a single-line string to display, support up to 4 ','. (Default: Newline)
+public HelpboxDecorator() : this(string.Empty) {}
+public HelpboxDecorator(string message) { this._message = message; }
 public HelpboxDecorator(string s1, string s2) : this(s1 + ", " + s2) { }
 public HelpboxDecorator(string s1, string s2, string s3) : this(s1 + ", " + s2 + ", " + s3) { }
 public HelpboxDecorator(string s1, string s2, string s3, string s4) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4) { }
 public HelpboxDecorator(string s1, string s2, string s3, string s4, string s5) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5) { }
-public HelpboxDecorator(string message)
+
 
 ```
 

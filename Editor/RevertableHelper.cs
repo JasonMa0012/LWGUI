@@ -19,7 +19,6 @@ namespace LWGUI
 		private static Dictionary<Material /*Material*/, Dictionary<string /*Prop Name*/, MaterialProperty /*Prop*/>>
 			_defaultProps = new Dictionary<Material, Dictionary<string, MaterialProperty>>();
 
-		private static Dictionary<Shader, DateTime> _lastShaderModifiedTime = new Dictionary<Shader, DateTime>();
 		private static Dictionary<Material, Shader> _lastShaders            = new Dictionary<Material, Shader>();
 		private static bool                         _forceInit;
 
@@ -35,33 +34,26 @@ namespace LWGUI
 			}
 		}
 
-		public static void ForceInit() { _forceInit = true; }
+		public static void ForceInit(Shader shader = null)
+		{
+			_forceInit = true;
+			_defaultProps.Clear();
+		}
 
 		/// <summary>
 		/// Detect Shader changes to know when to initialize
 		/// </summary>
 		public static bool InitAndHasShaderModified(Shader shader, Material material, MaterialProperty[] props)
 		{
-			var shaderPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6) + AssetDatabase.GetAssetPath(shader);
-			Debug.Assert(File.Exists(shaderPath), "Unable to find Shader: " + shader.name + " in " + shaderPath + "!");
-
-			var currTime = (new FileInfo(shaderPath)).LastWriteTime;
-
 			// check for init
 			if (_forceInit
-			 || !_lastShaderModifiedTime.ContainsKey(shader)
-			 || _lastShaderModifiedTime[shader] != currTime
 			 || !_defaultProps.ContainsKey(material)
 			 || !_lastShaders.ContainsKey(material)
 			 || _lastShaders[material] != shader
 			   )
 			{
-				if (_lastShaderModifiedTime.ContainsKey(shader) && _lastShaderModifiedTime[shader] != currTime)
-					AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(shader));
-
 				_forceInit = false;
 				_lastShaders[material] = shader;
-				_lastShaderModifiedTime[shader] = currTime;
 			}
 			else
 				return false;
