@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿// Copyright (c) Jason Ma
+using UnityEditor;
 using UnityEditor.VersionControl;
 using UnityEngine;
 

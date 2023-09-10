@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Jason Ma
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -102,7 +103,7 @@ namespace LWGUI
 			public ShaderPropertyPreset.PropertyValue propertyValue;
 		}
 
-		public static void DrawAddPropertyToPresetMenu(Rect rect, Shader shader, MaterialProperty prop, MaterialProperty[] props)
+		public static void DrawPropertyPresetMenu(Rect rect, Shader shader, MaterialProperty prop, MaterialProperty[] props)
 		{
 			if (Event.current.type == EventType.ContextClick && rect.Contains(Event.current.mousePosition))
 			{
@@ -158,7 +159,6 @@ namespace LWGUI
 														preset.propertyValues.Remove(propertyValue);
 													}
 													EditorUtility.SetDirty(menuItemDatas[menu].presetFile);
-													RevertableHelper.ForceInit();
 												}, null);
 			}
 		}

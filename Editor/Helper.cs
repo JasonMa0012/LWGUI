@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright (c) Jason Ma
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
@@ -147,31 +148,7 @@ namespace LWGUI
 
 		#region GUI Styles
 
-		public static GUIStyle guiStyles_IconButton = new GUIStyle("IconButton") { fixedHeight = 0, fixedWidth = 0};
-
-		public static GUIStyle guiStyles_ToolbarSearchTextFieldPopup
-		{
-			get
-			{
-				string toolbarSeachTextFieldPopupStr = "ToolbarSeachTextFieldPopup";
-				{
-					// ToolbarSeachTextFieldPopup has renamed at Unity 2021.3.28+
-#if !UNITY_2022_3_OR_NEWER
-					string[] versionParts = Application.unityVersion.Split('.');
-					int majorVersion = int.Parse(versionParts[0]);
-					int minorVersion = int.Parse(versionParts[1]);
-					Match patchVersionMatch = Regex.Match(versionParts[2], @"\d+");
-					int patchVersion = int.Parse(patchVersionMatch.Value);
-					if (majorVersion >= 2021 && minorVersion >= 3 && patchVersion >= 28)
-#endif
-					{
-						toolbarSeachTextFieldPopupStr = "ToolbarSearchTextFieldPopup";
-					}
-				}
-				return new GUIStyle(toolbarSeachTextFieldPopupStr);
-			}
-		}
-
+		public static readonly GUIStyle guiStyles_IconButton = new GUIStyle("IconButton") { fixedHeight = 0, fixedWidth = 0};
 
 		#endregion
 
@@ -203,7 +180,7 @@ namespace LWGUI
 			return rects;
 		}
 
-		private static GUIStyle _foldoutStyle = new GUIStyle("minibutton")
+		private static GUIStyle _guiStyle_Foldout = new GUIStyle("minibutton")
 		{
 			contentOffset = new Vector2(22, 0),
 			fixedHeight = 27,
@@ -215,19 +192,30 @@ namespace LWGUI
 #endif
 		};
 
-		public static bool DrawFoldout(Rect       rect,
-									   ref bool   isFolding,
-									   bool       toggleValue,
-									   bool       hasToggle,
-									   GUIContent label)
+		private static GUIStyle _guiStyle_Toggle      = new GUIStyle("Toggle");
+		private static GUIStyle _guiStyle_ToggleMixed = new GUIStyle("ToggleMixed");
+		public static bool DrawFoldout(Rect rect, ref bool isFolding, bool toggleValue, bool hasToggle, GUIContent label)
 		{
+			var toggleRect = new Rect(rect.x + 8f, rect.y + 7f, 13f, 13f);
+
+			// Toggle Event
+			if (hasToggle)
+			{
+				if (Event.current.type == EventType.MouseDown && toggleRect.Contains(Event.current.mousePosition))
+				{
+					toggleValue = !toggleValue;
+					Event.current.Use();
+					GUI.changed = true;
+				}
+			}
+
 			// Button
 			{
 				var enabled = GUI.enabled;
 				GUI.enabled = true;
 				var guiColor = GUI.backgroundColor;
 				GUI.backgroundColor = isFolding ? Color.white : new Color(0.85f, 0.85f, 0.85f);
-				if (GUI.Button(rect, label, _foldoutStyle))
+				if (GUI.Button(rect, label, _guiStyle_Foldout))
 				{
 					isFolding = !isFolding;
 				}
@@ -235,15 +223,11 @@ namespace LWGUI
 				GUI.enabled = enabled;
 			}
 
-			var toggleRect = new Rect(rect.x + 8f, rect.y + 7f, 13f, 13f);
-
+			// Toggle Icon
 			if (hasToggle)
 			{
-				EditorGUI.BeginChangeCheck();
 				GUI.Toggle(toggleRect, EditorGUI.showMixedValue ? false : toggleValue, String.Empty,
-						   new GUIStyle(EditorGUI.showMixedValue ? "ToggleMixed" : "Toggle"));
-				if (EditorGUI.EndChangeCheck())
-					toggleValue = !toggleValue;
+						   EditorGUI.showMixedValue ? _guiStyle_ToggleMixed : _guiStyle_Toggle);
 			}
 
 			return toggleValue;
@@ -309,29 +293,32 @@ namespace LWGUI
 			EditorGUI.DrawRect(rect, new Color(0, 0, 0, 0.45f));
 		}
 
-		public static void DrawHelpbox(Shader shader, MaterialProperty prop)
+		private static readonly Texture2D _helpboxIcon     = EditorGUIUtility.IconContent("console.infoicon").image as Texture2D;
+		public static readonly  GUIStyle  guiStyle_Helpbox = new GUIStyle(EditorStyles.helpBox) { fontSize = 12 };
+
+		public static void DrawHelpbox(PropertyStaticData propertyStaticData, PropertyDynamicData propertyDynamicData)
 		{
-			int lineCount;
-			var helpboxStr = MetaDataHelper.GetPropertyHelpbox(shader, prop, out lineCount);
+			var helpboxStr = propertyStaticData.helpboxMessages;
 			if (!string.IsNullOrEmpty(helpboxStr))
 			{
-				var content =
-					new GUIContent(helpboxStr, EditorGUIUtility.IconContent("console.infoicon").image as Texture2D);
-				var style = EditorStyles.helpBox;
-				var dpiScale = EditorGUIUtility.pixelsPerPoint;
-				int fontSize = 12;
-				style.fontSize = fontSize;
+				var content = new GUIContent(helpboxStr, _helpboxIcon);
+				var helpboxRect = EditorGUILayout.GetControlRect(true, guiStyle_Helpbox.CalcHeight(content, EditorGUIUtility.currentViewWidth));
 
-				var helpboxRect =
-					EditorGUILayout.GetControlRect(true, style.CalcHeight(content, EditorGUIUtility.currentViewWidth));
-				if (MetaDataHelper.IsSubProperty(shader, prop))
+				int parentCount = 0;
+				if (propertyStaticData.parent != null)
 				{
-					EditorGUI.indentLevel++;
+					parentCount++;
+					if (propertyStaticData.parent.parent != null)
+						parentCount++;
+				}
+				if (parentCount > 0)
+				{
+					EditorGUI.indentLevel += parentCount;
 					helpboxRect = EditorGUI.IndentedRect(helpboxRect);
-					EditorGUI.indentLevel--;
+					EditorGUI.indentLevel -= parentCount;
 				}
 				helpboxRect.xMax -= RevertableHelper.revertButtonWidth;
-				GUI.Label(helpboxRect, content, style);
+				GUI.Label(helpboxRect, content, guiStyle_Helpbox);
 				// EditorGUI.HelpBox(helpboxRect, helpboxStr, MessageType.Info);
 			}
 		}
@@ -553,7 +540,11 @@ namespace LWGUI
 			toolBarRect.xMin += buttonRectOffset;
 			if (GUI.Button(buttonRect, _guiContentExpand, Helper.guiStyles_IconButton))
 			{
-				GroupStateHelper.SetAllGroupFoldingAndCache(lwgui.shader, false);
+				foreach (var propertyStaticDataPair in lwgui.perShaderData.propertyDatas)
+				{
+					if (propertyStaticDataPair.Value.isMain || propertyStaticDataPair.Value.isAdvancedHeader)
+						propertyStaticDataPair.Value.isExpanded = true;
+				}
 			}
 
 			// Collapse
@@ -561,7 +552,11 @@ namespace LWGUI
 			toolBarRect.xMin += buttonRectOffset;
 			if (GUI.Button(buttonRect, _guiContentCollapse, Helper.guiStyles_IconButton))
 			{
-				GroupStateHelper.SetAllGroupFoldingAndCache(lwgui.shader, true);
+				foreach (var propertyStaticDataPair in lwgui.perShaderData.propertyDatas)
+				{
+					if (propertyStaticDataPair.Value.isMain || propertyStaticDataPair.Value.isAdvancedHeader)
+						propertyStaticDataPair.Value.isExpanded = false;
+				}
 			}
 
 
@@ -583,10 +578,33 @@ namespace LWGUI
 			})).ToArray();
 
 
-		/// <returns>is has changed?</returns>
-		public static bool DrawSearchField(Rect rect, LWGUI lwgui, ref string searchingText, ref SearchMode searchMode)
+		private static GUIStyle guiStyles_ToolbarSearchTextFieldPopup
 		{
-			bool isHasChanged = false;
+			get
+			{
+				string toolbarSeachTextFieldPopupStr = "ToolbarSeachTextFieldPopup";
+				{
+					// ToolbarSeachTextFieldPopup has renamed at Unity 2021.3.28+
+#if !UNITY_2022_3_OR_NEWER
+					string[] versionParts = Application.unityVersion.Split('.');
+					int majorVersion = int.Parse(versionParts[0]);
+					int minorVersion = int.Parse(versionParts[1]);
+					Match patchVersionMatch = Regex.Match(versionParts[2], @"\d+");
+					int patchVersion = int.Parse(patchVersionMatch.Value);
+					if (majorVersion >= 2021 && minorVersion >= 3 && patchVersion >= 28)
+#endif
+					{
+						toolbarSeachTextFieldPopupStr = "ToolbarSearchTextFieldPopup";
+					}
+				}
+				return new GUIStyle(toolbarSeachTextFieldPopupStr);
+			}
+		}
+
+		/// <returns>is has changed?</returns>
+		public static bool DrawSearchField(Rect rect, LWGUI lwgui)
+		{
+			bool hasChanged = false;
 			EditorGUI.BeginChangeCheck();
 
 			var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
@@ -599,37 +617,33 @@ namespace LWGUI
 			modeRect.width = 20f;
 			if (Event.current.type == UnityEngine.EventType.MouseDown && modeRect.Contains(Event.current.mousePosition))
 			{
-				EditorUtility.DisplayCustomMenu(rect, _searchModeMenus, (int)searchMode,
+				EditorUtility.DisplayCustomMenu(rect, _searchModeMenus, (int)lwgui.perShaderData.searchMode,
 												(data, options, selected) =>
 												{
-													if (lwgui.searchMode != (SearchMode)selected)
-													{
-														lwgui.searchMode = (SearchMode)selected;
-														lwgui.updateSearchMode = true;
-													}
+													lwgui.perShaderData.searchMode = (SearchMode)selected;
+													hasChanged = true;
 												}, null);
 				Event.current.Use();
 			}
 
 			// TODO: use Reflection -> controlId
-			searchingText = EditorGUI.TextField(rect, String.Empty, searchingText, guiStyles_ToolbarSearchTextFieldPopup);
+			lwgui.perShaderData.searchString = EditorGUI.TextField(rect, String.Empty, lwgui.perShaderData.searchString, guiStyles_ToolbarSearchTextFieldPopup);
 
 			if (EditorGUI.EndChangeCheck())
-				isHasChanged = true;
+				hasChanged = true;
 
 			// revert button
-			if ((!string.IsNullOrEmpty(searchingText)/* || searchMode != SearchMode.Auto*/)
+			if (!string.IsNullOrEmpty(lwgui.perShaderData.searchString)
 			 && RevertableHelper.DrawRevertButton(revertButtonRect))
 			{
-				searchingText = string.Empty;
-				// searchMode = SearchMode.Auto;
-				isHasChanged = true;
+				lwgui.perShaderData.searchString = string.Empty;
+				hasChanged = true;
 				GUIUtility.keyboardControl = 0;
 			}
 
 			// display search mode
 			if (GUIUtility.keyboardControl != controlId
-			 && string.IsNullOrEmpty(searchingText)
+			 && string.IsNullOrEmpty(lwgui.perShaderData.searchString)
 			 && Event.current.type == UnityEngine.EventType.Repaint)
 			{
 				using (new EditorGUI.DisabledScope(true))
@@ -646,12 +660,14 @@ namespace LWGUI
 					disableTextRect = guiStyles_ToolbarSearchTextFieldPopup.padding.Remove(disableTextRect);
 					int fontSize = EditorStyles.label.fontSize;
 					EditorStyles.label.fontSize = guiStyles_ToolbarSearchTextFieldPopup.fontSize;
-					EditorStyles.label.Draw(disableTextRect, new GUIContent(searchMode.ToString()), false, false, false, false);
+					EditorStyles.label.Draw(disableTextRect, new GUIContent(lwgui.perShaderData.searchMode.ToString()), false, false, false, false);
 					EditorStyles.label.fontSize = fontSize;
 				}
 			}
 
-			return isHasChanged;
+			if (hasChanged) lwgui.perShaderData.UpdateSearchFilter();
+
+			return hasChanged;
 		}
 
 		#endregion

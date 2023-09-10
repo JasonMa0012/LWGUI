@@ -1,10 +1,8 @@
 ﻿// Copyright (c) 2022 Jason Ma
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using Object = UnityEngine.Object;
 
 namespace LWGUI
 {
@@ -25,14 +23,10 @@ namespace LWGUI
 		{
 			public string       propertyName;
 			public PropertyType propertyType;
-
-// #if UNITY_2021_1_OR_NEWER
-// 			public int	   intValue;
-// #endif
-			public float   floatValue;
-			public Color   colorValue;
-			public Vector4 vectorValue;
-			public Texture textureValue;
+			public float        floatValue;
+			public Color        colorValue;
+			public Vector4      vectorValue;
+			public Texture      textureValue;
 
 			private int propertyNameID = -1;
 
@@ -112,24 +106,7 @@ namespace LWGUI
 		public class Preset
 		{
 			public string              presetName;
-			// [ContextMenuItem("Load Values Form Selected Material", "LoadValuesFormSelectedMaterial")]
 			public List<PropertyValue> propertyValues;
-			
-			public void LoadValuesFormSelectedMaterial()
-			{
-				if (Selection.activeObject == null || !(Selection.activeObject is Material))
-				{
-					Debug.LogError("Please lock the Preset Window and select a Material in the Project Window!");
-					return;
-				}
-				var material = Selection.activeObject as Material;
-				var props = MaterialEditor.GetMaterialProperties(new[] { material });
-				foreach (var propertyValue in this.propertyValues)
-				{
-					var prop = Array.Find(props, property => property.name == propertyValue.propertyName);
-					propertyValue.CopyFromMaterialProperty(prop);
-				}
-			}
 		}
 
 		public List<Preset> presets;
@@ -158,7 +135,6 @@ namespace LWGUI
 		{
 			// Debug.Log($"{this.name} OnValidate");
 			PresetHelper.ForceInit();
-			RevertableHelper.ForceInit();
 		}
 		
 		private void OnEnable()

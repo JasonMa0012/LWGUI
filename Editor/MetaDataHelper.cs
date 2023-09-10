@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright (c) Jason Ma
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -6,158 +7,302 @@ using UnityEngine;
 
 namespace LWGUI
 {
-	/// <summary>
-	/// Provide Metadata for drawing
-	/// </summary>
-	public class MetaDataHelper
+	public enum SearchMode
 	{
-		#region Meta Data Container
-		// TODO: Use singleton unified initialization for per material / Shader data
-		private static Dictionary<Shader, Dictionary<string /*MainProp*/, List<string /*SubProp*/>>> _mainSubDic       = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*GroupName*/, string /*MainProp*/>>     _mainGroupNameDic = new Dictionary<Shader, Dictionary<string, string>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, string /*GroupName*/>>     _propParentDic    = new Dictionary<Shader, Dictionary<string, string>>();
+		Auto     = 0, // Search by group first, and search by property when there are no results
+		Property = 1, // Search by property
+		Group    = 2, // Search by group
+		Num      = 3
+	}
 
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*ExtraPropName*/>>>        _extraPropDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*Tooltip*/>>>              _tooltipDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*DefaultValue*/>>>         _defaultDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<string /*Helpbox*/>>>              _helpboxDic = new Dictionary<Shader, Dictionary<string, List<string>>>();
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<ShaderPropertyPreset /*Preset*/>>> _presetDic = new Dictionary<Shader, Dictionary<string, List<ShaderPropertyPreset>>>();
+	/// <summary>
+	/// All static metadata for a Property, determined after the Shader is compiled.
+	/// </summary>
+	public class PropertyStaticData
+	{
+		public string displayName	= string.Empty; // Decoded displayName (Helpbox and Tooltip are encoded in displayName)
 
-		public static void ClearCaches(Shader shader)
+		// Structure
+		public string                   groupName        = string.Empty; // [Group(groupName)] / [Sub(groupName)] / [Advanced(groupName)]
+		public bool                     isMain           = false;        // [Group]
+		public bool                     isAdvanced       = false;        // [Advanced]
+		public bool                     isAdvancedHeader = false;        // the first [Advanced] in the same group
+		public PropertyStaticData       parent           = null;
+		public List<PropertyStaticData> children         = new List<PropertyStaticData>();
+
+		// Visibility
+		public string conditionalDisplayKeyword = string.Empty;	// [Group(groupName_conditionalDisplayKeyword)]
+		public bool   isSearchDisplayed         = true;			// Draws when the search match is successful
+		public bool   isExpanded                = false;		// Draws when the group has been expanded
+		public bool   isHidden                  = false;		// [Hidden]
+
+		// Metadata
+		public List<string>         extraPropNames          = new List<string>();	// Other Props that have been associated
+		public string               helpboxMessages         = string.Empty;
+		public string               tooltipMessages         = string.Empty;
+		public ShaderPropertyPreset propertyPreset          = null;					// The Referenced Preset Asset
+	}
+
+	/// <summary>
+	/// Consistent metadata across different material instances of the same Shader.
+	/// </summary>
+	public class PerShaderData
+	{
+		public Dictionary<string, PropertyStaticData> propertyDatas      = new Dictionary<string, PropertyStaticData>();
+		public SearchMode                             searchMode         = SearchMode.Auto;
+		public string                                 searchString       = string.Empty;
+		public List<string>                           favoriteproperties = new List<string>();
+
+
+		public void BuildPropertyStaticData(Shader shader, MaterialProperty[] props)
 		{
-			if (_mainSubDic.ContainsKey(shader)) _mainSubDic[shader].Clear();
-			if (_mainGroupNameDic.ContainsKey(shader)) _mainGroupNameDic[shader].Clear();
-			if (_propParentDic.ContainsKey(shader)) _propParentDic[shader].Clear();
-
-			if (_extraPropDic.ContainsKey(shader)) _extraPropDic[shader].Clear();
-			if (_tooltipDic.ContainsKey(shader)) _tooltipDic[shader].Clear();
-			if (_defaultDic.ContainsKey(shader)) _defaultDic[shader].Clear();
-			if (_helpboxDic.ContainsKey(shader)) _helpboxDic[shader].Clear();
-			if (_presetDic.ContainsKey(shader)) _presetDic[shader].Clear();
-		}
-
-		#endregion
-
-
-		#region Main - Sub
-
-		public static void RegisterMainProp(Shader shader, MaterialProperty prop, string group)
-		{
-			if (_mainSubDic.ContainsKey(shader))
+			// Get Property Static
+			foreach (var prop in props)
 			{
-				if (!_mainSubDic[shader].ContainsKey(prop.name))
+				var propertyStaticData = new PropertyStaticData();
+				propertyDatas[prop.name] = propertyStaticData;
+
+				List<MaterialPropertyDrawer> decoratorDrawers;
+				var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
+				if (decoratorDrawers != null && decoratorDrawers.Count > 0)
 				{
-					_mainSubDic[shader].Add(prop.name, new List<string>());
-				}
-			}
-			else
-			{
-				_mainSubDic.Add(shader, new Dictionary<string, List<string>>());
-				_mainSubDic[shader].Add(prop.name, new List<string>());
-			}
-
-			if (_mainGroupNameDic.ContainsKey(shader))
-			{
-				if (!_mainGroupNameDic[shader].ContainsKey(group))
-				{
-					_mainGroupNameDic[shader].Add(group, prop.name);
-				}
-			}
-			else
-			{
-				_mainGroupNameDic.Add(shader, new Dictionary<string, string>());
-				_mainGroupNameDic[shader].Add(group, prop.name);
-			}
-		}
-
-		public static void RegisterSubProp(Shader shader, MaterialProperty prop, string group, MaterialProperty[] extraProps = null)
-		{
-			if (!string.IsNullOrEmpty(group) && group != "_")
-			{
-				// add to _mainSubDic
-				if (_mainGroupNameDic.ContainsKey(shader))
-				{
-					var groupName = _mainGroupNameDic[shader].Keys.First((s => group.Contains(s)));
-					if (!string.IsNullOrEmpty(groupName))
+					foreach (var decoratorDrawer in decoratorDrawers)
 					{
-						var mainPropName = _mainGroupNameDic[shader][groupName];
-						if (_mainSubDic[shader].ContainsKey(mainPropName))
+						if (decoratorDrawer is IBaseDrawer)
+							(decoratorDrawer as IBaseDrawer).BuildStaticMetaData(shader, prop, props, propertyStaticData);
+					}
+				}
+				if (drawer != null)
+				{
+					if (drawer is IBaseDrawer)
+						(drawer as IBaseDrawer).BuildStaticMetaData(shader, prop, props, propertyStaticData);
+				}
+
+				DecodeMetaDataFromDisplayName(prop, propertyStaticData);
+			}
+
+			// Check Data
+			foreach (var prop in props)
+			{
+				var propertyStaticData = propertyDatas[prop.name];
+				propertyStaticData.extraPropNames.RemoveAll((extraPropName =>
+					string.IsNullOrEmpty(extraPropName) || !propertyDatas.ContainsKey(extraPropName)));
+			}
+
+			// Build Property Structure
+			{
+				var groupToMainPropertyDic = new Dictionary<string, MaterialProperty>();
+
+				// Collection Groups
+				foreach (var prop in props)
+				{
+					var propData = propertyDatas[prop.name];
+					if (propData.isMain
+						&& !string.IsNullOrEmpty(propData.groupName)
+						&& !groupToMainPropertyDic.ContainsKey(propData.groupName))
+						groupToMainPropertyDic.Add(propData.groupName, prop);
+				}
+
+				// Register SubProps
+				foreach (var prop in props)
+				{
+					var propData = propertyDatas[prop.name];
+					if (!propData.isMain
+					 && !string.IsNullOrEmpty(propData.groupName))
+					{
+						foreach (var groupName in groupToMainPropertyDic.Keys)
 						{
-							if (!_mainSubDic[shader][mainPropName].Contains(prop.name))
-								_mainSubDic[shader][mainPropName].Add(prop.name);
+							if (propData.groupName.StartsWith(groupName))
+							{
+								// Update Structure
+								var mainProp = groupToMainPropertyDic[groupName];
+								propData.parent = propertyDatas[mainProp.name];
+								propertyDatas[mainProp.name].children.Add(propData);
+
+								// Split groupName and conditional display keyword
+								if (propData.groupName.Length > groupName.Length)
+								{
+									propData.conditionalDisplayKeyword =
+										propData.groupName.Substring(groupName.Length, propData.groupName.Length - groupName.Length).ToUpper();
+									propData.groupName = groupName;
+								}
+								break;
+							}
 						}
-						else
-							Debug.LogError("Unregistered Main Property:" + mainPropName);
-
-						// add to _propParentDic
-						if (!_propParentDic.ContainsKey(shader))
-							_propParentDic.Add(shader, new Dictionary<string, string>());
-						if (!_propParentDic[shader].ContainsKey(prop.name))
-							_propParentDic[shader].Add(prop.name, groupName);
 					}
+				}
+			}
+		}
+
+		private static readonly string _tooltipSplitter = "#";
+		private static readonly string _helpboxSplitter = "%";
+
+		public void DecodeMetaDataFromDisplayName(MaterialProperty prop, PropertyStaticData propStaticData)
+		{
+			var tooltips = prop.displayName.Split(new String[] { _tooltipSplitter }, StringSplitOptions.None);
+			if (tooltips.Length > 1)
+			{
+				for (int i = 1; i <= tooltips.Length - 1; i++)
+				{
+					var str = tooltips[i];
+					var helpboxIndex = tooltips[i].IndexOf(_helpboxSplitter, StringComparison.Ordinal);
+					if (helpboxIndex > 0)
+						str = tooltips[i].Substring(0, helpboxIndex);
+					propStaticData.tooltipMessages += str + "\n";
+				}
+			}
+
+			var helpboxes = prop.displayName.Split(new String[] { _helpboxSplitter }, StringSplitOptions.None);
+			if (helpboxes.Length > 1)
+			{
+				for (int i = 1; i <= helpboxes.Length - 1; i++)
+				{
+					var str = helpboxes[i];
+					var tooltipIndex = helpboxes[i].IndexOf(_tooltipSplitter, StringComparison.Ordinal);
+					if (tooltipIndex > 0)
+						str = tooltips[i].Substring(0, tooltipIndex);
+					propStaticData.helpboxMessages += str + "\n";
+				}
+			}
+
+			if (propStaticData.helpboxMessages.EndsWith("\n"))
+				propStaticData.helpboxMessages = propStaticData.helpboxMessages.Substring(0, propStaticData.helpboxMessages.Length - "\n".Length - 1);
+
+			propStaticData.displayName = prop.displayName.Split(new String[] { _tooltipSplitter, _helpboxSplitter }, StringSplitOptions.None)[0];
+		}
+
+		public void UpdateSearchFilter()
+		{
+			var isSearchStringEmpty = string.IsNullOrEmpty(searchString);
+			var searchStringLower = searchString.ToLower();
+			var searchKeywords = searchStringLower.Split(' ', ',', ';', '|', '，', '；'); // Some possible separators
+
+			// The First Search
+			foreach (var propertyData in propertyDatas)
+			{
+				propertyData.Value.isSearchDisplayed = isSearchStringEmpty
+					? true
+					: IsWholeWordMatch(propertyData.Value.displayName, propertyData.Key, searchKeywords);
+			}
+
+			// Further adjust visibility
+			if (!isSearchStringEmpty)
+			{
+				var searchModeTemp = searchMode;
+				// Auto: search by group first, and search by property when there are no results
+				if (searchModeTemp == SearchMode.Auto)
+				{
+					// if has no group
+					if (!propertyDatas.Any((propertyData => propertyData.Value.isSearchDisplayed && propertyData.Value.isMain)))
+						searchModeTemp = SearchMode.Property;
 					else
-						Debug.LogError("Unregistered Main Group Name: " + group);
+						searchModeTemp = SearchMode.Group;
 				}
-				else
-					Debug.LogError("Unregistered Shader: " + shader.name);
-			}
 
-			// add to _extraPropDic
-			if (extraProps != null)
-			{
-				if (!_extraPropDic.ContainsKey(shader))
-					_extraPropDic.Add(shader, new Dictionary<string, List<string>>());
-				if (!_extraPropDic[shader].ContainsKey(prop.name))
-					_extraPropDic[shader].Add(prop.name, new List<string>());
-				foreach (var extraProp in extraProps)
+				// search by property
+				if (searchModeTemp == SearchMode.Property)
 				{
-					if (extraProp != null)
+					// when a SubProp is displayed, the MainProp is also displayed
+					foreach (var propertyData in propertyDatas)
 					{
-						if (!_extraPropDic[shader][prop.name].Contains(extraProp.name))
-							_extraPropDic[shader][prop.name].Add(extraProp.name);
+						if (propertyData.Value.isMain && propertyData.Value.children.Any((childPropertyData => childPropertyData.isSearchDisplayed)))
+							propertyData.Value.isSearchDisplayed = true;
+					}
+				}
+				// search by group
+				else if (searchModeTemp == SearchMode.Group)
+				{
+					// when search by group, all SubProps should display with MainProp
+					foreach (var propertyData in propertyDatas)
+					{
+						if (propertyData.Value.isMain)
+							foreach (var childPropertyData in propertyData.Value.children)
+								childPropertyData.isSearchDisplayed = propertyData.Value.isSearchDisplayed;
 					}
 				}
 			}
 		}
 
-		public static bool IsSubProperty(Shader shader, MaterialProperty prop)
+		private static bool IsWholeWordMatch(string displayName, string propertyName, string[] searchingKeywords)
 		{
-			var isSubProp = false;
-			if (_propParentDic.ContainsKey(shader) && _propParentDic[shader].ContainsKey(prop.name))
-				isSubProp = true;
-			return isSubProp;
-		}
+			bool contains = true;
+			displayName = displayName.ToLower();
+			var name = propertyName.ToLower();
 
-		#endregion
-
-
-		private static void RegisterProperty<T>(Shader shader, MaterialProperty prop, T value, Dictionary<Shader, Dictionary<string, List<T>>> dst)
-		{
-			if (!dst.ContainsKey(shader))
-				dst.Add(shader, new Dictionary<string, List<T>>());
-			if (!dst[shader].ContainsKey(prop.name))
-				dst[shader].Add(prop.name, new List<T>());
-			dst[shader][prop.name].Add(value);
-		}
-
-		private static string GetPropertyString(Shader shader, MaterialProperty prop, Dictionary<Shader, Dictionary<string, List<string>>> src, out int lineCount)
-		{
-			var str = string.Empty;
-			lineCount = 0;
-			if (src.ContainsKey(shader) && src[shader].ContainsKey(prop.name))
+			foreach (var keyword in searchingKeywords)
 			{
-				for (int i = 0; i < src[shader][prop.name].Count; i++)
+				var isMatch = false;
+				isMatch |= displayName.Contains(keyword);
+				isMatch |= name.Contains(keyword);
+				contains &= isMatch;
+			}
+			return contains;
+		}
+	}
+
+	/// <summary>
+	/// Property metadata dynamically generated perframe
+	/// </summary>
+	public class PropertyDynamicData
+	{
+		public MaterialProperty property;
+		public MaterialProperty defualtProperty;                        // Default values may be overridden by Preset
+		public string           defaultValueDescription = string.Empty; // Description of the default values used in Tooltip
+
+	}
+
+	/// <summary>
+	/// Each frame of each material may have different metadata.
+	/// </summary>
+	public class PerFrameData
+	{
+		public Dictionary<string, PropertyDynamicData> propertyDatas  = new Dictionary<string, PropertyDynamicData>();
+		public List<ShaderPropertyPreset.Preset>       activePresets  = new List<ShaderPropertyPreset.Preset>();
+
+		public void BuildPerFrameData(Shader shader, MaterialProperty[] props, PerShaderData perShaderData)
+		{
+			// Get active presets
+			foreach (var prop in props)
+			{
+				List<MaterialPropertyDrawer> decoratorDrawers;
+				var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
+				if (drawer != null)
 				{
-					if (i > 0) str += "\n";
-					str += src[shader][prop.name][i];
-					lineCount++;
+					if (drawer is IBasePresetDrawer)
+					{
+						var activePreset = (drawer as IBasePresetDrawer).GetActivePreset(prop, perShaderData.propertyDatas[prop.name].propertyPreset);
+						if (activePreset != null)
+							activePresets.Add(activePreset);
+					}
 				}
 			}
-			return str;
-		}
 
-		public static void ReregisterAllPropertyMetaData(Shader shader, Material material, MaterialProperty[] props)
-		{
+			// Apply presets to default value
+			{
+				var defaultMaterial = new Material(shader);
+				foreach (var activePreset in activePresets)
+				{
+					foreach (var propertyValue in activePreset.propertyValues)
+						propertyValue.Apply(defaultMaterial);
+				}
+
+				var defaultProperties = MaterialEditor.GetMaterialProperties(new[] { defaultMaterial });
+				Debug.Assert(defaultProperties.Length == props.Length);
+
+				for (int i = 0; i < props.Length; i++)
+				{
+					Debug.Assert(props[i].name == defaultProperties[i].name);
+					Debug.Assert(!propertyDatas.ContainsKey(props[i].name));
+
+					propertyDatas.Add(props[i].name, new PropertyDynamicData()
+					{
+						property = props[i],
+						defualtProperty = defaultProperties[i]
+					});
+				}
+			}
+
+			// Get default value descriptions
 			foreach (var prop in props)
 			{
 				List<MaterialPropertyDrawer> decoratorDrawers;
@@ -167,66 +312,66 @@ namespace LWGUI
 					foreach (var decoratorDrawer in decoratorDrawers)
 					{
 						if (decoratorDrawer is IBaseDrawer)
-							(decoratorDrawer as IBaseDrawer).InitMetaData(shader, material, prop, props);
+							(decoratorDrawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, perShaderData, this);
 					}
 				}
 				if (drawer != null)
 				{
 					if (drawer is IBaseDrawer)
-						(drawer as IBaseDrawer).InitMetaData(shader, material, prop, props);
+						(drawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, perShaderData, this);
 				}
-				DisplayNameToTooltipAndHelpbox(shader, prop);
+				if (string.IsNullOrEmpty(propertyDatas[prop.name].defaultValueDescription))
+					propertyDatas[prop.name].defaultValueDescription = RevertableHelper.GetPropertyDefaultValueText(propertyDatas[prop.name].defualtProperty);
 			}
 		}
+	}
 
+	public class MetaDataHelper
+	{
+		private static Dictionary<Shader, PerShaderData> _shaderDataDic = new Dictionary<Shader, PerShaderData>();
 
-		#region Tooltip
-
-		public static void RegisterPropertyDefaultValueText(Shader shader, MaterialProperty prop, string text)
+		public static PerShaderData BuildPerShaderData(Shader shader, MaterialProperty[] props)
 		{
-			RegisterProperty<string>(shader, prop, text, _defaultDic);
+			if (!_shaderDataDic.ContainsKey(shader))
+			{
+				var perShaderData = new PerShaderData();
+				perShaderData.BuildPropertyStaticData(shader, props);
+				_shaderDataDic.Add(shader, perShaderData);
+			}
+			return _shaderDataDic[shader];
 		}
 
-		public static void RegisterPropertyTooltip(Shader shader, MaterialProperty prop, string text)
+		public static void ForceRebuildPerShaderData(Shader shader)
 		{
-			RegisterProperty<string>(shader, prop, text, _tooltipDic);
+			if (shader && _shaderDataDic.ContainsKey(shader))
+				_shaderDataDic.Remove(shader);
 		}
 
-		private static string GetPropertyDefaultValueText(Shader shader, Material material, MaterialProperty prop)
+		public static PerFrameData BuildPerFrameData(Shader shader, MaterialProperty[] props)
 		{
-			int lineCount;
-			var defaultText = GetPropertyString(shader, prop, _defaultDic, out lineCount);
-			if (string.IsNullOrEmpty(defaultText))
-				// TODO: use Reflection - handle builtin Toggle / Enum
-				defaultText = RevertableHelper.GetPropertyDefaultValueText(material, prop);
-
-			return defaultText;
+			var perFrameData = new PerFrameData();
+			perFrameData.BuildPerFrameData(shader, props, _shaderDataDic[shader]);
+			return perFrameData;
 		}
 
-		public static string GetPropertyTooltip(Shader shader, Material material, MaterialProperty prop)
+		public static string GetPropertyTooltip(PropertyStaticData propertyStaticData, PropertyDynamicData propertyDynamicData)
 		{
-			int lineCount;
-			var str = GetPropertyString(shader, prop, _tooltipDic, out lineCount);
+			var str = propertyStaticData.tooltipMessages;
 			if (!string.IsNullOrEmpty(str))
 				str += "\n\n";
-			str += "Name: " + prop.name + "\n";
-			str += "Default: " + GetPropertyDefaultValueText(shader, material, prop);
+			str += "Property Name: " + propertyDynamicData.property.name + "\n";
+			str += "Default Value: " + propertyDynamicData.defaultValueDescription;
 			return str;
 		}
 
-		#endregion
 
+		#region Meta Data Container
 
-		#region Helpbox
+		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<ShaderPropertyPreset /*Preset*/>>> _presetDic = new Dictionary<Shader, Dictionary<string, List<ShaderPropertyPreset>>>();
 
-		public static void RegisterPropertyHelpbox(Shader shader, MaterialProperty prop, string text)
+		public static void ClearCaches(Shader shader)
 		{
-			RegisterProperty(shader, prop, text, _helpboxDic);
-		}
-
-		public static string GetPropertyHelpbox(Shader shader, MaterialProperty prop, out int lineCount)
-		{
-			return GetPropertyString(shader, prop, _helpboxDic, out lineCount);
+			if (_presetDic.ContainsKey(shader)) _presetDic[shader].Clear();
 		}
 
 		#endregion
@@ -252,47 +397,12 @@ namespace LWGUI
 				return prop.displayName.Substring(0, minIndex);
 		}
 
-		public static void DisplayNameToTooltipAndHelpbox(Shader shader, MaterialProperty prop)
-		{
-			var tooltips = prop.displayName.Split(new String[] { _tooltipString }, StringSplitOptions.None);
-			if (tooltips.Length > 1)
-			{
-				for (int i = 1; i <= tooltips.Length - 1; i++)
-				{
-					var str = tooltips[i];
-					var helpboxIndex = tooltips[i].IndexOf(_helpboxString, StringComparison.Ordinal);
-					if (helpboxIndex == 0)
-						str = "\n";
-					else if (helpboxIndex > 0)
-						str = tooltips[i].Substring(0, helpboxIndex);
-					RegisterPropertyTooltip(shader, prop, str);
-				}
-			}
-			var helpboxes = prop.displayName.Split(new String[] { _helpboxString }, StringSplitOptions.None);
-			if (helpboxes.Length > 1)
-			{
-				for (int i = 1; i <= helpboxes.Length - 1; i++)
-				{
-					var str = helpboxes[i];
-					var tooltipIndex = helpboxes[i].IndexOf(_tooltipString, StringComparison.Ordinal);
-					if (tooltipIndex == 0)
-						str = "\n";
-					else if (tooltipIndex > 0)
-						str = tooltips[i].Substring(0, tooltipIndex);
-					RegisterPropertyHelpbox(shader, prop, str);
-				}
-			}
-		}
 
 		#endregion
 
 
 		#region Preset
 
-		public static void RegisterPropertyPreset(Shader shader, MaterialProperty prop, ShaderPropertyPreset shaderPropertyPreset)
-		{
-			RegisterProperty<ShaderPropertyPreset>(shader, prop, shaderPropertyPreset, _presetDic);
-		}
 
 		public static Dictionary<MaterialProperty, ShaderPropertyPreset> GetAllPropertyPreset(Shader shader, MaterialProperty[] props)
 		{
@@ -310,102 +420,5 @@ namespace LWGUI
 		#endregion
 
 
-		public static Dictionary<string, bool> SearchProperties(Shader shader, Material material, MaterialProperty[] props, string searchingText, SearchMode searchMode)
-		{
-			var result = new Dictionary<string, bool>();
-
-			searchingText = searchingText.ToLower();
-			var searchingKeywords = searchingText.Split(' ', ',', ';', '|', '，', '；'); // Some possible separators
-
-			// init prop
-			foreach (var prop in props)
-			{
-				result.Add(prop.name, IsWholeWordMatch(shader, prop, searchingKeywords));
-			}
-
-			// show all
-			if (string.IsNullOrEmpty(searchingText))
-			{
-				return result;
-			}
-			// do search
-			else
-			{
-				Debug.Assert(_mainSubDic.ContainsKey(shader));
-
-				// Auto: search by group first, and search by property when there are no results
-				if (searchMode == SearchMode.Auto)
-				{
-					// if has no group
-					if (!props.Any((prop => result[prop.name] && _mainSubDic[shader].ContainsKey(prop.name))))
-						searchMode = SearchMode.Property;
-					else
-						searchMode = SearchMode.Group;
-				}
-
-				// search by property
-				if (searchMode == SearchMode.Property)
-				{
-					// when a SubProp is displayed, the MainProp is also displayed
-					foreach (var prop in props)
-					{
-						// is MainProp
-						if (_mainSubDic[shader].ContainsKey(prop.name))
-						{
-							// when none of SubProp is displayed, the MainProp is hidden
-							result[prop.name] = false;
-						
-							// foreach SubProps in group
-							foreach (var subPropName in _mainSubDic[shader][prop.name])
-							{
-								if (result.ContainsKey(subPropName))
-								{
-									if (result[subPropName])
-									{
-										result[prop.name] = true;
-										break;
-									}
-								}
-							}
-						}
-					}
-				}
-				// search by group
-				else
-				{
-					// when search by group, all SubProps should display with MainProp
-					foreach (var prop in props)
-					{
-						// is MainProp
-						if (_mainSubDic[shader].ContainsKey(prop.name))
-						{
-							// foreach SubProps in group
-							foreach (var subPropName in _mainSubDic[shader][prop.name])
-							{
-								result[subPropName] = result[prop.name];
-							}
-						}
-					}
-				}
-			}
-
-			return result;
-		}
-
-		private static bool IsWholeWordMatch(Shader shader, MaterialProperty prop, string[] searchingKeywords)
-		{
-			bool contains = true;
-			var displayName = GetPropertyDisplayName(shader, prop).ToLower();
-			var name = prop.name.ToLower();
-
-			foreach (var keyword in searchingKeywords)
-			{
-				var isMatch = false;
-				isMatch |= displayName.Contains(keyword);
-				isMatch |= name.Contains(keyword);
-				contains &= isMatch;
-			}
-			return contains;
-		}
 	}
 }

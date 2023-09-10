@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright (c) Jason Ma
+using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;

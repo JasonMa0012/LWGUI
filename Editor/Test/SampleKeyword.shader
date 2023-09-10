@@ -20,7 +20,7 @@ Shader "Hidden"
 		[SubToggle(g1, _SUBTOGGLE_KEYWORD)] _toggle ("Sub Toggle", float) = 0
 
 		[SubEnum(g1, Name1, 1, Name2, 0.5)]
-		_subEnum ("SubEnum", float) = 0
+		_subEnum ("SubEnum", float) = 0.5
 
 		[SubKeywordEnum(g1, key1, key2)]
 		_subKeywordEnum ("SubKeywordEnum", float) = 0
