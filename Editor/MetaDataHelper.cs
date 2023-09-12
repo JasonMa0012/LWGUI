@@ -41,6 +41,11 @@ namespace LWGUI
 		public string               helpboxMessages         = string.Empty;
 		public string               tooltipMessages         = string.Empty;
 		public ShaderPropertyPreset propertyPreset          = null;					// The Referenced Preset Asset
+
+		public void AddExtraProperty(string propName)
+		{
+			if (!extraPropNames.Contains(propName)) extraPropNames.Add(propName);
+		}
 	}
 
 	/// <summary>

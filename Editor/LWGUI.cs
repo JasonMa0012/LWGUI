@@ -96,10 +96,9 @@ namespace LWGUI
 					var rect = EditorGUILayout.GetControlRect(true, height);
 					var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
 
-					// PresetHelper.DrawPropertyPresetMenu(rect, shader, prop, props);
+					Helper.DoPropertyContextMenus(rect, prop, this);
 
 					RevertableHelper.FixGUIWidthMismatch(prop.type, materialEditor);
-
 					RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, this);
 					materialEditor.ShaderProperty(rect, prop, label);
 

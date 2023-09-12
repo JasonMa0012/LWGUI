@@ -1,4 +1,4 @@
-﻿# LWGUI (Light Weight Shader GUI)
+# LWGUI (Light Weight Shader GUI)
 
 [中文](https://github.com/JasonMa0012/LWGUI/blob/dev/README_CN.md) | [English](https://github.com/JasonMa0012/LWGUI)
 
@@ -253,7 +253,6 @@ public KWEnumDrawer(string group, string n1, string k1, string n2, string k2, st
 ```c#
 // enumName: like "UnityEngine.Rendering.BlendMode"
 public SubEnumDrawer(string group, string enumName) : base(group, enumName)
-
 
 public SubEnumDrawer(string group, string n1, float v1, string n2, float v2)
 public SubEnumDrawer(string group, string n1, float v1, string n2, float v2, string n3, float v3)

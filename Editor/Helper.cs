@@ -1,5 +1,6 @@
-﻿// Copyright (c) Jason Ma
+// Copyright (c) Jason Ma
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
@@ -128,6 +129,20 @@ namespace LWGUI
 			var extraTextWidth = Mathf.Max(0, style.CalcSize(content).x + extraWidth - EditorGUIUtility.fieldWidth);
 			EditorGUIUtility.labelWidth -= extraTextWidth;
 			EditorGUIUtility.fieldWidth += extraTextWidth;
+		}
+
+		public static void BeginProperty(Rect rect, MaterialProperty property)
+		{
+#if UNITY_2022_1_OR_NEWER
+			MaterialEditor.BeginProperty(rect, property);
+#endif
+		}
+
+		public static void EndProperty()
+		{
+#if UNITY_2022_1_OR_NEWER
+			MaterialEditor.EndProperty();
+#endif
 		}
 
 		#endregion
@@ -346,7 +361,8 @@ namespace LWGUI
 
 
 		#region Toolbar Buttons
-		private static Material _copiedMaterial;
+		private static Material     _copiedMaterial;
+		private static List<string> _copiedProps = new List<string>();
 
 		private static Texture _iconCopy = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("9cdef444d18d2ce4abb6bbc4fed4d109"));
 		private static Texture _iconPaste = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("8e7a78d02e4c3574998524a0842a8ccb"));
@@ -411,31 +427,50 @@ namespace LWGUI
 				{
 					var name = ShaderUtil.GetPropertyName(_copiedMaterial.shader, i);
 					var type = ShaderUtil.GetPropertyType(_copiedMaterial.shader, i);
-					switch (type)
-					{
-						case ShaderUtil.ShaderPropertyType.Color:
-							if ((valueMask & (uint)CopyMaterialValueMask.Vector) != 0)
-								material.SetColor(name, _copiedMaterial.GetColor(name));
-							break;
-						case ShaderUtil.ShaderPropertyType.Vector:
-							if ((valueMask & (uint)CopyMaterialValueMask.Vector) != 0)
-								material.SetVector(name, _copiedMaterial.GetVector(name));
-							break;
-						case ShaderUtil.ShaderPropertyType.TexEnv:
-							if ((valueMask & (uint)CopyMaterialValueMask.Texture) != 0)
-								material.SetTexture(name, _copiedMaterial.GetTexture(name));
-							break;
-						// Float
-						default:
-							if ((valueMask & (uint)CopyMaterialValueMask.Float) != 0)
-								material.SetFloat(name, _copiedMaterial.GetFloat(name));
-							break;
-					}
+					PastePropertyValueToMaterial(material, name, name, type, valueMask);
 				}
 				if ((valueMask & (uint)CopyMaterialValueMask.Keyword) != 0)
 					material.shaderKeywords = _copiedMaterial.shaderKeywords;
 				if ((valueMask & (uint)CopyMaterialValueMask.RenderQueue) != 0)
 					material.renderQueue = _copiedMaterial.renderQueue;
+			}
+		}
+
+		private static void PastePropertyValueToMaterial(Material material, string srcName, string dstName)
+		{
+			for (int i = 0; i < ShaderUtil.GetPropertyCount(_copiedMaterial.shader); i++)
+			{
+				var name = ShaderUtil.GetPropertyName(_copiedMaterial.shader, i);
+				if (name == srcName)
+				{
+					var type = ShaderUtil.GetPropertyType(_copiedMaterial.shader, i);
+					PastePropertyValueToMaterial(material, srcName, dstName, type);
+					return;
+				}
+			}
+		}
+
+		private static void PastePropertyValueToMaterial(Material material, string srcName, string dstName, ShaderUtil.ShaderPropertyType type, uint valueMask = (uint)CopyMaterialValueMask.All)
+		{
+			switch (type)
+			{
+				case ShaderUtil.ShaderPropertyType.Color:
+					if ((valueMask & (uint)CopyMaterialValueMask.Vector) != 0)
+						material.SetColor(dstName, _copiedMaterial.GetColor(srcName));
+					break;
+				case ShaderUtil.ShaderPropertyType.Vector:
+					if ((valueMask & (uint)CopyMaterialValueMask.Vector) != 0)
+						material.SetVector(dstName, _copiedMaterial.GetVector(srcName));
+					break;
+				case ShaderUtil.ShaderPropertyType.TexEnv:
+					if ((valueMask & (uint)CopyMaterialValueMask.Texture) != 0)
+						material.SetTexture(dstName, _copiedMaterial.GetTexture(srcName));
+					break;
+				// Float
+				default:
+					if ((valueMask & (uint)CopyMaterialValueMask.Float) != 0)
+						material.SetFloat(dstName, _copiedMaterial.GetFloat(srcName));
+					break;
 			}
 		}
 
@@ -671,5 +706,87 @@ namespace LWGUI
 		}
 
 		#endregion
+
+
+		public static void DoPropertyContextMenus(Rect rect, MaterialProperty prop, LWGUI lwgui)
+		{
+			if (Event.current.type == EventType.ContextClick && rect.Contains(Event.current.mousePosition))
+			{
+				Event.current.Use();
+				var propStaticData = lwgui.perShaderData.propertyDatas[prop.name];
+				var menus = new GenericMenu();
+
+
+				// Copy
+				menus.AddItem(new GUIContent("Copy"), false, () =>
+				{
+					_copiedMaterial = UnityEngine.Object.Instantiate(lwgui.material);
+					_copiedProps.Clear();
+					_copiedProps.Add(prop.name);
+					foreach (var extraPropName in propStaticData.extraPropNames)
+					{
+						_copiedProps.Add(extraPropName);
+					}
+				});
+
+				// Paste
+				GenericMenu.MenuFunction pasteAction = () =>
+				{
+					foreach (Material material in prop.targets)
+					{
+						if (!VersionControlHelper.Checkout(material))
+						{
+							Debug.LogError("Material: '" + lwgui.material.name + "' unable to write!");
+							return;
+						}
+
+						Undo.RecordObject(material, "Paste Material Properties");
+
+						PastePropertyValueToMaterial(material, _copiedProps[0], prop.name);
+
+						for (int i = 0; i < Mathf.Min(propStaticData.extraPropNames.Count, _copiedProps.Count - 1); i++)
+						{
+							PastePropertyValueToMaterial(material, _copiedProps[i + 1], propStaticData.extraPropNames[i]);
+						}
+					}
+				};
+				if (_copiedMaterial != null && _copiedProps.Count > 0 && GUI.enabled)
+					menus.AddItem(new GUIContent("Paste"), false, pasteAction);
+				else
+					menus.AddDisabledItem(new GUIContent("Paste"));
+
+				menus.AddSeparator("");
+
+				// Copy Display Name
+				menus.AddItem(new GUIContent("Copy Display Name"), false, () =>
+				{
+					EditorGUIUtility.systemCopyBuffer = propStaticData.displayName;
+				});
+
+				// Copy Property Names
+				menus.AddItem(new GUIContent("Copy Property Names"), false, () =>
+				{
+					EditorGUIUtility.systemCopyBuffer = prop.name;
+					foreach (var extraPropName in propStaticData.extraPropNames)
+					{
+						EditorGUIUtility.systemCopyBuffer += ", " + extraPropName;
+					}
+				});
+
+				// menus.AddSeparator("");
+				//
+				// // Add to Favorites
+				// menus.AddItem(new GUIContent("Add to Favorites"), false, () =>
+				// {
+				// });
+				//
+				// // Remove from Favorites
+				// menus.AddItem(new GUIContent("Remove from Favorites"), false, () =>
+				// {
+				// });
+
+				menus.ShowAsContext();
+			}
+		}
 	}
 }

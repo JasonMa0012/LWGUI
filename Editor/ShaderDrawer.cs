@@ -83,6 +83,8 @@ namespace LWGUI
 
 			var propertyStaticData = lwgui.perShaderData.propertyDatas[prop.name];
 
+			if (_defaultToggleDisplayed) Helper.BeginProperty(position, prop);
+
 			bool toggleResult = Helper.DrawFoldout(position, ref propertyStaticData.isExpanded, prop.floatValue > 0, _defaultToggleDisplayed, label);
 
 			if (GUI.changed)
@@ -91,6 +93,8 @@ namespace LWGUI
 				prop.floatValue = toggleResult ? 1.0f : 0.0f;
 				Helper.SetShaderKeyWord(editor.targets, Helper.GetKeyWord(_keyword, prop.name), toggleResult);
 			}
+
+			if (_defaultToggleDisplayed) Helper.EndProperty();
 		}
 
 		// Call in custom shader gui
@@ -221,6 +225,7 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
+			Helper.BeginProperty(position, prop);
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var value = EditorGUI.Toggle(position, label, prop.floatValue > 0.0f);
 			string k = Helper.GetKeyWord(_keyWord, prop.name);
@@ -230,8 +235,8 @@ namespace LWGUI
 				prop.floatValue = value ? 1.0f : 0.0f;
 				Helper.SetShaderKeyWord(editor.targets, k, value);
 			}
-
 			EditorGUI.showMixedValue = false;
+			Helper.EndProperty();
 		}
 
 		public override void Apply(MaterialProperty prop)
@@ -264,11 +269,13 @@ namespace LWGUI
 		
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
+			Helper.BeginProperty(position, prop);
 			RevertableHelper.FixGUIWidthMismatch(prop.type, editor);
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var rect = position;
 			Helper.PowerSlider(prop, _power, rect, label);
 			EditorGUI.showMixedValue = false;
+			Helper.EndProperty();
 		}
 	}
 	
@@ -288,6 +295,7 @@ namespace LWGUI
 		
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
+			Helper.BeginProperty(position, prop);
 			RevertableHelper.FixGUIWidthMismatch(prop.type, editor);
 
 			if (prop.type != MaterialProperty.PropType.Range)
@@ -308,6 +316,7 @@ namespace LWGUI
 					prop.floatValue = num;
 				}
 			}
+			Helper.EndProperty();
 		}
 	}
 
@@ -337,8 +346,8 @@ namespace LWGUI
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
 		{
 			base.BuildStaticMetaData(inShader, inProp, inProps, inoutPropertyStaticData);
-			inoutPropertyStaticData.extraPropNames.Add(_minPropName);
-			inoutPropertyStaticData.extraPropNames.Add(_maxPropName);
+			inoutPropertyStaticData.AddExtraProperty(_minPropName);
+			inoutPropertyStaticData.AddExtraProperty(_maxPropName);
 		}
 
 		public override void GetDefaultValueDescription(Shader           inShader,
@@ -363,6 +372,7 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
+			Helper.BeginProperty(position, prop);
 			// read min max
 			MaterialProperty minProp = LWGUI.FindProp(_minPropName, props, true);
 			MaterialProperty maxProp = LWGUI.FindProp(_maxPropName, props, true);
@@ -415,6 +425,7 @@ namespace LWGUI
 				minProp.floatValue = Mathf.Clamp(minf, minProp.rangeLimits.x, minProp.rangeLimits.y);
 				maxProp.floatValue = Mathf.Clamp(maxf, maxProp.rangeLimits.x, maxProp.rangeLimits.y);
 			}
+			Helper.EndProperty();
 		}
 	}
 
@@ -519,6 +530,7 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
+			Helper.BeginProperty(position, prop);
         	EditorGUI.showMixedValue = prop.hasMixedValue;
         	
 			var rect = position;
@@ -540,6 +552,7 @@ namespace LWGUI
 				prop.floatValue = _values[newIndex];
 				Helper.SetShaderKeyWord(editor.targets, keyWords, newIndex);
 			}
+			Helper.EndProperty();
 		}
 
 		public override void Apply(MaterialProperty prop)
@@ -643,7 +656,7 @@ namespace LWGUI
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
 		{
 			base.BuildStaticMetaData(inShader, inProp, inProps, inoutPropertyStaticData);
-			inoutPropertyStaticData.extraPropNames.Add(_extraPropName);
+			inoutPropertyStaticData.AddExtraProperty(_extraPropName);
 		}
 
 		public override void GetDefaultValueDescription(Shader           inShader,
@@ -748,11 +761,15 @@ namespace LWGUI
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
 		{
 			base.BuildStaticMetaData(inShader, inProp, inProps, inoutPropertyStaticData);
-			inoutPropertyStaticData.extraPropNames.AddRange(_colorStrings);
+			foreach (var colorPropName in _colorStrings)
+			{
+				inoutPropertyStaticData.AddExtraProperty(colorPropName);
+			}
 		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
+			Helper.BeginProperty(position, prop);
 			Stack<MaterialProperty> cProps = new Stack<MaterialProperty>();
 			for (int i = 0; i < 4; i++)
 			{
@@ -799,6 +816,7 @@ namespace LWGUI
 			}
 
 			EditorGUI.showMixedValue = false;
+			Helper.EndProperty();
 		}
 	}
 
@@ -878,6 +896,7 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
+			Helper.BeginProperty(position, prop);
 			var rect = position; //EditorGUILayout.GetControlRect();
 			var index = GetChannelIndex(prop);
 
@@ -889,6 +908,7 @@ namespace LWGUI
 				GUI.changed = false;
 				prop.vectorValue = _vector4Values[num];
 			}
+			Helper.EndProperty();
 		}
 	}
 
@@ -945,6 +965,8 @@ namespace LWGUI
 		// TODO: undo
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
+			Helper.BeginProperty(position, prop);
+
 			// When switch ramp map
 			RampHelper.SwitchRampMapEvent OnSwitchRampMapEvent = newRampMap =>
 			{
@@ -1056,6 +1078,7 @@ namespace LWGUI
 			
 			EditorGUIUtility.labelWidth = labelWidth;
 			EditorGUI.indentLevel = indentLevel;
+			Helper.EndProperty();
 		}
 	}
 
@@ -1109,6 +1132,7 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
+			Helper.BeginProperty(position, prop);
 			EditorGUI.showMixedValue = prop.hasMixedValue;
         	
 			var rect = position;
@@ -1135,6 +1159,7 @@ namespace LWGUI
 				prop.floatValue = newIndex;
 				preset.Apply(prop.targets.Select((o => o as Material)).ToArray(), (int)prop.floatValue);
 			}
+			Helper.EndProperty();
 		}
 	}
 	
@@ -1283,7 +1308,7 @@ namespace LWGUI
 		{
 			return property.type == MaterialProperty.PropType.Float
 #if UNITY_2021_1_OR_NEWER
-									 || property.type == MaterialProperty.PropType.Int
+				|| property.type == MaterialProperty.PropType.Int
 #endif
 				;
 		}
