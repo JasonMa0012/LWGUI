@@ -139,11 +139,13 @@ namespace LWGUI
 			Rect rect = position;
 			if (DrawRevertButton(rect))
 			{
-				GUI.changed = true;
+				// GUI.changed = true;
+				propDynamicData.changed = true;
 				SetPropertyToDefault(propDynamicData.defualtProperty, prop);
 				foreach (var extraPropName in extraPropNames)
 				{
 					var extraPropDynamicData = lwgui.perFrameData.propertyDatas[extraPropName];
+					extraPropDynamicData.changed = true;
 					SetPropertyToDefault(extraPropDynamicData.defualtProperty, extraPropDynamicData.property);
 				}
 				// refresh keywords

@@ -253,6 +253,7 @@ namespace LWGUI
 		public MaterialProperty property;
 		public MaterialProperty defualtProperty;                        // Default values may be overridden by Preset
 		public string           defaultValueDescription = string.Empty; // Description of the default values used in Tooltip
+		public bool             changed                 = false;
 
 	}
 
@@ -328,6 +329,17 @@ namespace LWGUI
 				if (string.IsNullOrEmpty(propertyDatas[prop.name].defaultValueDescription))
 					propertyDatas[prop.name].defaultValueDescription = RevertableHelper.GetPropertyDefaultValueText(propertyDatas[prop.name].defualtProperty);
 			}
+		}
+
+		public bool EndChangeCheck(string propName = null)
+		{
+			var result = EditorGUI.EndChangeCheck();
+			if (!string.IsNullOrEmpty(propName))
+			{
+				result |= propertyDatas[propName].changed;
+				propertyDatas[propName].changed = false;
+			}
+			return result;
 		}
 	}
 

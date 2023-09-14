@@ -84,12 +84,12 @@ namespace LWGUI
 			var propertyStaticData = lwgui.perShaderData.propertyDatas[prop.name];
 
 			if (_defaultToggleDisplayed) Helper.BeginProperty(position, prop);
+			EditorGUI.BeginChangeCheck();
 
 			bool toggleResult = Helper.DrawFoldout(position, ref propertyStaticData.isExpanded, prop.floatValue > 0, _defaultToggleDisplayed, label);
 
-			if (GUI.changed)
+			if (lwgui.perFrameData.EndChangeCheck(prop.name))
 			{
-				GUI.changed = false;
 				prop.floatValue = toggleResult ? 1.0f : 0.0f;
 				Helper.SetShaderKeyWord(editor.targets, Helper.GetKeyWord(_keyword, prop.name), toggleResult);
 			}
@@ -124,11 +124,11 @@ namespace LWGUI
 	/// </summary>
 	public class SubDrawer : MaterialPropertyDrawer, IBaseDrawer
 	{
-		protected string             group = String.Empty;
-		protected MaterialProperty   prop;
-		protected MaterialProperty[] props;
-		protected LWGUI              lwgui;
-		protected Shader             shader;
+		public string             group = String.Empty;
+		public MaterialProperty   prop;
+		public MaterialProperty[] props;
+		public LWGUI              lwgui;
+		public Shader             shader;
 
 		public SubDrawer() { }
 
@@ -226,12 +226,12 @@ namespace LWGUI
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			Helper.BeginProperty(position, prop);
+			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var value = EditorGUI.Toggle(position, label, prop.floatValue > 0.0f);
 			string k = Helper.GetKeyWord(_keyWord, prop.name);
-			if (GUI.changed)
+			if (lwgui.perFrameData.EndChangeCheck(prop.name))
 			{
-				GUI.changed = false;
 				prop.floatValue = value ? 1.0f : 0.0f;
 				Helper.SetShaderKeyWord(editor.targets, k, value);
 			}
@@ -304,15 +304,15 @@ namespace LWGUI
 			}
 			else
 			{
+				EditorGUI.BeginChangeCheck();
 				EditorGUI.showMixedValue = prop.hasMixedValue;
 				float labelWidth = EditorGUIUtility.labelWidth;
 				EditorGUIUtility.labelWidth = 0.0f;
 				int num = EditorGUI.IntSlider(position, label, (int) prop.floatValue, (int) prop.rangeLimits.x, (int) prop.rangeLimits.y);
 				EditorGUI.showMixedValue = false;
 				EditorGUIUtility.labelWidth = labelWidth;
-				if (GUI.changed)
+				if (lwgui.perFrameData.EndChangeCheck(prop.name))
 				{
-					GUI.changed = false;
 					prop.floatValue = num;
 				}
 			}
@@ -397,31 +397,33 @@ namespace LWGUI
 			// draw min max slider
 			Rect[] splittedRect = Helper.SplitRect(inputRect, 3);
 
+			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = minProp.hasMixedValue;
 			var newMinf = EditorGUI.FloatField(splittedRect[0], minf);
-			if (GUI.changed)
+			if (lwgui.perFrameData.EndChangeCheck(minProp.name))
 			{
 				minf = Mathf.Clamp(newMinf, minProp.rangeLimits.x, minProp.rangeLimits.y);
 				minProp.floatValue = minf;
 			}
 
+			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = maxProp.hasMixedValue;
 			var newMaxf = EditorGUI.FloatField(splittedRect[2], maxf);
-			if (GUI.changed)
+			if (lwgui.perFrameData.EndChangeCheck(maxProp.name))
 			{
 				maxf = Mathf.Clamp(newMaxf, maxProp.rangeLimits.x, maxProp.rangeLimits.y);
 				maxProp.floatValue = maxf;
 			}
 
+			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			if (splittedRect[1].width > 50f)
 				EditorGUI.MinMaxSlider(splittedRect[1], ref minf, ref maxf, prop.rangeLimits.x, prop.rangeLimits.y);
 			EditorGUI.showMixedValue = false;
 
 			// write back min max if changed
-			if (GUI.changed)
+			if (EditorGUI.EndChangeCheck())
 			{
-				GUI.changed = false;
 				minProp.floatValue = Mathf.Clamp(minf, minProp.rangeLimits.x, minProp.rangeLimits.y);
 				maxProp.floatValue = Mathf.Clamp(maxf, maxProp.rangeLimits.x, maxProp.rangeLimits.y);
 			}
@@ -531,6 +533,7 @@ namespace LWGUI
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			Helper.BeginProperty(position, prop);
+			EditorGUI.BeginChangeCheck();
         	EditorGUI.showMixedValue = prop.hasMixedValue;
         	
 			var rect = position;
@@ -546,9 +549,8 @@ namespace LWGUI
 			Helper.AdaptiveFieldWidth(EditorStyles.popup, _names[index], EditorStyles.popup.lineHeight);
 			int newIndex = EditorGUI.Popup(rect, label, index, _names);
 			EditorGUI.showMixedValue = false;
-			if (GUI.changed)
+			if (lwgui.perFrameData.EndChangeCheck(prop.name))
 			{
-				GUI.changed = false;
 				prop.floatValue = _values[newIndex];
 				Helper.SetShaderKeyWord(editor.targets, keyWords, newIndex);
 			}
@@ -637,7 +639,7 @@ namespace LWGUI
 	public class TexDrawer : SubDrawer
 	{
 		private string        _extraPropName = String.Empty;
-		private ChannelDrawer _channelDrawer = new ChannelDrawer("_");
+		private ChannelDrawer _channelDrawer = new ChannelDrawer();
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight; }
 
@@ -721,7 +723,7 @@ namespace LWGUI
 				}
 
 				if (extraProp.type == MaterialProperty.PropType.Vector)
-					_channelDrawer.DrawProp(extraPropRect, extraProp, label, editor);
+					_channelDrawer.OnGUI(extraPropRect, extraProp, label, editor);
 				else
 					editor.ShaderProperty(extraPropRect, extraProp, label);
 				
@@ -792,6 +794,7 @@ namespace LWGUI
 
 			for (int i = 0; i < count; i++)
 			{
+				EditorGUI.BeginChangeCheck();
 				var cProp = colorArray[i];
 				EditorGUI.showMixedValue = cProp.hasMixedValue;
 				Rect r = new Rect(rect);
@@ -808,9 +811,8 @@ namespace LWGUI
 												, new ColorPickerHDRConfig(0.0f, float.MaxValue, 0.0f, float.MaxValue)
 										   #endif
 										   );
-				if (GUI.changed)
+				if (lwgui.perFrameData.EndChangeCheck(cProp.name))
 				{
-					GUI.changed = false;
 					cProp.colorValue = dst;
 				}
 			}
@@ -897,15 +899,14 @@ namespace LWGUI
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			Helper.BeginProperty(position, prop);
-			var rect = position; //EditorGUILayout.GetControlRect();
-			var index = GetChannelIndex(prop);
+			EditorGUI.BeginChangeCheck();
 
 			EditorGUI.showMixedValue = prop.hasMixedValue;
-			int num = EditorGUI.IntPopup(rect, label, index, _names, _intValues);
+			var index = GetChannelIndex(prop);
+			int num = EditorGUI.IntPopup(position, label, index, _names, _intValues);
 			EditorGUI.showMixedValue = false;
-			if (GUI.changed)
+			if (lwgui.perFrameData.EndChangeCheck(prop.name))
 			{
-				GUI.changed = false;
 				prop.vectorValue = _vector4Values[num];
 			}
 			Helper.EndProperty();
@@ -1055,11 +1056,11 @@ namespace LWGUI
 				RampHelper.RampSelector(selectButtonRect, _rootPath, OnSwitchRampMapEvent);
 				
 				// Manual replace ramp map
+				EditorGUI.BeginChangeCheck();
 				var newManualSelectedTexture = (Texture2D)EditorGUI.ObjectField(rampFieldRect, prop.textureValue, typeof(Texture2D), false);
-				if (GUI.changed)
+				if (lwgui.perFrameData.EndChangeCheck(prop.name))
 				{
-					GUI.changed = false;
-					if (AssetDatabase.GetAssetPath(newManualSelectedTexture).StartsWith(_rootPath))
+					if (newManualSelectedTexture && AssetDatabase.GetAssetPath(newManualSelectedTexture).StartsWith(_rootPath))
 						OnSwitchRampMapEvent(newManualSelectedTexture);
 					else 
 						EditorUtility.DisplayDialog("Invalid Path", "Please select the subdirectory of '" + _rootPath + "'", "OK");
@@ -1133,6 +1134,7 @@ namespace LWGUI
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			Helper.BeginProperty(position, prop);
+			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = prop.hasMixedValue;
         	
 			var rect = position;
@@ -1153,9 +1155,8 @@ namespace LWGUI
 			Helper.AdaptiveFieldWidth(EditorStyles.popup, presetNames[index], EditorStyles.popup.lineHeight);
 			int newIndex = EditorGUI.Popup(rect, label, index, presetNames);
 			EditorGUI.showMixedValue = false;
-			if (GUI.changed)
+			if (lwgui.perFrameData.EndChangeCheck(prop.name))
 			{
-				GUI.changed = false;
 				prop.floatValue = newIndex;
 				preset.Apply(prop.targets.Select((o => o as Material)).ToArray(), (int)prop.floatValue);
 			}

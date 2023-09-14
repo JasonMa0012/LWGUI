@@ -708,6 +708,7 @@ namespace LWGUI
 		#endregion
 
 
+		#region Context Menu
 		public static void DoPropertyContextMenus(Rect rect, MaterialProperty prop, LWGUI lwgui)
 		{
 			if (Event.current.type == EventType.ContextClick && rect.Contains(Event.current.mousePosition))
@@ -788,5 +789,7 @@ namespace LWGUI
 				menus.ShowAsContext();
 			}
 		}
+		#endregion
+
 	}
 }
