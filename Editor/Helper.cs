@@ -120,11 +120,6 @@ namespace LWGUI
 			}
 		}
 
-		public static void AdaptiveFieldWidth(string str, GUIContent content, float extraWidth = 0)
-		{
-			AdaptiveFieldWidth(new GUIStyle(str), content, extraWidth);
-		}
-
 		public static void AdaptiveFieldWidth(GUIStyle style, GUIContent content, float extraWidth = 0)
 		{
 			var extraTextWidth = Mathf.Max(0, style.CalcSize(content).x + extraWidth - EditorGUIUtility.fieldWidth);
@@ -132,18 +127,27 @@ namespace LWGUI
 			EditorGUIUtility.fieldWidth += extraTextWidth;
 		}
 
-		public static void BeginProperty(Rect rect, MaterialProperty property)
+		public static void BeginProperty(Rect rect, MaterialProperty property, LWGUI lwgui)
 		{
 #if UNITY_2022_1_OR_NEWER
 			MaterialEditor.BeginProperty(rect, property);
+			foreach (var extraPropName in lwgui.perShaderData.propertyDatas[property.name].extraPropNames)
+				MaterialEditor.BeginProperty(rect, lwgui.perFrameData.propertyDatas[extraPropName].property);
 #endif
 		}
 
-		public static void EndProperty()
+		public static void EndProperty(LWGUI lwgui, MaterialProperty property)
 		{
 #if UNITY_2022_1_OR_NEWER
 			MaterialEditor.EndProperty();
+			foreach (var extraPropName in lwgui.perShaderData.propertyDatas[property.name].extraPropNames)
+				MaterialEditor.EndProperty();
 #endif
+		}
+
+		public static bool EndChangeCheck(LWGUI lwgui, MaterialProperty property)
+		{
+			return lwgui.perFrameData.EndChangeCheck(property.name);
 		}
 
 		#endregion
@@ -217,7 +221,7 @@ namespace LWGUI
 			// Toggle Event
 			if (hasToggle)
 			{
-				if (Event.current.type == EventType.MouseDown && toggleRect.Contains(Event.current.mousePosition))
+				if (Event.current.type == EventType.MouseDown && Event.current.button == 0 && toggleRect.Contains(Event.current.mousePosition))
 				{
 					toggleValue = !toggleValue;
 					Event.current.Use();
@@ -227,6 +231,10 @@ namespace LWGUI
 
 			// Button
 			{
+				// Right Click to Context Click
+				if (Event.current.type == EventType.MouseDown && Event.current.button == 1 && rect.Contains(Event.current.mousePosition))
+					Event.current.Use();
+
 				var enabled = GUI.enabled;
 				GUI.enabled = true;
 				var guiColor = GUI.backgroundColor;
@@ -247,53 +255,6 @@ namespace LWGUI
 			}
 
 			return toggleValue;
-		}
-
-		// TODO: use Reflection
-		public static void PowerSlider(MaterialProperty prop, float power, Rect position, GUIContent label)
-		{
-			int controlId = GUIUtility.GetControlID("EditorSliderKnob".GetHashCode(), FocusType.Passive, position);
-			float left = prop.rangeLimits.x;
-			float right = prop.rangeLimits.y;
-			float start = left;
-			float end = right;
-			float value = prop.floatValue;
-			float originValue = prop.floatValue;
-
-			if ((double)power != 1.0)
-			{
-				start = Helper.PowPreserveSign(start, 1f / power);
-				end = Helper.PowPreserveSign(end, 1f / power);
-				value = Helper.PowPreserveSign(value, 1f / power);
-			}
-
-			EditorGUI.BeginChangeCheck();
-
-			var labelWidth = EditorGUIUtility.labelWidth;
-			EditorGUIUtility.labelWidth = 0;
-
-			var rectAfterLabel = EditorGUI.PrefixLabel(position, label);
-
-			Rect sliderRect = MaterialEditor.GetFlexibleRectBetweenLabelAndField(position);
-			sliderRect.xMin += 2;
-			if (sliderRect.width >= 50f)
-				// TODO: Slider Focus
-				value = GUI.Slider(sliderRect, value, 0.0f, start, end, GUI.skin.horizontalSlider,
-								   !EditorGUI.showMixedValue ? GUI.skin.horizontalSliderThumb : (GUIStyle)"SliderMixed",
-								   true,
-								   controlId);
-
-			if ((double)power != 1.0)
-				value = Helper.PowPreserveSign(value, power);
-
-			position.xMin = Mathf.Max(rectAfterLabel.xMin, sliderRect.xMax - 10f);
-			var floatRect = position;
-			value = EditorGUI.FloatField(floatRect, value);
-
-			if (value != originValue)
-				prop.floatValue = Mathf.Clamp(value, Mathf.Min(left, right), Mathf.Max(left, right));
-
-			EditorGUIUtility.labelWidth = labelWidth;
 		}
 
 		#endregion
@@ -662,7 +623,6 @@ namespace LWGUI
 				Event.current.Use();
 			}
 
-			// TODO: use Reflection -> controlId
 			lwgui.perShaderData.searchString = EditorGUI.TextField(rect, String.Empty, lwgui.perShaderData.searchString, guiStyles_ToolbarSearchTextFieldPopup);
 
 			if (EditorGUI.EndChangeCheck())
@@ -718,6 +678,10 @@ namespace LWGUI
 			var propStaticData = lwgui.perShaderData.propertyDatas[prop.name];
 			var menus = new GenericMenu();
 
+			// 2022+ Material Varant Menus
+#if UNITY_2022_1_OR_NEWER
+			ReflectionHelper.HandleApplyRevert(menus, prop);
+#endif
 
 			// Copy
 			menus.AddItem(new GUIContent("Copy"), false, () =>

@@ -22,13 +22,10 @@ namespace LWGUI
 		public static LWGUICustomGUIEvent onDrawCustomHeader;
 		public static LWGUICustomGUIEvent onDrawCustomFooter;
 
-
-
 		/// <summary>
 		/// Called when switch to a new Material Window, each window has a LWGUI instance
 		/// </summary>
 		public LWGUI() { }
-
 
 		public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
 		{
@@ -37,7 +34,7 @@ namespace LWGUI
 			this.material = materialEditor.target as Material;
 			this.shader = this.material.shader;
 			this.perShaderData = MetaDataHelper.BuildPerShaderData(shader, props);
-			this.perFrameData = MetaDataHelper.BuildPerFrameData(shader, props);
+			this.perFrameData = MetaDataHelper.BuildPerFrameData(shader, material, props);
 
 
 			// Custom Header
@@ -96,12 +93,14 @@ namespace LWGUI
 					var rect = EditorGUILayout.GetControlRect(true, height);
 					var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
 
+					Helper.BeginProperty(rect, prop, this);
 					Helper.DoPropertyContextMenus(rect, prop, this);
 
 					RevertableHelper.FixGUIWidthMismatch(prop.type, materialEditor);
 					RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, this);
 					materialEditor.ShaderProperty(rect, prop, label);
 
+					Helper.EndProperty(this, prop);
 					RevertableHelper.SetRevertableGUIWidths();
 				}
 
@@ -134,30 +133,6 @@ namespace LWGUI
 			// LOGO
 			EditorGUILayout.Space();
 			Helper.DrawLogo();
-		}
-
-
-		/// <summary>
-		///   <para>Find shader properties.</para>
-		/// </summary>
-		/// <param name="propertyName">The name of the material property.</param>
-		/// <param name="properties">The array of available material properties.</param>
-		/// <param name="propertyIsMandatory">If true then this method will throw an exception if a property with propertyName was not found.</param>
-		/// <returns>
-		///   <para>The material property found, otherwise null.</para>
-		/// </returns>
-		public static MaterialProperty FindProp(string             propertyName,
-												MaterialProperty[] properties,
-												bool               propertyIsMandatory = false)
-		{
-			MaterialProperty outProperty = null;
-
-			if (!string.IsNullOrEmpty(propertyName) && propertyName != "_")
-				outProperty = FindProperty(propertyName, properties, propertyIsMandatory);
-			else
-				return null;
-
-			return outProperty;
 		}
 	}
 } //namespace LWGUI

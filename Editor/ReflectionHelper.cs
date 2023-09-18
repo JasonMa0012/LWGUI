@@ -39,9 +39,11 @@ namespace LWGUI
 
 
 		#region MaterialEditor
+		private static Type			MaterialEditor_Type									= typeof(MaterialEditor);
+		private static MethodInfo   MaterialEditor_DoPowerRangeProperty_Method			= MaterialEditor_Type.GetMethod("DoPowerRangeProperty", BindingFlags.Static | BindingFlags.NonPublic);
+		private static MethodInfo   MaterialEditor_DefaultShaderPropertyInternal_Method = MaterialEditor_Type.GetMethod("DefaultShaderPropertyInternal", BindingFlags.NonPublic | BindingFlags.Instance, null, new []{typeof(Rect), typeof(MaterialProperty), typeof(GUIContent)}, null);
 #if !UNITY_2019_2_OR_NEWER
-		private static Type      MaterialEditor_Type                  = UnityEditor_Assembly.GetType("UnityEditor.MaterialEditor");
-		private static FieldInfo MaterialEditor_CustomShaderGUI_Field = MaterialEditor_Type.GetField("m_CustomShaderGUI", BindingFlags.NonPublic | BindingFlags.Instance);
+		private static FieldInfo	MaterialEditor_CustomShaderGUI_Field				= MaterialEditor_Type.GetField("m_CustomShaderGUI", BindingFlags.NonPublic | BindingFlags.Instance);
 #endif
 
 		public static ShaderGUI GetCustomShaderGUI(MaterialEditor editor)
@@ -52,6 +54,17 @@ namespace LWGUI
 			return editor.customShaderGUI;
 #endif
 		}
+
+		public static float DoPowerRangeProperty(Rect position, MaterialProperty prop, GUIContent label, float power)
+		{
+			return (float)MaterialEditor_DoPowerRangeProperty_Method.Invoke(null, new System.Object[] { position, prop, label, power });
+		}
+
+		public static void DefaultShaderPropertyInternal(MaterialEditor editor, Rect position, MaterialProperty prop, GUIContent label)
+		{
+			MaterialEditor_DefaultShaderPropertyInternal_Method.Invoke(editor, new System.Object[] { position, prop, label });
+		}
+
 		#endregion
 
 
@@ -86,7 +99,7 @@ namespace LWGUI
 
 
 		#region Ramp
-		private static Type       EditorWindow_Type             = UnityEditor_Assembly.GetType("UnityEditor.EditorWindow");
+		private static Type       EditorWindow_Type             = typeof(EditorWindow);
 		private static MethodInfo EditorWindow_ShowModal_Method = EditorWindow_Type.GetMethod("ShowModal", BindingFlags.NonPublic | BindingFlags.Instance);
 
 		// UnityEditor.EditorWindow.ShowModal
@@ -100,6 +113,35 @@ namespace LWGUI
 				EditorWindow_ShowModal_Method.Invoke(window, null);
 			#endif
 		}
+		#endregion
+
+
+		#region MaterialProperty.PropertyData
+
+		private static Type			MaterialProperty_Type					= typeof(MaterialProperty);
+#if UNITY_2022_1_OR_NEWER
+		private static Type			PropertyData_Type						= MaterialProperty_Type.GetNestedType("PropertyData", BindingFlags.NonPublic);
+		// MergeStack(out bool lockedInChildren, out bool lockedByAncestor, out bool overriden)
+		private static MethodInfo   PropertyData_MergeStack_Method			= PropertyData_Type.GetMethod("MergeStack", BindingFlags.Static | BindingFlags.NonPublic);
+		// HandleApplyRevert(GenericMenu menu, bool singleEditing, UnityEngine.Object[] targets)
+		private static MethodInfo   PropertyData_HandleApplyRevert_Method   = PropertyData_Type.GetMethod("HandleApplyRevert", BindingFlags.Static | BindingFlags.NonPublic);
+
+		public static void HandleApplyRevert(GenericMenu menu, MaterialProperty prop)
+		{
+			System.Object[] parameters = new System.Object[3];
+			ReflectionHelper.PropertyData_MergeStack_Method.Invoke(null, parameters);
+			bool lockedInChildren = (bool)parameters[0];
+			bool lockedByAncestor = (bool)parameters[1];
+			bool overriden = (bool)parameters[2];
+			bool singleEditing = prop.targets.Length == 1;
+
+			if (overriden)
+			{
+				ReflectionHelper.PropertyData_HandleApplyRevert_Method.Invoke(null, new System.Object[]{menu, singleEditing, prop.targets});
+				menu.AddSeparator("");
+			}
+		}
+#endif
 		#endregion
 	}
 }

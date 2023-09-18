@@ -277,7 +277,7 @@ namespace LWGUI
 		public Dictionary<string, PropertyDynamicData> propertyDatas    = new Dictionary<string, PropertyDynamicData>();
 		public List<PersetDynamicData>                 activePresets    = new List<PersetDynamicData>();
 
-		public void BuildPerFrameData(Shader shader, MaterialProperty[] props, PerShaderData perShaderData)
+		public void BuildPerFrameData(Shader shader, Material material, MaterialProperty[] props, PerShaderData perShaderData)
 		{
 			// Get active presets
 			foreach (var prop in props)
@@ -299,7 +299,11 @@ namespace LWGUI
 
 			// Apply presets to default value
 			{
-				var defaultMaterial = new Material(shader);
+				var defaultMaterial =
+#if UNITY_2022_1_OR_NEWER
+					material.parent ? UnityEngine.Object.Instantiate(material.parent) :
+#endif
+					new Material(shader);
 				foreach (var activePreset in activePresets)
 				{
 					foreach (var propertyValue in activePreset.preset.propertyValues)
@@ -309,6 +313,7 @@ namespace LWGUI
 				var defaultProperties = MaterialEditor.GetMaterialProperties(new[] { defaultMaterial });
 				Debug.Assert(defaultProperties.Length == props.Length);
 
+				// TOTO: Material Variant
 				for (int i = 0; i < props.Length; i++)
 				{
 					Debug.Assert(props[i].name == defaultProperties[i].name);
@@ -345,6 +350,14 @@ namespace LWGUI
 			}
 		}
 
+		public MaterialProperty GetProperty(string propName)
+		{
+			if (!string.IsNullOrEmpty(propName) && propertyDatas.ContainsKey(propName))
+				return propertyDatas[propName].property;
+			else
+				return null;
+		}
+
 		public bool EndChangeCheck(string propName = null)
 		{
 			var result = EditorGUI.EndChangeCheck();
@@ -378,10 +391,10 @@ namespace LWGUI
 				_shaderDataDic.Remove(shader);
 		}
 
-		public static PerFrameData BuildPerFrameData(Shader shader, MaterialProperty[] props)
+		public static PerFrameData BuildPerFrameData(Shader shader, Material material, MaterialProperty[] props)
 		{
 			var perFrameData = new PerFrameData();
-			perFrameData.BuildPerFrameData(shader, props, _shaderDataDic[shader]);
+			perFrameData.BuildPerFrameData(shader, material, props, _shaderDataDic[shader]);
 			return perFrameData;
 		}
 
@@ -394,21 +407,6 @@ namespace LWGUI
 			str += "Default Value: " + propertyDynamicData.defaultValueDescription;
 			return str;
 		}
-
-
-		#region Meta Data Container
-
-		private static Dictionary<Shader, Dictionary<string /*PropName*/, List<ShaderPropertyPreset /*Preset*/>>> _presetDic = new Dictionary<Shader, Dictionary<string, List<ShaderPropertyPreset>>>();
-
-		public static void ClearCaches(Shader shader)
-		{
-			if (_presetDic.ContainsKey(shader)) _presetDic[shader].Clear();
-		}
-
-		#endregion
-
-
-		#region Display Name
 
 		private static readonly string _tooltipString = "#";
 		private static readonly string _helpboxString = "%";
@@ -427,29 +425,6 @@ namespace LWGUI
 			else
 				return prop.displayName.Substring(0, minIndex);
 		}
-
-
-		#endregion
-
-
-		#region Preset
-
-
-		public static Dictionary<MaterialProperty, ShaderPropertyPreset> GetAllPropertyPreset(Shader shader, MaterialProperty[] props)
-		{
-			var result = new Dictionary<MaterialProperty, ShaderPropertyPreset>();
-
-			var presetProps = props.Where((property =>
-											  _presetDic.ContainsKey(shader) && _presetDic[shader].ContainsKey(property.name)));
-			foreach (var presetProp in presetProps)
-			{
-				result.Add(presetProp, _presetDic[shader][presetProp.name][0]);
-			}
-			return result;
-		}
-
-		#endregion
-
 
 	}
 }

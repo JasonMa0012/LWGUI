@@ -24,7 +24,6 @@ namespace LWGUI
 
 		public static Rect SplitRevertButtonRect(ref Rect rect, bool isCallInDrawer = false)
 		{
-			// TODO: use Reflection
 			float defaultHeightWithoutDrawers = EditorGUIUtility.singleLineHeight;
 			var revertButtonRect = GetRevertButtonRect(defaultHeightWithoutDrawers, rect, isCallInDrawer);
 			IndentRect(ref rect);

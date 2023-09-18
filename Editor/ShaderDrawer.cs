@@ -83,18 +83,15 @@ namespace LWGUI
 
 			var propertyStaticData = lwgui.perShaderData.propertyDatas[prop.name];
 
-			if (_defaultToggleDisplayed) Helper.BeginProperty(position, prop);
 			EditorGUI.BeginChangeCheck();
 
 			bool toggleResult = Helper.DrawFoldout(position, ref propertyStaticData.isExpanded, prop.floatValue > 0, _defaultToggleDisplayed, label);
 
-			if (lwgui.perFrameData.EndChangeCheck(prop.name))
+			if (Helper.EndChangeCheck(lwgui, prop))
 			{
 				prop.floatValue = toggleResult ? 1.0f : 0.0f;
 				Helper.SetShaderKeyWord(editor.targets, Helper.GetKeyWord(_keyword, prop.name), toggleResult);
 			}
-
-			if (_defaultToggleDisplayed) Helper.EndProperty();
 		}
 
 		// Call in custom shader gui
@@ -187,9 +184,7 @@ namespace LWGUI
 		public virtual void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			RevertableHelper.FixGUIWidthMismatch(prop.type, editor);
-			// TODO: use Reflection
-			editor.DefaultShaderProperty(position, prop, label.text);
-			GUI.Label(position, new GUIContent(String.Empty, label.tooltip));
+			ReflectionHelper.DefaultShaderPropertyInternal(editor, position, prop, label);
 		}
 	}
 
@@ -225,18 +220,16 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			Helper.BeginProperty(position, prop);
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var value = EditorGUI.Toggle(position, label, prop.floatValue > 0.0f);
 			string k = Helper.GetKeyWord(_keyWord, prop.name);
-			if (lwgui.perFrameData.EndChangeCheck(prop.name))
+			if (Helper.EndChangeCheck(lwgui, prop))
 			{
 				prop.floatValue = value ? 1.0f : 0.0f;
 				Helper.SetShaderKeyWord(editor.targets, k, value);
 			}
 			EditorGUI.showMixedValue = false;
-			Helper.EndProperty();
 		}
 
 		public override void Apply(MaterialProperty prop)
@@ -269,13 +262,11 @@ namespace LWGUI
 		
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			Helper.BeginProperty(position, prop);
 			RevertableHelper.FixGUIWidthMismatch(prop.type, editor);
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var rect = position;
-			Helper.PowerSlider(prop, _power, rect, label);
+			ReflectionHelper.DoPowerRangeProperty(rect, prop, label, _power);
 			EditorGUI.showMixedValue = false;
-			Helper.EndProperty();
 		}
 	}
 	
@@ -295,7 +286,6 @@ namespace LWGUI
 		
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			Helper.BeginProperty(position, prop);
 			RevertableHelper.FixGUIWidthMismatch(prop.type, editor);
 
 			if (prop.type != MaterialProperty.PropType.Range)
@@ -311,12 +301,11 @@ namespace LWGUI
 				int num = EditorGUI.IntSlider(position, label, (int) prop.floatValue, (int) prop.rangeLimits.x, (int) prop.rangeLimits.y);
 				EditorGUI.showMixedValue = false;
 				EditorGUIUtility.labelWidth = labelWidth;
-				if (lwgui.perFrameData.EndChangeCheck(prop.name))
+				if (Helper.EndChangeCheck(lwgui, prop))
 				{
 					prop.floatValue = num;
 				}
 			}
-			Helper.EndProperty();
 		}
 	}
 
@@ -372,10 +361,9 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			Helper.BeginProperty(position, prop);
 			// read min max
-			MaterialProperty minProp = LWGUI.FindProp(_minPropName, props, true);
-			MaterialProperty maxProp = LWGUI.FindProp(_maxPropName, props, true);
+			MaterialProperty minProp = lwgui.perFrameData.GetProperty(_minPropName);
+			MaterialProperty maxProp = lwgui.perFrameData.GetProperty(_maxPropName);
 			if (minProp == null || maxProp == null)
 			{
 				Debug.LogError("MinMaxSliderDrawer: minProp: " + (minProp == null ? "null" : minProp.name) + " or maxProp: " + (maxProp == null ? "null" : maxProp.name) + " not found!");
@@ -400,7 +388,7 @@ namespace LWGUI
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = minProp.hasMixedValue;
 			var newMinf = EditorGUI.FloatField(splittedRect[0], minf);
-			if (lwgui.perFrameData.EndChangeCheck(minProp.name))
+			if (Helper.EndChangeCheck(lwgui, minProp))
 			{
 				minf = Mathf.Clamp(newMinf, minProp.rangeLimits.x, minProp.rangeLimits.y);
 				minProp.floatValue = minf;
@@ -409,7 +397,7 @@ namespace LWGUI
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = maxProp.hasMixedValue;
 			var newMaxf = EditorGUI.FloatField(splittedRect[2], maxf);
-			if (lwgui.perFrameData.EndChangeCheck(maxProp.name))
+			if (Helper.EndChangeCheck(lwgui, maxProp))
 			{
 				maxf = Mathf.Clamp(newMaxf, maxProp.rangeLimits.x, maxProp.rangeLimits.y);
 				maxProp.floatValue = maxf;
@@ -427,7 +415,6 @@ namespace LWGUI
 				minProp.floatValue = Mathf.Clamp(minf, minProp.rangeLimits.x, minProp.rangeLimits.y);
 				maxProp.floatValue = Mathf.Clamp(maxf, maxProp.rangeLimits.x, maxProp.rangeLimits.y);
 			}
-			Helper.EndProperty();
 		}
 	}
 
@@ -532,7 +519,6 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			Helper.BeginProperty(position, prop);
 			EditorGUI.BeginChangeCheck();
         	EditorGUI.showMixedValue = prop.hasMixedValue;
         	
@@ -549,12 +535,11 @@ namespace LWGUI
 			Helper.AdaptiveFieldWidth(EditorStyles.popup, _names[index], EditorStyles.popup.lineHeight);
 			int newIndex = EditorGUI.Popup(rect, label, index, _names);
 			EditorGUI.showMixedValue = false;
-			if (lwgui.perFrameData.EndChangeCheck(prop.name))
+			if (Helper.EndChangeCheck(lwgui, prop))
 			{
 				prop.floatValue = _values[newIndex];
 				Helper.SetShaderKeyWord(editor.targets, keyWords, newIndex);
 			}
-			Helper.EndProperty();
 		}
 
 		public override void Apply(MaterialProperty prop)
@@ -666,10 +651,7 @@ namespace LWGUI
 														PerShaderData    inPerShaderData,
 														PerFrameData     inoutPerFrameData)
 		{
-			if (string.IsNullOrEmpty(_extraPropName) || !inoutPerFrameData.propertyDatas.ContainsKey(_extraPropName))
-				return;
-
-			var extraProp = inoutPerFrameData.propertyDatas[_extraPropName].property;
+			var extraProp = inoutPerFrameData.GetProperty(_extraPropName);
 			if (extraProp != null)
 			{
 				var text = string.Empty;
@@ -689,7 +671,7 @@ namespace LWGUI
 			var rect = position;
 			var texLabel = label.text;
 
-			MaterialProperty extraProp = LWGUI.FindProp(_extraPropName, props, true);
+			MaterialProperty extraProp = lwgui.perFrameData.GetProperty(_extraPropName);
 			if (extraProp != null && extraProp.type != MaterialProperty.PropType.Texture)
 			{
 				RevertableHelper.FixGUIWidthMismatch(extraProp.type, editor);
@@ -722,11 +704,12 @@ namespace LWGUI
 						break;
 				}
 
+
 				if (extraProp.type == MaterialProperty.PropType.Vector)
 					_channelDrawer.OnGUI(extraPropRect, extraProp, label, editor);
 				else
 					editor.ShaderProperty(extraPropRect, extraProp, label);
-				
+
 				EditorGUI.indentLevel = i;
 			}
 			
@@ -771,7 +754,6 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			Helper.BeginProperty(position, prop);
 			Stack<MaterialProperty> cProps = new Stack<MaterialProperty>();
 			for (int i = 0; i < 4; i++)
 			{
@@ -781,7 +763,7 @@ namespace LWGUI
 					continue;
 				}
 
-				var p = LWGUI.FindProp(_colorStrings[i - 1], props);
+				var p = lwgui.perFrameData.GetProperty(_colorStrings[i - 1]);
 				if (p != null && IsMatchPropType(p))
 					cProps.Push(p);
 			}
@@ -811,14 +793,13 @@ namespace LWGUI
 												, new ColorPickerHDRConfig(0.0f, float.MaxValue, 0.0f, float.MaxValue)
 										   #endif
 										   );
-				if (lwgui.perFrameData.EndChangeCheck(cProp.name))
+				if (Helper.EndChangeCheck(lwgui, cProp))
 				{
 					cProp.colorValue = dst;
 				}
 			}
 
 			EditorGUI.showMixedValue = false;
-			Helper.EndProperty();
 		}
 	}
 
@@ -898,18 +879,16 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			Helper.BeginProperty(position, prop);
 			EditorGUI.BeginChangeCheck();
 
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var index = GetChannelIndex(prop);
 			int num = EditorGUI.IntPopup(position, label, index, _names, _intValues);
 			EditorGUI.showMixedValue = false;
-			if (lwgui.perFrameData.EndChangeCheck(prop.name))
+			if (Helper.EndChangeCheck(lwgui, prop))
 			{
 				prop.vectorValue = _vector4Values[num];
 			}
-			Helper.EndProperty();
 		}
 	}
 
@@ -966,8 +945,6 @@ namespace LWGUI
 		// TODO: undo
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			Helper.BeginProperty(position, prop);
-
 			// When switch ramp map
 			RampHelper.SwitchRampMapEvent OnSwitchRampMapEvent = newRampMap =>
 			{
@@ -1058,7 +1035,7 @@ namespace LWGUI
 				// Manual replace ramp map
 				EditorGUI.BeginChangeCheck();
 				var newManualSelectedTexture = (Texture2D)EditorGUI.ObjectField(rampFieldRect, prop.textureValue, typeof(Texture2D), false);
-				if (lwgui.perFrameData.EndChangeCheck(prop.name))
+				if (Helper.EndChangeCheck(lwgui, prop))
 				{
 					if (newManualSelectedTexture && AssetDatabase.GetAssetPath(newManualSelectedTexture).StartsWith(_rootPath))
 						OnSwitchRampMapEvent(newManualSelectedTexture);
@@ -1079,7 +1056,6 @@ namespace LWGUI
 			
 			EditorGUIUtility.labelWidth = labelWidth;
 			EditorGUI.indentLevel = indentLevel;
-			Helper.EndProperty();
 		}
 	}
 
@@ -1133,7 +1109,6 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			Helper.BeginProperty(position, prop);
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = prop.hasMixedValue;
         	
@@ -1154,13 +1129,12 @@ namespace LWGUI
 			var presetNames = preset.presets.Select(((inPreset) => new GUIContent(inPreset.presetName))).ToArray();
 			Helper.AdaptiveFieldWidth(EditorStyles.popup, presetNames[index], EditorStyles.popup.lineHeight);
 			int newIndex = EditorGUI.Popup(rect, label, index, presetNames);
-			EditorGUI.showMixedValue = false;
-			if (lwgui.perFrameData.EndChangeCheck(prop.name))
+			if (Helper.EndChangeCheck(lwgui, prop))
 			{
 				prop.floatValue = newIndex;
-				preset.Apply(prop.targets.Select((o => o as Material)).ToArray(), (int)prop.floatValue);
+				preset.Apply(prop.targets, (int)prop.floatValue);
 			}
-			Helper.EndProperty();
+			EditorGUI.showMixedValue = false;
 		}
 	}
 	

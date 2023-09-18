@@ -201,38 +201,17 @@ namespace LWGUI
 				PresetHelper.AddPreset(this);
 		}
 
-		public void Apply(Material material, int presetIndex)
-		{
-			Apply(new []{material}, presetIndex);
-		}
-		
-		public void Apply(Material[] materials, int presetIndex)
+		public void Apply(UnityEngine.Object[] materials, int presetIndex)
 		{
 			if (this.presets.Count == 0) return;
 			
 			int index = (int)Mathf.Min(this.presets.Count - 1, Mathf.Max(0, presetIndex));
 			foreach (var propertyValue in this.presets[index].propertyValues)
 			{
-				foreach (var material in materials)
+				foreach (Material material in materials)
 				{
 					propertyValue.Apply(material);
 				}
-			}
-		}
-
-		public Preset GetPreset(string presetName)
-		{
-			return presets.Find((inPreset => inPreset.presetName == presetName));
-		}
-
-		public Preset GetPreset(MaterialProperty property)
-		{
-			if (property.floatValue < presets.Count)
-				return presets[(int)property.floatValue];
-			else
-			{
-				Debug.LogError("Preset Property: " + property.name + " Index Out Of Range!");
-				return null;
 			}
 		}
 	}
