@@ -21,6 +21,11 @@ namespace LWGUI
 		[Serializable]
 		public class PropertyValue
 		{
+			public PropertyValue(MaterialProperty prop)
+			{
+				CopyFromMaterialProperty(prop);
+			}
+
 			public string       propertyName;
 			public PropertyType propertyType;
 			public float        floatValue;
@@ -106,7 +111,58 @@ namespace LWGUI
 		public class Preset
 		{
 			public string              presetName;
-			public List<PropertyValue> propertyValues;
+			public List<PropertyValue> propertyValues = new List<PropertyValue>();
+
+			public PropertyValue GetPropertyValue(string propName)
+			{
+				PropertyValue result = null;
+				if (propertyValues != null)
+				{
+					foreach (var propertyValue in propertyValues)
+					{
+						if (propertyValue.propertyName == propName)
+						{
+							result = propertyValue;
+							break;
+						}
+					}
+				}
+				return result;
+			}
+
+			public void AddOrUpdate(MaterialProperty prop)
+			{
+				var propertyValue = GetPropertyValue(prop.name);
+				if (propertyValue != null)
+					propertyValue.CopyFromMaterialProperty(prop);
+				else
+					propertyValues.Add(new PropertyValue(prop));
+			}
+
+			public void AddOrUpdateIncludeExtraProperties(LWGUI lwgui, MaterialProperty prop)
+			{
+				AddOrUpdate(prop);
+				foreach (var extraPropName in lwgui.perShaderData.propertyDatas[prop.name].extraPropNames)
+				{
+					AddOrUpdate(lwgui.perFrameData.propertyDatas[extraPropName].property);
+				}
+			}
+
+			public void Remove(string propName)
+			{
+				var propertyValue = GetPropertyValue(propName);
+				if (propertyValue != null)
+					propertyValues.Remove(propertyValue);
+			}
+
+			public void RemoveIncludeExtraProperties(LWGUI lwgui, string propName)
+			{
+				Remove(propName);
+				foreach (var extraPropName in lwgui.perShaderData.propertyDatas[propName].extraPropNames)
+				{
+					Remove(lwgui.perFrameData.propertyDatas[extraPropName].property.name);
+				}
+			}
 		}
 
 		public List<Preset> presets;

@@ -257,13 +257,25 @@ namespace LWGUI
 
 	}
 
+	public class PersetDynamicData
+	{
+		public ShaderPropertyPreset.Preset preset;
+		public MaterialProperty            property;
+
+		public PersetDynamicData(ShaderPropertyPreset.Preset preset, MaterialProperty property)
+		{
+			this.preset = preset;
+			this.property = property;
+		}
+	}
+
 	/// <summary>
 	/// Each frame of each material may have different metadata.
 	/// </summary>
 	public class PerFrameData
 	{
-		public Dictionary<string, PropertyDynamicData> propertyDatas  = new Dictionary<string, PropertyDynamicData>();
-		public List<ShaderPropertyPreset.Preset>       activePresets  = new List<ShaderPropertyPreset.Preset>();
+		public Dictionary<string, PropertyDynamicData> propertyDatas    = new Dictionary<string, PropertyDynamicData>();
+		public List<PersetDynamicData>                 activePresets    = new List<PersetDynamicData>();
 
 		public void BuildPerFrameData(Shader shader, MaterialProperty[] props, PerShaderData perShaderData)
 		{
@@ -278,7 +290,9 @@ namespace LWGUI
 					{
 						var activePreset = (drawer as IBasePresetDrawer).GetActivePreset(prop, perShaderData.propertyDatas[prop.name].propertyPreset);
 						if (activePreset != null)
-							activePresets.Add(activePreset);
+						{
+							activePresets.Add(new PersetDynamicData(activePreset, prop));
+						}
 					}
 				}
 			}
@@ -288,7 +302,7 @@ namespace LWGUI
 				var defaultMaterial = new Material(shader);
 				foreach (var activePreset in activePresets)
 				{
-					foreach (var propertyValue in activePreset.propertyValues)
+					foreach (var propertyValue in activePreset.preset.propertyValues)
 						propertyValue.Apply(defaultMaterial);
 				}
 

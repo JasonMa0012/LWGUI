@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -711,83 +712,114 @@ namespace LWGUI
 		#region Context Menu
 		public static void DoPropertyContextMenus(Rect rect, MaterialProperty prop, LWGUI lwgui)
 		{
-			if (Event.current.type == EventType.ContextClick && rect.Contains(Event.current.mousePosition))
+			if (Event.current.type != EventType.ContextClick || !rect.Contains(Event.current.mousePosition)) return;
+
+			Event.current.Use();
+			var propStaticData = lwgui.perShaderData.propertyDatas[prop.name];
+			var menus = new GenericMenu();
+
+
+			// Copy
+			menus.AddItem(new GUIContent("Copy"), false, () =>
 			{
-				Event.current.Use();
-				var propStaticData = lwgui.perShaderData.propertyDatas[prop.name];
-				var menus = new GenericMenu();
-
-
-				// Copy
-				menus.AddItem(new GUIContent("Copy"), false, () =>
+				_copiedMaterial = UnityEngine.Object.Instantiate(lwgui.material);
+				_copiedProps.Clear();
+				_copiedProps.Add(prop.name);
+				foreach (var extraPropName in propStaticData.extraPropNames)
 				{
-					_copiedMaterial = UnityEngine.Object.Instantiate(lwgui.material);
-					_copiedProps.Clear();
-					_copiedProps.Add(prop.name);
-					foreach (var extraPropName in propStaticData.extraPropNames)
-					{
-						_copiedProps.Add(extraPropName);
-					}
-				});
+					_copiedProps.Add(extraPropName);
+				}
+			});
 
-				// Paste
-				GenericMenu.MenuFunction pasteAction = () =>
+			// Paste
+			GenericMenu.MenuFunction pasteAction = () =>
+			{
+				foreach (Material material in prop.targets)
 				{
-					foreach (Material material in prop.targets)
+					if (!VersionControlHelper.Checkout(material))
 					{
-						if (!VersionControlHelper.Checkout(material))
-						{
-							Debug.LogError("Material: '" + lwgui.material.name + "' unable to write!");
-							return;
-						}
-
-						Undo.RecordObject(material, "Paste Material Properties");
-
-						PastePropertyValueToMaterial(material, _copiedProps[0], prop.name);
-
-						for (int i = 0; i < Mathf.Min(propStaticData.extraPropNames.Count, _copiedProps.Count - 1); i++)
-						{
-							PastePropertyValueToMaterial(material, _copiedProps[i + 1], propStaticData.extraPropNames[i]);
-						}
+						Debug.LogError("Material: '" + lwgui.material.name + "' unable to write!");
+						return;
 					}
-				};
-				if (_copiedMaterial != null && _copiedProps.Count > 0 && GUI.enabled)
-					menus.AddItem(new GUIContent("Paste"), false, pasteAction);
-				else
-					menus.AddDisabledItem(new GUIContent("Paste"));
 
+					Undo.RecordObject(material, "Paste Material Properties");
+
+					PastePropertyValueToMaterial(material, _copiedProps[0], prop.name);
+
+					for (int i = 0; i < Mathf.Min(propStaticData.extraPropNames.Count, _copiedProps.Count - 1); i++)
+					{
+						PastePropertyValueToMaterial(material, _copiedProps[i + 1], propStaticData.extraPropNames[i]);
+					}
+				}
+			};
+			if (_copiedMaterial != null && _copiedProps.Count > 0 && GUI.enabled)
+				menus.AddItem(new GUIContent("Paste"), false, pasteAction);
+			else
+				menus.AddDisabledItem(new GUIContent("Paste"));
+
+			menus.AddSeparator("");
+
+			// Copy Display Name
+			menus.AddItem(new GUIContent("Copy Display Name"), false, () =>
+			{
+				EditorGUIUtility.systemCopyBuffer = propStaticData.displayName;
+			});
+
+			// Copy Property Names
+			menus.AddItem(new GUIContent("Copy Property Names"), false, () =>
+			{
+				EditorGUIUtility.systemCopyBuffer = prop.name;
+				foreach (var extraPropName in propStaticData.extraPropNames)
+				{
+					EditorGUIUtility.systemCopyBuffer += ", " + extraPropName;
+				}
+			});
+
+			// menus.AddSeparator("");
+			//
+			// // Add to Favorites
+			// menus.AddItem(new GUIContent("Add to Favorites"), false, () =>
+			// {
+			// });
+			//
+			// // Remove from Favorites
+			// menus.AddItem(new GUIContent("Remove from Favorites"), false, () =>
+			// {
+			// });
+
+			// Preset
+			{
 				menus.AddSeparator("");
-
-				// Copy Display Name
-				menus.AddItem(new GUIContent("Copy Display Name"), false, () =>
+				foreach (var activePresetData in lwgui.perFrameData.activePresets)
 				{
-					EditorGUIUtility.systemCopyBuffer = propStaticData.displayName;
-				});
-
-				// Copy Property Names
-				menus.AddItem(new GUIContent("Copy Property Names"), false, () =>
-				{
-					EditorGUIUtility.systemCopyBuffer = prop.name;
-					foreach (var extraPropName in propStaticData.extraPropNames)
+					var activePreset = activePresetData.preset;
+					var presetPropDisplayName = lwgui.perShaderData.propertyDatas[activePresetData.property.name].displayName;
+					var propertyValue = activePreset.GetPropertyValue(prop.name);
+					if (propertyValue != null)
 					{
-						EditorGUIUtility.systemCopyBuffer += ", " + extraPropName;
+						// Update
+						menus.AddItem(new GUIContent("Update to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () =>
+						{
+							activePreset.AddOrUpdateIncludeExtraProperties(lwgui, prop);
+						});
+						// Remove
+						menus.AddItem(new GUIContent("Remove from Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () =>
+						{
+							activePreset.RemoveIncludeExtraProperties(lwgui, prop.name);
+						});
 					}
-				});
-
-				// menus.AddSeparator("");
-				//
-				// // Add to Favorites
-				// menus.AddItem(new GUIContent("Add to Favorites"), false, () =>
-				// {
-				// });
-				//
-				// // Remove from Favorites
-				// menus.AddItem(new GUIContent("Remove from Favorites"), false, () =>
-				// {
-				// });
-
-				menus.ShowAsContext();
+					else
+					{
+						// Add
+						menus.AddItem(new GUIContent("Add to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () =>
+						{
+							activePreset.AddOrUpdateIncludeExtraProperties(lwgui, prop);
+						});
+					}
+				}
 			}
+
+			menus.ShowAsContext();
 		}
 		#endregion
 

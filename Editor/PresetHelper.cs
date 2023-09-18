@@ -146,9 +146,7 @@ namespace LWGUI
 													var propertyValue = menuItemDatas[menu].propertyValue;
 													if (operation == PresetOperation.Add)
 													{
-														propertyValue = new ShaderPropertyPreset.PropertyValue();
-														propertyValue.CopyFromMaterialProperty(prop);
-														preset.propertyValues.Add(propertyValue);
+														preset.propertyValues.Add(new ShaderPropertyPreset.PropertyValue(prop));
 													}
 													else if (operation == PresetOperation.Update)
 													{
