@@ -17,15 +17,8 @@
 		[Main(g1)] _group ("Group", float) = 0
 		[Sub(g1)]  _float ("float", float) = 2
 		
-		[KWEnum(g1, name1, key1, name2, key2, name3, key3)]
+		[SubEnum(g1, name1, 2, name2, 1, name3, 0)]
 		_enum ("enum", float) = 0
-		
-		// Display when the keyword ("group name + keyword") is activated
-		[Sub(g1key1)] _enumFloat1 ("enumFloat1", float) = 0
-		[Sub(g1key2)] _enumFloat2 ("enumFloat2", float) = 0
-		[Sub(g1key3)] _enumFloat3 ("enumFloat3", float) = 0
-		[Sub(g1key3)] _enumFloat4_range ("enumFloat4_range", Range(0, 1)) = 0
-		
 		[Tex(g1)][Normal] _normal ("normal", 2D) = "bump" { }
 		[Sub(g1)][HDR] _hdr ("hdr", Color) = (1, 1, 1, 1)
 		[SubTitle(g1, Sample SubTitle)]

@@ -504,7 +504,7 @@ namespace LWGUI
 														PerShaderData    inPerShaderData,
 														PerFrameData     inoutPerFrameData)
 		{
-			var index = (int)inoutPerFrameData.propertyDatas[inProp.name].defualtProperty.floatValue;
+			var index = Array.IndexOf(_values, (int)inoutPerFrameData.propertyDatas[inProp.name].defualtProperty.floatValue);
 			if (index < _names.Length && index >= 0)
 				inoutPerFrameData.propertyDatas[inProp.name].defaultValueDescription = _names[index].text;
 		}
