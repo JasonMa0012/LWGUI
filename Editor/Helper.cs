@@ -841,33 +841,43 @@ namespace LWGUI
 			// });
 
 			// Preset
+			if (GUI.enabled)
 			{
 				menus.AddSeparator("");
 				foreach (var activePresetData in lwgui.perFrameData.activePresets)
 				{
 					var activePreset = activePresetData.preset;
+					var presetAsset = lwgui.perShaderData.propertyDatas[activePresetData.property.name].propertyPresetAsset;
 					var presetPropDisplayName = lwgui.perShaderData.propertyDatas[activePresetData.property.name].displayName;
-					var propertyValue = activePreset.GetPropertyValue(prop.name);
-					if (propertyValue != null)
+
+					void Callback(string mode)
 					{
-						// Update
-						menus.AddItem(new GUIContent("Update to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () =>
+						if (!VersionControlHelper.Checkout(presetAsset))
 						{
-							activePreset.AddOrUpdateIncludeExtraProperties(lwgui, prop);
-						});
-						// Remove
-						menus.AddItem(new GUIContent("Remove from Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () =>
+							Debug.LogError("Can not edit the preset: " + presetAsset);
+							return;
+						}
+						switch (mode)
 						{
-							activePreset.RemoveIncludeExtraProperties(lwgui, prop.name);
-						});
+							case "Add":
+							case "Update":
+								activePreset.AddOrUpdateIncludeExtraProperties(lwgui, prop);
+								break;
+							case "Remove":
+								activePreset.RemoveIncludeExtraProperties(lwgui, prop.name);
+								break;
+						}
+						EditorUtility.SetDirty(presetAsset);
+					}
+
+					if (activePreset.GetPropertyValue(prop.name) != null)
+					{
+						menus.AddItem(new GUIContent("Update to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => Callback("Update"));
+						menus.AddItem(new GUIContent("Remove from Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => Callback("Remove"));
 					}
 					else
 					{
-						// Add
-						menus.AddItem(new GUIContent("Add to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () =>
-						{
-							activePreset.AddOrUpdateIncludeExtraProperties(lwgui, prop);
-						});
+						menus.AddItem(new GUIContent("Add to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => Callback("Add"));
 					}
 				}
 			}

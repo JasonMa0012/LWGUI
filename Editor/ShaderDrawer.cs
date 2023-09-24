@@ -1081,7 +1081,7 @@ namespace LWGUI
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
 		{
 			base.BuildStaticMetaData(inShader, inProp, inProps, inoutPropertyStaticData);
-			inoutPropertyStaticData.propertyPreset = PresetHelper.GetPresetFile(presetFileName);
+			inoutPropertyStaticData.propertyPresetAsset = PresetHelper.GetPresetFile(presetFileName);
 		}
 
 		public override void GetDefaultValueDescription(Shader           inShader,
@@ -1090,7 +1090,7 @@ namespace LWGUI
 														PerFrameData     inoutPerFrameData)
 		{
 			var index = (int)inoutPerFrameData.propertyDatas[inProp.name].defualtProperty.floatValue;
-			var propertyPreset = inPerShaderData.propertyDatas[inProp.name].propertyPreset;
+			var propertyPreset = inPerShaderData.propertyDatas[inProp.name].propertyPresetAsset;
 
 			if (propertyPreset && index < propertyPreset.presets.Count && index >= 0)
 				inoutPerFrameData.propertyDatas[inProp.name].defaultValueDescription = propertyPreset.presets[index].presetName;

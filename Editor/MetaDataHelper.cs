@@ -53,7 +53,7 @@ namespace LWGUI
 		public List<string>         extraPropNames          = new List<string>();	// Other Props that have been associated
 		public string               helpboxMessages         = string.Empty;
 		public string               tooltipMessages         = string.Empty;
-		public ShaderPropertyPreset propertyPreset          = null;					// The Referenced Preset Asset
+		public ShaderPropertyPreset propertyPresetAsset     = null;					// The Referenced Preset Asset
 
 		public void AddExtraProperty(string propName)
 		{
@@ -314,7 +314,7 @@ namespace LWGUI
 				{
 					if (drawer is IBasePresetDrawer)
 					{
-						var activePreset = (drawer as IBasePresetDrawer).GetActivePreset(prop, perShaderData.propertyDatas[prop.name].propertyPreset);
+						var activePreset = (drawer as IBasePresetDrawer).GetActivePreset(prop, perShaderData.propertyDatas[prop.name].propertyPresetAsset);
 						if (activePreset != null)
 						{
 							activePresets.Add(new PersetDynamicData(activePreset, prop));
