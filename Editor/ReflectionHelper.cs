@@ -41,7 +41,8 @@ namespace LWGUI
 		#region MaterialEditor
 		private static Type			MaterialEditor_Type									= typeof(MaterialEditor);
 		private static MethodInfo   MaterialEditor_DoPowerRangeProperty_Method			= MaterialEditor_Type.GetMethod("DoPowerRangeProperty", BindingFlags.Static | BindingFlags.NonPublic);
-		private static MethodInfo   MaterialEditor_DefaultShaderPropertyInternal_Method = MaterialEditor_Type.GetMethod("DefaultShaderPropertyInternal", BindingFlags.NonPublic | BindingFlags.Instance, null, new []{typeof(Rect), typeof(MaterialProperty), typeof(GUIContent)}, null);
+		private static MethodInfo   MaterialEditor_DefaultShaderPropertyInternal_Method = MaterialEditor_Type.GetMethod("DefaultShaderPropertyInternal", BindingFlags.NonPublic | BindingFlags.Instance, null,
+			new []{typeof(Rect), typeof(MaterialProperty), typeof(GUIContent)}, null);
 #if !UNITY_2019_2_OR_NEWER
 		private static FieldInfo	MaterialEditor_CustomShaderGUI_Field				= MaterialEditor_Type.GetField("m_CustomShaderGUI", BindingFlags.NonPublic | BindingFlags.Instance);
 #endif
@@ -67,6 +68,26 @@ namespace LWGUI
 
 		#endregion
 
+
+		#region EditorUtility
+		private static Type			EditorUtility_Type = typeof(EditorUtility);
+		private static MethodInfo   EditorUtility_DisplayCustomMenuWithSeparators_Method = EditorUtility_Type.GetMethod("DisplayCustomMenuWithSeparators", BindingFlags.NonPublic | BindingFlags.Static, null,
+			new []{typeof(Rect), typeof(string[]), typeof(bool[]), typeof(bool[]), typeof(int[]), typeof(EditorUtility.SelectMenuItemFunction), typeof(object), typeof(bool)}, null);
+
+		public static void DisplayCustomMenuWithSeparators(
+			Rect                                 position,
+			string[]                             options,
+			bool[]                               enabled,
+			bool[]                               separator,
+			int[]                                selected,
+			EditorUtility.SelectMenuItemFunction callback,
+			object                               userData = null,
+			bool                                 showHotkey = false)
+		{
+			EditorUtility_DisplayCustomMenuWithSeparators_Method.Invoke(null, new System.Object[] { position, options, enabled, separator, selected, callback, userData, showHotkey });
+		}
+		#endregion
+		
 
 		#region MaterialEnumDrawer
 		// UnityEditor.MaterialEnumDrawer(string enumName)

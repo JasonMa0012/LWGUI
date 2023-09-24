@@ -113,6 +113,12 @@ namespace LWGUI
 			public string              presetName;
 			public List<PropertyValue> propertyValues = new List<PropertyValue>();
 
+			public void Apply(Material material)
+			{
+				foreach (var propertyValue in propertyValues)
+					propertyValue.Apply(material);
+			}
+
 			public PropertyValue GetPropertyValue(string propName)
 			{
 				PropertyValue result = null;

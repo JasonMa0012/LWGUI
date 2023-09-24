@@ -66,29 +66,23 @@ namespace LWGUI
 				// start drawing properties
 				foreach (var prop in props)
 				{
-					var propertyStaticData = perShaderData.propertyDatas[prop.name];
-					var propertyDynamicData = perFrameData.propertyDatas[prop.name];
+					var propStaticData = perShaderData.propertyDatas[prop.name];
+					var propDynamicData = perFrameData.propertyDatas[prop.name];
 
 					// Visibility
 					{
-						if (// if HideInInspector
-							(prop.flags & MaterialProperty.PropFlags.HideInInspector) != 0
-							// if Search Filtered
-							|| !propertyStaticData.isSearchDisplayed
-							// if the Group is not Expanded
-							|| (!propertyStaticData.isMain && propertyStaticData.parent != null && !propertyStaticData.parent.isExpanded)
-							// if the Conditional Display Keyword is not active
-							|| (!string.IsNullOrEmpty(propertyStaticData.conditionalDisplayKeyword)
-								&& !material.shaderKeywords.Any((str => str == propertyStaticData.conditionalDisplayKeyword)))
-						   )
-						{
+						if (!MetaDataHelper.GetPropertyVisibility(prop, material, this))
 							continue;
-						}
+
+						if (propStaticData.parent != null
+							&& (!MetaDataHelper.GetParentPropertyVisibility(propStaticData.parent, material, this)
+								|| !MetaDataHelper.GetParentPropertyVisibility(propStaticData.parent.parent, material, this)))
+							continue;
 					}
 
-					Helper.DrawHelpbox(propertyStaticData, propertyDynamicData);
+					Helper.DrawHelpbox(propStaticData, propDynamicData);
 
-					var label = new GUIContent(propertyStaticData.displayName, MetaDataHelper.GetPropertyTooltip(propertyStaticData, propertyDynamicData));
+					var label = new GUIContent(propStaticData.displayName, MetaDataHelper.GetPropertyTooltip(propStaticData, propDynamicData));
 					var height = materialEditor.GetPropertyHeight(prop, label.text);
 					var rect = EditorGUILayout.GetControlRect(true, height);
 					var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);

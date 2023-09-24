@@ -15,12 +15,25 @@ namespace LWGUI
 		Num      = 3
 	}
 
+	public struct DisplayModeData
+	{
+		public bool showAllAdvancedProperties;
+		public bool showAllHiddenProperties;
+		public bool showOnlyModifiedProperties;
+
+		public int advancedCount;
+		public int hiddenCount;
+
+		public bool IsDefaultDisplayMode() { return !(showAllAdvancedProperties || showAllHiddenProperties || showOnlyModifiedProperties); }
+	}
+
 	/// <summary>
 	/// All static metadata for a Property, determined after the Shader is compiled.
 	/// </summary>
 	public class PropertyStaticData
 	{
-		public string displayName	= string.Empty; // Decoded displayName (Helpbox and Tooltip are encoded in displayName)
+		public string name        = string.Empty;
+		public string displayName = string.Empty; // Decoded displayName (Helpbox and Tooltip are encoded in displayName)
 
 		// Structure
 		public string                   groupName        = string.Empty; // [Group(groupName)] / [Sub(groupName)] / [Advanced(groupName)]
@@ -57,6 +70,7 @@ namespace LWGUI
 		public SearchMode                             searchMode         = SearchMode.Auto;
 		public string                                 searchString       = string.Empty;
 		public List<string>                           favoriteproperties = new List<string>();
+		public DisplayModeData                        displayModeData    = new DisplayModeData();
 
 
 		public void BuildPropertyStaticData(Shader shader, MaterialProperty[] props)
@@ -64,7 +78,7 @@ namespace LWGUI
 			// Get Property Static
 			foreach (var prop in props)
 			{
-				var propertyStaticData = new PropertyStaticData();
+				var propertyStaticData = new PropertyStaticData(){ name = prop.name };
 				propertyDatas[prop.name] = propertyStaticData;
 
 				List<MaterialPropertyDrawer> decoratorDrawers;
@@ -243,6 +257,15 @@ namespace LWGUI
 			}
 			return contains;
 		}
+
+		public void ToggleShowAllAdvancedProperties()
+		{
+			foreach (var propertyStaticDataPair in propertyDatas)
+			{
+				if (propertyStaticDataPair.Value.isAdvancedHeader)
+					propertyStaticDataPair.Value.isExpanded = displayModeData.showAllAdvancedProperties;
+			}
+		}
 	}
 
 	/// <summary>
@@ -253,7 +276,8 @@ namespace LWGUI
 		public MaterialProperty property;
 		public MaterialProperty defualtProperty;                        // Default values may be overridden by Preset
 		public string           defaultValueDescription = string.Empty; // Description of the default values used in Tooltip
-		public bool             changed                 = false;
+		public bool             hasModified		        = false;		// Are properties modified in the material?
+		public bool             revertChanged           = false;		// Used to call property EndChangeCheck()
 
 	}
 
@@ -277,6 +301,8 @@ namespace LWGUI
 		public Dictionary<string, PropertyDynamicData> propertyDatas    = new Dictionary<string, PropertyDynamicData>();
 		public List<PersetDynamicData>                 activePresets    = new List<PersetDynamicData>();
 
+		public int modifiedCount = 0;
+
 		public void BuildPerFrameData(Shader shader, Material material, MaterialProperty[] props, PerShaderData perShaderData)
 		{
 			// Get active presets
@@ -297,56 +323,71 @@ namespace LWGUI
 				}
 			}
 
-			// Apply presets to default value
+			// Apply presets to default material
 			{
 				var defaultMaterial =
 #if UNITY_2022_1_OR_NEWER
 					material.parent ? UnityEngine.Object.Instantiate(material.parent) :
 #endif
 					new Material(shader);
+
 				foreach (var activePreset in activePresets)
-				{
-					foreach (var propertyValue in activePreset.preset.propertyValues)
-						propertyValue.Apply(defaultMaterial);
-				}
+					activePreset.preset.Apply(defaultMaterial);
 
 				var defaultProperties = MaterialEditor.GetMaterialProperties(new[] { defaultMaterial });
 				Debug.Assert(defaultProperties.Length == props.Length);
 
-				// TOTO: Material Variant
 				for (int i = 0; i < props.Length; i++)
 				{
 					Debug.Assert(props[i].name == defaultProperties[i].name);
 					Debug.Assert(!propertyDatas.ContainsKey(props[i].name));
 
+					var hasModified = !Helper.PropertyValueEquals(props[i], defaultProperties[i]);
+					if (hasModified) modifiedCount++;
 					propertyDatas.Add(props[i].name, new PropertyDynamicData()
 					{
 						property = props[i],
-						defualtProperty = defaultProperties[i]
+						defualtProperty = defaultProperties[i],
+						hasModified = hasModified
 					});
 				}
 			}
 
-			// Get default value descriptions
 			foreach (var prop in props)
 			{
-				List<MaterialPropertyDrawer> decoratorDrawers;
-				var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
-				if (decoratorDrawers != null && decoratorDrawers.Count > 0)
+				// Override parent hasModified
+				if (propertyDatas[prop.name].hasModified)
 				{
-					foreach (var decoratorDrawer in decoratorDrawers)
+					var parentPropData = perShaderData.propertyDatas[prop.name].parent;
+					if (parentPropData != null)
 					{
-						if (decoratorDrawer is IBaseDrawer)
-							(decoratorDrawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, perShaderData, this);
+						propertyDatas[parentPropData.name].hasModified = true;
+						if (parentPropData.parent != null)
+							propertyDatas[parentPropData.parent.name].hasModified = true;
 					}
 				}
-				if (drawer != null)
+
+				// Get default value descriptions
 				{
-					if (drawer is IBaseDrawer)
-						(drawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, perShaderData, this);
+					List<MaterialPropertyDrawer> decoratorDrawers;
+					var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
+					if (decoratorDrawers != null && decoratorDrawers.Count > 0)
+					{
+						foreach (var decoratorDrawer in decoratorDrawers)
+						{
+							if (decoratorDrawer is IBaseDrawer)
+								(decoratorDrawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, perShaderData, this);
+						}
+					}
+					if (drawer != null)
+					{
+						if (drawer is IBaseDrawer)
+							(drawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, perShaderData, this);
+					}
+					if (string.IsNullOrEmpty(propertyDatas[prop.name].defaultValueDescription))
+						propertyDatas[prop.name].defaultValueDescription =
+							RevertableHelper.GetPropertyDefaultValueText(propertyDatas[prop.name].defualtProperty);
 				}
-				if (string.IsNullOrEmpty(propertyDatas[prop.name].defaultValueDescription))
-					propertyDatas[prop.name].defaultValueDescription = RevertableHelper.GetPropertyDefaultValueText(propertyDatas[prop.name].defualtProperty);
 			}
 		}
 
@@ -358,13 +399,21 @@ namespace LWGUI
 				return null;
 		}
 
+		public MaterialProperty GetDefaultProperty(string propName)
+		{
+			if (!string.IsNullOrEmpty(propName) && propertyDatas.ContainsKey(propName))
+				return propertyDatas[propName].defualtProperty;
+			else
+				return null;
+		}
+
 		public bool EndChangeCheck(string propName = null)
 		{
 			var result = EditorGUI.EndChangeCheck();
 			if (!string.IsNullOrEmpty(propName))
 			{
-				result |= propertyDatas[propName].changed;
-				propertyDatas[propName].changed = false;
+				result |= propertyDatas[propName].revertChanged;
+				propertyDatas[propName].revertChanged = false;
 			}
 			return result;
 		}
@@ -426,5 +475,44 @@ namespace LWGUI
 				return prop.displayName.Substring(0, minIndex);
 		}
 
+		public static bool GetPropertyVisibility(MaterialProperty prop, Material material, LWGUI lwgui)
+		{
+			bool result = true;
+
+			var propertyStaticData = lwgui.perShaderData.propertyDatas[prop.name];
+			var propertyDynamicData = lwgui.perFrameData.propertyDatas[prop.name];
+			var displayModeData = lwgui.perShaderData.displayModeData;
+
+			if ( // if HideInInspector
+				(prop.flags & MaterialProperty.PropFlags.HideInInspector) != 0
+				// if Search Filtered
+			 	|| !propertyStaticData.isSearchDisplayed
+				// if the Conditional Display Keyword is not active
+			 	|| (!string.IsNullOrEmpty(propertyStaticData.conditionalDisplayKeyword) && !material.shaderKeywords.Any((str => str == propertyStaticData.conditionalDisplayKeyword)))
+				// if is Hidden
+				|| (!displayModeData.showAllHiddenProperties && propertyStaticData.isHidden)
+				// if show modified only
+				|| (displayModeData.showOnlyModifiedProperties && !propertyDynamicData.hasModified)
+			   )
+			{
+				result = false;
+			}
+
+			return result;
+		}
+
+		public static bool GetParentPropertyVisibility(PropertyStaticData parentPropStaticData, Material material, LWGUI lwgui)
+		{
+			bool result = true;
+
+			if (parentPropStaticData != null
+				&& (!lwgui.perShaderData.propertyDatas[parentPropStaticData.name].isExpanded
+					|| !MetaDataHelper.GetPropertyVisibility(lwgui.perFrameData.propertyDatas[parentPropStaticData.name].property, material, lwgui)))
+			{
+				result = false;
+			}
+
+			return result;
+		}
 	}
 }

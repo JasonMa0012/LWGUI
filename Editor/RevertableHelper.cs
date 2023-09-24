@@ -122,15 +122,11 @@ namespace LWGUI
 
 			var propDynamicData = lwgui.perFrameData.propertyDatas[prop.name];
 			if (!hasModified)
-				hasModified = !Helper.PropertyValueEquals(prop, propDynamicData.defualtProperty);
+				hasModified = propDynamicData.hasModified;
 
 			var extraPropNames = lwgui.perShaderData.propertyDatas[prop.name].extraPropNames;
 			if (!hasModified && extraPropNames.Count > 0)
-			{
-				hasModified = extraPropNames.Any((extraPropName =>
-													 !Helper.PropertyValueEquals(lwgui.perFrameData.propertyDatas[extraPropName].property,
-																				 lwgui.perFrameData.propertyDatas[extraPropName].defualtProperty)));
-			}
+				hasModified = extraPropNames.Any((extraPropName => lwgui.perFrameData.propertyDatas[extraPropName].hasModified));
 
 			if (!hasModified)
 				return false;
@@ -139,12 +135,12 @@ namespace LWGUI
 			if (DrawRevertButton(rect))
 			{
 				// GUI.changed = true;
-				propDynamicData.changed = true;
+				propDynamicData.revertChanged = true;
 				SetPropertyToDefault(propDynamicData.defualtProperty, prop);
 				foreach (var extraPropName in extraPropNames)
 				{
 					var extraPropDynamicData = lwgui.perFrameData.propertyDatas[extraPropName];
-					extraPropDynamicData.changed = true;
+					extraPropDynamicData.revertChanged = true;
 					SetPropertyToDefault(extraPropDynamicData.defualtProperty, extraPropDynamicData.property);
 				}
 				// refresh keywords

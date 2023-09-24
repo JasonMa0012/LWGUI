@@ -332,6 +332,7 @@ namespace LWGUI
 		private static Texture _iconCheckout = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("72488141525eaa8499e65e52755cb6d0"));
 		private static Texture _iconExpand = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("2382450e7f4ddb94c9180d6634c41378"));
 		private static Texture _iconCollapse = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("929b6e5dfacc42b429d715a3e1ca2b57"));
+		private static Texture _iconVisibility = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("9576e23a695b35d49a9fc55c9a948b4f"));
 
 		private static GUIContent _guiContentCopy = new GUIContent("", _iconCopy, "Copy Material Properties");
 		private static GUIContent _guiContentPaste = new GUIContent("", _iconPaste, "Paste Material Properties\n\nRight-click to paste values by type.");
@@ -339,6 +340,7 @@ namespace LWGUI
 		private static GUIContent _guiContentChechout = new GUIContent("", _iconCheckout, "Checkout selected Material Assets");
 		private static GUIContent _guiContentExpand = new GUIContent("", _iconExpand, "Expand All Groups");
 		private static GUIContent _guiContentCollapse = new GUIContent("", _iconCollapse, "Collapse All Groups");
+		private static GUIContent _guiContentVisibility = new GUIContent("", _iconVisibility, "Display Mode");
 
 		private static string[] _materialInstanceNameEnd = new[] { "_Instantiated", " (Instance)" };
 
@@ -556,6 +558,48 @@ namespace LWGUI
 				}
 			}
 
+			// Display Mode
+			buttonRect.x += buttonRectOffset;
+			toolBarRect.xMin += buttonRectOffset;
+			var color = GUI.color;
+			if (!lwgui.perShaderData.displayModeData.IsDefaultDisplayMode())
+				GUI.color = Color.yellow;
+			if (GUI.Button(buttonRect, _guiContentVisibility, Helper.guiStyles_IconButton))
+			{
+				string[] displayModeMenus = new[]
+				{
+					"Show All Advanced	(" + lwgui.perShaderData.displayModeData.advancedCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
+					"Show All Hidden	(" + lwgui.perShaderData.displayModeData.hiddenCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
+					"Show Only Modified	(" + lwgui.perFrameData.modifiedCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
+				};
+				bool[] enabled = new[] { true, true, true };
+				bool[] separator = new bool[3];
+				int[] selected = new[]
+				{
+					lwgui.perShaderData.displayModeData.showAllAdvancedProperties	? 0 : -1,
+					lwgui.perShaderData.displayModeData.showAllHiddenProperties		? 1 : -1,
+					lwgui.perShaderData.displayModeData.showOnlyModifiedProperties	? 2 : -1,
+				};
+				ReflectionHelper.DisplayCustomMenuWithSeparators(new Rect(Event.current.mousePosition.x, Event.current.mousePosition.y, 0, 0),
+															  displayModeMenus, enabled, separator, selected,
+															  (data, options, selectedIndex) =>
+															  {
+																  switch (selectedIndex)
+																  {
+																	  case 0:
+																		  lwgui.perShaderData.displayModeData.showAllAdvancedProperties = !lwgui.perShaderData.displayModeData.showAllAdvancedProperties;
+																		  lwgui.perShaderData.ToggleShowAllAdvancedProperties();
+																		  break;
+																	  case 1:
+																		  lwgui.perShaderData.displayModeData.showAllHiddenProperties = !lwgui.perShaderData.displayModeData.showAllHiddenProperties;
+																		  break;
+																	  case 2:
+																		  lwgui.perShaderData.displayModeData.showOnlyModifiedProperties = !lwgui.perShaderData.displayModeData.showOnlyModifiedProperties;
+																		  break;
+																  }
+															  });
+			}
+			GUI.color = color;
 
 			toolBarRect.xMin += 2;
 		}
