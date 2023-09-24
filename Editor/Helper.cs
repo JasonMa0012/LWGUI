@@ -737,6 +737,26 @@ namespace LWGUI
 				{
 					_copiedProps.Add(extraPropName);
 				}
+
+				// Copy Children
+				foreach (var childPropStaticData in propStaticData.children)
+				{
+					_copiedProps.Add(childPropStaticData.name);
+					foreach (var extraPropName in childPropStaticData.extraPropNames)
+					{
+						_copiedProps.Add(extraPropName);
+					}
+
+					foreach (var childChildPropStaticData in childPropStaticData.children)
+					{
+						_copiedProps.Add(childChildPropStaticData.name);
+						foreach (var extraPropName in childChildPropStaticData.extraPropNames)
+						{
+							_copiedProps.Add(extraPropName);
+						}
+					}
+
+				}
 			});
 
 			// Paste
@@ -752,11 +772,36 @@ namespace LWGUI
 
 					Undo.RecordObject(material, "Paste Material Properties");
 
-					PastePropertyValueToMaterial(material, _copiedProps[0], prop.name);
+					var index = 0;
 
-					for (int i = 0; i < Mathf.Min(propStaticData.extraPropNames.Count, _copiedProps.Count - 1); i++)
+					PastePropertyValueToMaterial(material, _copiedProps[index++], prop.name);
+					foreach (var extraPropName in propStaticData.extraPropNames)
 					{
-						PastePropertyValueToMaterial(material, _copiedProps[i + 1], propStaticData.extraPropNames[i]);
+						if (index == _copiedProps.Count) break;
+						PastePropertyValueToMaterial(material, _copiedProps[index++], extraPropName);
+					}
+
+					// Paste Children
+					foreach (var childPropStaticData in propStaticData.children)
+					{
+						if (index == _copiedProps.Count) break;
+						PastePropertyValueToMaterial(material, _copiedProps[index++], childPropStaticData.name);
+						foreach (var extraPropName in childPropStaticData.extraPropNames)
+						{
+							if (index == _copiedProps.Count) break;
+							PastePropertyValueToMaterial(material, _copiedProps[index++], extraPropName);
+						}
+
+						foreach (var childChildPropStaticData in childPropStaticData.children)
+						{
+							if (index == _copiedProps.Count) break;
+							PastePropertyValueToMaterial(material, _copiedProps[index++], childChildPropStaticData.name);
+							foreach (var extraPropName in childChildPropStaticData.extraPropNames)
+							{
+								if (index == _copiedProps.Count) break;
+								PastePropertyValueToMaterial(material, _copiedProps[index++], extraPropName);
+							}
+						}
 					}
 				}
 			};
