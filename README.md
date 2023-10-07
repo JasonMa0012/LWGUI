@@ -45,6 +45,8 @@ Having been validated through numerous large-scale commercial projects, employin
     + [Title & SubTitle](#title--subtitle)
     + [Tooltip & Helpbox](#tooltip--helpbox)
     + [PassSwitch](#passswitch)
+    + [Advanced & AdvancedHeaderProperty](#advanced--advancedheaderproperty)
+    + [Hidden](#hidden)
   * [Unity Builtin Drawers](#unity-builtin-drawers)
     + [Space](#space)
     + [Header](#header)
@@ -539,6 +541,48 @@ public PassSwitchDecorator(string   lightModeName1, string lightModeName2, strin
 public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5, string lightModeName6) 
 
 ```
+
+
+#### Advanced & AdvancedHeaderProperty
+
+```c#
+/// Collapse the current Property into an Advanced Block. Specify the Header String to create a new Advanced Block. All Properties using Advanced() will be collapsed into the nearest Advanced Block.
+/// headerString: The title of the Advanced Block. Default: "Advanced"
+public AdvancedDecorator() : this(string.Empty) { }
+public AdvancedDecorator(string headerString)
+```
+
+```c#
+/// Create an Advanced Block using the current Property as the Header
+public AdvancedHeaderPropertyDecorator()
+```
+
+Example:
+
+```c#
+[Main(Group2, _, off, off)] _group2 ("Group - Without Toggle", float) = 0
+[Sub(Group2)] _float3 ("Float 2", float) = 0
+[Advanced][Sub(Group2)] _Advancedfloat0 ("Advanced Float 0", float) = 0
+[Advanced][Sub(Group2)] _Advancedfloat1 ("Advanced Float 1", float) = 0
+[Advanced(Advanced Header Test)][Sub(Group2)] _Advancedfloat3 ("Advanced Float 3", float) = 0
+[Advanced][Sub(Group2)] _Advancedfloat4 ("Advanced Float 4", float) = 0
+[AdvancedHeaderProperty][Tex(Group2, _Advancedfloat7)] _AdvancedTex0 ("Advanced Header Property Test", 2D) = "white" { }
+[Advanced][HideInInspector] _Advancedfloat7 ("Advanced Float 7", float) = 0
+[Advanced][Tex(Group2, _AdvancedRange0)] _AdvancedTex1 ("Advanced Tex 1", 2D) = "white" { }
+[Advanced][HideInInspector] _AdvancedRange0 ("Advanced Range 0", Range(0, 1)) = 0
+
+```
+
+![image-20231007163044176](./README_CN.assets/image-20231007163044176.png)
+
+#### Hidden
+
+```c#
+/// Similar to HideInInspector(), the difference is that Hidden() can be unhidden through the Display Mode button.
+public Hidden()
+```
+
+
 
 
 

@@ -37,6 +37,11 @@ namespace LWGUI
 				return false;
 		}
 
+		public static bool IsPropertyHideInInspector(MaterialProperty prop)
+		{
+			return (prop.flags & MaterialProperty.PropFlags.HideInInspector) != 0;
+		}
+
 		public static string GetKeyWord(string keyWord, string propName)
 		{
 			string k;
@@ -279,21 +284,7 @@ namespace LWGUI
 			if (!string.IsNullOrEmpty(helpboxStr))
 			{
 				var content = new GUIContent(helpboxStr, _helpboxIcon);
-				var helpboxRect = EditorGUILayout.GetControlRect(true, guiStyle_Helpbox.CalcHeight(content, EditorGUIUtility.currentViewWidth));
-
-				int parentCount = 0;
-				if (propertyStaticData.parent != null)
-				{
-					parentCount++;
-					if (propertyStaticData.parent.parent != null)
-						parentCount++;
-				}
-				if (parentCount > 0)
-				{
-					EditorGUI.indentLevel += parentCount;
-					helpboxRect = EditorGUI.IndentedRect(helpboxRect);
-					EditorGUI.indentLevel -= parentCount;
-				}
+				var helpboxRect = EditorGUI.IndentedRect(EditorGUILayout.GetControlRect(true, guiStyle_Helpbox.CalcHeight(content, EditorGUIUtility.currentViewWidth)));
 				helpboxRect.xMax -= RevertableHelper.revertButtonWidth;
 				GUI.Label(helpboxRect, content, guiStyle_Helpbox);
 				// EditorGUI.HelpBox(helpboxRect, helpboxStr, MessageType.Info);
@@ -714,6 +705,27 @@ namespace LWGUI
 
 
 		#region Context Menu
+
+		private static void EditPresetEvent(string mode, ShaderPropertyPreset presetAsset, ShaderPropertyPreset.Preset activePreset, MaterialProperty prop, LWGUI lwgui)
+		{
+			if (!VersionControlHelper.Checkout(presetAsset))
+			{
+				Debug.LogError("Can not edit the preset: " + presetAsset);
+				return;
+			}
+			switch (mode)
+			{
+				case "Add":
+				case "Update":
+					activePreset.AddOrUpdateIncludeExtraProperties(lwgui, prop);
+					break;
+				case "Remove":
+					activePreset.RemoveIncludeExtraProperties(lwgui, prop.name);
+					break;
+			}
+			EditorUtility.SetDirty(presetAsset);
+		}
+
 		public static void DoPropertyContextMenus(Rect rect, MaterialProperty prop, LWGUI lwgui)
 		{
 			if (Event.current.type != EventType.ContextClick || !rect.Contains(Event.current.mousePosition)) return;
@@ -850,34 +862,14 @@ namespace LWGUI
 					var presetAsset = lwgui.perShaderData.propertyDatas[activePresetData.property.name].propertyPresetAsset;
 					var presetPropDisplayName = lwgui.perShaderData.propertyDatas[activePresetData.property.name].displayName;
 
-					void Callback(string mode)
-					{
-						if (!VersionControlHelper.Checkout(presetAsset))
-						{
-							Debug.LogError("Can not edit the preset: " + presetAsset);
-							return;
-						}
-						switch (mode)
-						{
-							case "Add":
-							case "Update":
-								activePreset.AddOrUpdateIncludeExtraProperties(lwgui, prop);
-								break;
-							case "Remove":
-								activePreset.RemoveIncludeExtraProperties(lwgui, prop.name);
-								break;
-						}
-						EditorUtility.SetDirty(presetAsset);
-					}
-
 					if (activePreset.GetPropertyValue(prop.name) != null)
 					{
-						menus.AddItem(new GUIContent("Update to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => Callback("Update"));
-						menus.AddItem(new GUIContent("Remove from Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => Callback("Remove"));
+						menus.AddItem(new GUIContent("Update to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Update", presetAsset, activePreset, prop, lwgui));
+						menus.AddItem(new GUIContent("Remove from Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Remove", presetAsset, activePreset, prop, lwgui));
 					}
 					else
 					{
-						menus.AddItem(new GUIContent("Add to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => Callback("Add"));
+						menus.AddItem(new GUIContent("Add to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Add", presetAsset, activePreset, prop, lwgui));
 					}
 				}
 			}

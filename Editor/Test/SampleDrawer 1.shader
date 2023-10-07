@@ -2,10 +2,11 @@
 {
 	Properties
 	{
-		[Title(Main Samples)]
+		[Hidden][Title(Main Samples)]
 		[Main(GroupName)] _group ("Group", float) = 0
 		[Sub(GroupName)] _float ("Float", float) = 0
 		[Sub(GroupName)] _Tex ("Tex", 2D) = "white" { }
+
 
 		[Main(Group1, _KEYWORD, on)] _group1 ("Group - Default Open", float) = 1
 		[Preset(Group1, LWGUI_ShaderPropertyPreset)] _preset ("Preset Sample", float) = 0
@@ -27,12 +28,22 @@
 		[Tex(Group1_TOGGLE_KEYWORD)][Normal] _normal ("Normal Keyword", 2D) = "bump" { }
 		[Sub(Group1_TOGGLE_KEYWORD)] _float2 ("Float Keyword", float) = 0
 
+
 		[Main(Group2, _, off, off)] _group2 ("Group - Without Toggle", float) = 0
 		[Sub(Group2)] _float3 ("Float 2", float) = 0
-		
+		[Advanced][Sub(Group2)] _Advancedfloat0 ("Advanced Float 0", float) = 0
+		[Advanced][Sub(Group2)] _Advancedfloat1 ("Advanced Float 1", float) = 0
+		[Advanced(Advanced Header Test)][Sub(Group2)] _Advancedfloat3 ("Advanced Float 3", float) = 0
+		[Advanced][Sub(Group2)] _Advancedfloat4 ("Advanced Float 4", float) = 0
+		[AdvancedHeaderProperty][Tex(Group2, _Advancedfloat7)] _AdvancedTex0 ("Advanced Header Property Test", 2D) = "white" { }
+		[Advanced][HideInInspector] _Advancedfloat7 ("Advanced Float 7", float) = 0
+		[Advanced][Tex(Group2, _AdvancedRange0)] _AdvancedTex1 ("Advanced Tex 1", 2D) = "white" { }
+		[Advanced][HideInInspector] _AdvancedRange0 ("Advanced Range 0", Range(0, 1)) = 0
+
 		[Title(Channel Samples)]
 		[Channel] _textureChannelMask ("Texture Channel Mask (Default G)", Vector) = (0, 1, 0, 0)
-		
+
+
 		[Title(Metadata Samples)]
 		[Tooltip(Test multiline Tooltip, a single line supports up to 4 commas)]
 		[Tooltip()]
@@ -43,25 +54,28 @@
 		[Helpbox(Line2)]
 		[Helpbox(Line3)]
 		_float_helpbox ("Float with Helpbox%这是中文Helpbox%これは日本語Helpboxです", float) = 1
-		
+
+
 		[Main(Group3, _, on)] _group3 ("Group - Tex and Color Samples", float) = 0
-		[Tex(Group3, _color)] _tex_color ("Tex with Color", 2D) = "white" { }
-		[HideInInspector] _color (" ", Color) = (1, 0, 0, 1)
-		[Tex(Group3, _float4)] _tex_float ("Tex with Float", 2D) = "white" { }
-		[HideInInspector] _float4 (" ", float) = 0
-		[Tex(Group3, _range)] _tex_range ("Tex with Range", 2D) = "white" { }
-		[HideInInspector] _range (" ", Range(0, 1)) = 0
-		[Tex(Group3, _textureChannelMask1)] _tex_channel ("Tex with Channel", 2D) = "white" { }
-		[HideInInspector] _textureChannelMask1 (" ", Vector) = (0, 0, 0, 1)
+		[Advanced][Tex(Group3, _color)] _tex_color ("Tex with Color", 2D) = "white" { }
+		[Advanced][HideInInspector] _color (" ", Color) = (1, 0, 0, 1)
+		[Advanced][Tex(Group3, _float4)] _tex_float ("Tex with Float", 2D) = "white" { }
+		[Advanced][HideInInspector] _float4 (" ", float) = 0
+		[Advanced][Tex(Group3, _range)] _tex_range ("Tex with Range", 2D) = "white" { }
+		[Advanced][HideInInspector] _range (" ", Range(0, 1)) = 0
+		[Advanced][Tex(Group3, _textureChannelMask1)] _tex_channel ("Tex with Channel", 2D) = "white" { }
+		[Advanced][HideInInspector] _textureChannelMask1 (" ", Vector) = (0, 0, 0, 1)
 		// Display up to 4 colors in a single line (Unity 2019.2+)
-		[Color(Group3, _mColor1, _mColor2, _mColor3)] _mColor ("Multi Color", Color) = (1, 1, 1, 1)
-		[HideInInspector] _mColor1 (" ", Color) = (1, 0, 0, 1)
-		[HideInInspector] _mColor2 (" ", Color) = (0, 1, 0, 1)
-		[HideInInspector] [HDR] _mColor3 (" ", Color) = (0, 0, 1, 1)
-		
+		[Advanced][Color(Group3, _mColor1, _mColor2, _mColor3)] _mColor ("Multi Color", Color) = (1, 1, 1, 1)
+		[Advanced][HideInInspector] _mColor1 (" ", Color) = (1, 0, 0, 1)
+		[Advanced][HideInInspector] _mColor2 (" ", Color) = (0, 1, 0, 1)
+		[Advanced][HideInInspector] [HDR] _mColor3 (" ", Color) = (0, 0, 1, 1)
+
+
 		[Title(Ramp Samples)]
 		[Ramp(_, RampMap, Assets.Art, 512)] _Ramp ("Ramp Map", 2D) = "white" { }
-		
+
+
 		[Title(MinMaxSlider Samples)]
 		[MinMaxSlider(_rangeStart, _rangeEnd)] _minMaxSlider ("Min Max Slider (0 - 1)", Range(0.0, 1.0)) = 1.0
 		_rangeStart ("Range Start", Range(0.0, 0.5)) = 0.0

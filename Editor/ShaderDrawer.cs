@@ -53,8 +53,8 @@ namespace LWGUI
 		{
 			this._group = group;
 			this._keyword = keyword;
-			this._defaultFoldingState = defaultFoldingState == "on";
-			this._defaultToggleDisplayed = defaultToggleDisplayed == "on";
+			this._defaultFoldingState = defaultFoldingState.ToLower() == "on";
+			this._defaultToggleDisplayed = defaultToggleDisplayed.ToLower() == "on";
 		}
 
 
@@ -156,23 +156,15 @@ namespace LWGUI
 			props = lwgui.props;
 			shader = lwgui.shader;
 
-			if (group != String.Empty && group != "_")
-				EditorGUI.indentLevel++;
-			
+			if (IsMatchPropType(prop))
 			{
-				if (IsMatchPropType(prop))
-				{
-					DrawProp(position, prop, label, editor);
-				}
-				else
-				{
-					Debug.LogWarning("Property:'" + prop.name + "' Type:'" + prop.type + "' mismatch!");
-					editor.DefaultShaderProperty(position, prop, label.text);
-				}
+				DrawProp(position, prop, label, editor);
 			}
-
-			if (group != String.Empty && group != "_")
-				EditorGUI.indentLevel--;
+			else
+			{
+				Debug.LogWarning("Property:'" + prop.name + "' Type:'" + prop.type + "' mismatch!");
+				editor.DefaultShaderProperty(position, prop, label.text);
+			}
 		}
 
 		public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
@@ -670,6 +662,7 @@ namespace LWGUI
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var rect = position;
 			var texLabel = label.text;
+			label.text = " ";
 
 			MaterialProperty extraProp = lwgui.perFrameData.GetProperty(_extraPropName);
 			if (extraProp != null && extraProp.type != MaterialProperty.PropType.Texture)
@@ -677,38 +670,11 @@ namespace LWGUI
 				RevertableHelper.FixGUIWidthMismatch(extraProp.type, editor);
 
 				var i = EditorGUI.indentLevel;
-				Rect indentedRect, extraPropRect = new Rect(rect);
-				switch (extraProp.type)
-				{
-#if UNITY_2021_1_OR_NEWER
-					case MaterialProperty.PropType.Int:
-#endif
-					case MaterialProperty.PropType.Color:
-					case MaterialProperty.PropType.Float:
-					case MaterialProperty.PropType.Vector:
-						texLabel = string.Empty;
-						indentedRect = EditorGUI.IndentedRect(extraPropRect);
-						EditorGUIUtility.labelWidth -= (indentedRect.xMin - extraPropRect.xMin) + 30f;
-						extraPropRect = indentedRect;
-						extraPropRect.xMin += 30f;
-						EditorGUI.indentLevel = 0;
-						break;
-					case MaterialProperty.PropType.Range:
-						label.text = string.Empty;
-						indentedRect = EditorGUI.IndentedRect(extraPropRect);
-						EditorGUIUtility.fieldWidth += 1f;
-						EditorGUIUtility.labelWidth = 0;
-						EditorGUI.indentLevel = 0;
-						extraPropRect = MaterialEditor.GetRectAfterLabelWidth(extraPropRect);
-						extraPropRect.xMin += 2;
-						break;
-				}
-
 
 				if (extraProp.type == MaterialProperty.PropType.Vector)
-					_channelDrawer.OnGUI(extraPropRect, extraProp, label, editor);
+					_channelDrawer.OnGUI(rect, extraProp, label, editor);
 				else
-					editor.ShaderProperty(extraPropRect, extraProp, label);
+					editor.ShaderProperty(rect, extraProp, label);
 
 				EditorGUI.indentLevel = i;
 			}
@@ -1262,6 +1228,7 @@ namespace LWGUI
 	{
 		private string[] _lightModeNames;
 
+		#region
 		public PassSwitchDecorator(string   lightModeName1)
 			: this(new[] { lightModeName1}){}
 		public PassSwitchDecorator(string   lightModeName1, string lightModeName2)
@@ -1275,7 +1242,7 @@ namespace LWGUI
 		public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5, string lightModeName6)
 			: this(new[] { lightModeName1, lightModeName2, lightModeName3, lightModeName4, lightModeName5, lightModeName6 }){}
 		public PassSwitchDecorator(string[] passNames) { _lightModeNames = passNames.Select((s => s.ToUpper())).ToArray(); }
-
+		#endregion
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
 
@@ -1302,5 +1269,63 @@ namespace LWGUI
 			if (!prop.hasMixedValue && IsMatchPropType(prop))
 				Helper.SetShaderPassEnabled(prop.targets, _lightModeNames, prop.floatValue > 0);
 		}
+	}
+
+	/// <summary>
+	/// Collapse the current Property into an Advanced Block. Specify the Header String to create a new Advanced Block. All Properties using Advanced() will be collapsed into the nearest Advanced Block.
+	/// headerString: The title of the Advanced Block. Default: "Advanced"
+	/// </summary>
+	public class AdvancedDecorator : SubDrawer
+	{
+		private string headerString;
+
+		public AdvancedDecorator() : this(string.Empty) { }
+
+		public AdvancedDecorator(string headerString)
+		{
+			this.headerString = headerString;
+		}
+
+		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
+
+		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
+		{
+			inoutPropertyStaticData.isAdvanced = true;
+			inoutPropertyStaticData.advancedHeaderString = headerString;
+		}
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor) { }
+	}
+
+	/// <summary>
+	/// Create an Advanced Block using the current Property as the Header
+	/// </summary>
+	public class AdvancedHeaderPropertyDecorator : SubDrawer
+	{
+		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
+
+		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
+		{
+			inoutPropertyStaticData.isAdvanced = true;
+			inoutPropertyStaticData.isAdvancedHeader = true;
+			inoutPropertyStaticData.isAdvancedHeaderProperty = true;
+		}
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor) { }
+	}
+
+	/// <summary>
+	/// Similar to HideInInspector(), the difference is that Hidden() can be unhidden through the Display Mode button.
+	/// </summary>
+	public class HiddenDecorator : SubDrawer
+	{
+		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
+
+		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
+		{
+			inoutPropertyStaticData.isHidden = true;
+		}
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor) { }
 	}
 } //namespace LWGUI

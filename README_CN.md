@@ -44,6 +44,8 @@
     + [Title & SubTitle](#title--subtitle)
     + [Tooltip & Helpbox](#tooltip--helpbox)
     + [PassSwitch](#passswitch)
+    + [Advanced & AdvancedHeaderProperty](#advanced--advancedheaderproperty)
+    + [Hidden](#hidden)
   * [Unity Builtin Drawers](#unity-builtin-drawers)
     + [Space](#space)
     + [Header](#header)
@@ -535,6 +537,47 @@ public PassSwitchDecorator(string   lightModeName1, string lightModeName2, strin
 public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5) 
 public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5, string lightModeName6) 
 
+```
+
+
+
+#### Advanced & AdvancedHeaderProperty
+
+```c#
+/// 将当前Property折叠到一个Advanced Block中, 指定Header String可以创建新的Advanced Block, 所有使用了Advanced()的Property会被折叠到最近的Advanced Block中.
+/// headerString: Advanced Block的标题. 默认: "Advanced"
+public AdvancedDecorator() : this(string.Empty) { }
+public AdvancedDecorator(string headerString)
+```
+
+```c#
+/// 以当前Property作为Header创建一个Advanced Block
+public AdvancedHeaderPropertyDecorator()
+```
+
+Example:
+
+```c#
+[Main(Group2, _, off, off)] _group2 ("Group - Without Toggle", float) = 0
+[Sub(Group2)] _float3 ("Float 2", float) = 0
+[Advanced][Sub(Group2)] _Advancedfloat0 ("Advanced Float 0", float) = 0
+[Advanced][Sub(Group2)] _Advancedfloat1 ("Advanced Float 1", float) = 0
+[Advanced(Advanced Header Test)][Sub(Group2)] _Advancedfloat3 ("Advanced Float 3", float) = 0
+[Advanced][Sub(Group2)] _Advancedfloat4 ("Advanced Float 4", float) = 0
+[AdvancedHeaderProperty][Tex(Group2, _Advancedfloat7)] _AdvancedTex0 ("Advanced Header Property Test", 2D) = "white" { }
+[Advanced][HideInInspector] _Advancedfloat7 ("Advanced Float 7", float) = 0
+[Advanced][Tex(Group2, _AdvancedRange0)] _AdvancedTex1 ("Advanced Tex 1", 2D) = "white" { }
+[Advanced][HideInInspector] _AdvancedRange0 ("Advanced Range 0", Range(0, 1)) = 0
+
+```
+
+![image-20231007163044176](./README_CN.assets/image-20231007163044176.png)
+
+#### Hidden
+
+```c#
+/// 类似于HideInInspector(), 区别在于Hidden()可以通过Display Mode按钮取消隐藏.
+public Hidden()
 ```
 
 

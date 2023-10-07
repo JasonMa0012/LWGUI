@@ -80,22 +80,38 @@ namespace LWGUI
 							continue;
 					}
 
-					Helper.DrawHelpbox(propStaticData, propDynamicData);
+					// Indent
+					var indentLevel = EditorGUI.indentLevel;
+					if (propStaticData.isAdvancedHeader)
+						EditorGUI.indentLevel++;
+					if (propStaticData.parent != null)
+					{
+						EditorGUI.indentLevel++;
+						if (propStaticData.parent.parent != null)
+							EditorGUI.indentLevel++;
+					}
 
-					var label = new GUIContent(propStaticData.displayName, MetaDataHelper.GetPropertyTooltip(propStaticData, propDynamicData));
-					var height = materialEditor.GetPropertyHeight(prop, label.text);
-					var rect = EditorGUILayout.GetControlRect(true, height);
-					var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
+					// Advanced
+					if (propStaticData.isAdvancedHeader && !propStaticData.isAdvancedHeaderProperty)
+					{
+						var rect = EditorGUILayout.GetControlRect();
+						var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
+						var label = string.IsNullOrEmpty(propStaticData.advancedHeaderString) ? "Advanced" : propStaticData.advancedHeaderString;
+						RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, this);
+						propStaticData.isExpanded = EditorGUI.Foldout(rect, propStaticData.isExpanded, label);
 
-					Helper.BeginProperty(rect, prop, this);
-					Helper.DoPropertyContextMenus(rect, prop, this);
+						if (!propStaticData.isExpanded)
+						{
+							RevertableHelper.SetRevertableGUIWidths();
+							EditorGUI.indentLevel = indentLevel;
+							continue;
+						}
+					}
 
-					RevertableHelper.FixGUIWidthMismatch(prop.type, materialEditor);
-					RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, this);
-					materialEditor.ShaderProperty(rect, prop, label);
+					DrawProperty(prop);
 
-					Helper.EndProperty(this, prop);
 					RevertableHelper.SetRevertableGUIWidths();
+					EditorGUI.indentLevel = indentLevel;
 				}
 
 				materialEditor.SetDefaultGUIWidths();
@@ -128,5 +144,29 @@ namespace LWGUI
 			EditorGUILayout.Space();
 			Helper.DrawLogo();
 		}
+
+		private void DrawProperty(MaterialProperty prop)
+		{
+			var propStaticData = perShaderData.propertyDatas[prop.name];
+			var propDynamicData = perFrameData.propertyDatas[prop.name];
+
+			Helper.DrawHelpbox(propStaticData, propDynamicData);
+
+			var label = new GUIContent(propStaticData.displayName, MetaDataHelper.GetPropertyTooltip(propStaticData, propDynamicData));
+			var height = materialEditor.GetPropertyHeight(prop, label.text);
+			var rect = EditorGUILayout.GetControlRect(true, height);
+
+			var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
+
+			Helper.BeginProperty(rect, prop, this);
+			Helper.DoPropertyContextMenus(rect, prop, this);
+			RevertableHelper.FixGUIWidthMismatch(prop.type, materialEditor);
+			RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, this);
+			if (propStaticData.isAdvancedHeaderProperty)
+				propStaticData.isExpanded = EditorGUI.Foldout(rect, propStaticData.isExpanded, string.Empty);
+			materialEditor.ShaderProperty(rect, prop, label);
+			Helper.EndProperty(this, prop);
+		}
+
 	}
 } //namespace LWGUI

@@ -36,12 +36,14 @@ namespace LWGUI
 		public string displayName = string.Empty; // Decoded displayName (Helpbox and Tooltip are encoded in displayName)
 
 		// Structure
-		public string                   groupName        = string.Empty; // [Group(groupName)] / [Sub(groupName)] / [Advanced(groupName)]
-		public bool                     isMain           = false;        // [Group]
-		public bool                     isAdvanced       = false;        // [Advanced]
-		public bool                     isAdvancedHeader = false;        // the first [Advanced] in the same group
-		public PropertyStaticData       parent           = null;
-		public List<PropertyStaticData> children         = new List<PropertyStaticData>();
+		public string                   groupName                = string.Empty; // [Group(groupName)] / [Sub(groupName)] / [Advanced(groupName)]
+		public bool                     isMain                   = false;        // [Group]
+		public bool                     isAdvanced               = false;        // [Advanced]
+		public bool                     isAdvancedHeader         = false;        // the first [Advanced] in the same group
+		public bool                     isAdvancedHeaderProperty = false;
+		public string                   advancedHeaderString     = string.Empty;
+		public PropertyStaticData       parent                   = null;
+		public List<PropertyStaticData> children                 = new List<PropertyStaticData>();
 
 		// Visibility
 		public string conditionalDisplayKeyword = string.Empty;	// [Group(groupName_conditionalDisplayKeyword)]
@@ -75,11 +77,11 @@ namespace LWGUI
 
 		public void BuildPropertyStaticData(Shader shader, MaterialProperty[] props)
 		{
-			// Get Property Static
+			// Get Property Static Data
 			foreach (var prop in props)
 			{
-				var propertyStaticData = new PropertyStaticData(){ name = prop.name };
-				propertyDatas[prop.name] = propertyStaticData;
+				var propStaticData = new PropertyStaticData(){ name = prop.name };
+				propertyDatas[prop.name] = propStaticData;
 
 				List<MaterialPropertyDrawer> decoratorDrawers;
 				var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
@@ -88,23 +90,23 @@ namespace LWGUI
 					foreach (var decoratorDrawer in decoratorDrawers)
 					{
 						if (decoratorDrawer is IBaseDrawer)
-							(decoratorDrawer as IBaseDrawer).BuildStaticMetaData(shader, prop, props, propertyStaticData);
+							(decoratorDrawer as IBaseDrawer).BuildStaticMetaData(shader, prop, props, propStaticData);
 					}
 				}
 				if (drawer != null)
 				{
 					if (drawer is IBaseDrawer)
-						(drawer as IBaseDrawer).BuildStaticMetaData(shader, prop, props, propertyStaticData);
+						(drawer as IBaseDrawer).BuildStaticMetaData(shader, prop, props, propStaticData);
 				}
 
-				DecodeMetaDataFromDisplayName(prop, propertyStaticData);
+				DecodeMetaDataFromDisplayName(prop, propStaticData);
 			}
 
 			// Check Data
 			foreach (var prop in props)
 			{
-				var propertyStaticData = propertyDatas[prop.name];
-				propertyStaticData.extraPropNames.RemoveAll((extraPropName =>
+				var propStaticData = propertyDatas[prop.name];
+				propStaticData.extraPropNames.RemoveAll((extraPropName =>
 					string.IsNullOrEmpty(extraPropName) || !propertyDatas.ContainsKey(extraPropName)));
 			}
 
@@ -149,6 +151,49 @@ namespace LWGUI
 							}
 						}
 					}
+				}
+			}
+
+			// Build Display Mode Data
+			{
+				PropertyStaticData lastPropData = null;
+				for (int i = 0; i < props.Length; i++)
+				{
+					var prop = props[i];
+					var propStaticData = propertyDatas[prop.name];
+
+					// Counting
+					if (propStaticData.isHidden
+					 || (propStaticData.parent != null
+					  && (propStaticData.parent.isHidden
+					   || (propStaticData.parent.parent != null && propStaticData.parent.parent.isHidden))))
+						displayModeData.hiddenCount++;
+					if (propStaticData.isAdvanced
+					 || (propStaticData.parent != null
+					  && (propStaticData.parent.isAdvanced
+					   || (propStaticData.parent.parent != null && propStaticData.parent.parent.isAdvanced))))
+						displayModeData.advancedCount++;
+
+					// Build Advanced Structure
+					if (propStaticData.isAdvanced)
+					{
+						// If it is the first prop in a Advanced Block, set to Header
+						if (lastPropData == null
+						 || !lastPropData.isAdvanced
+						 || propStaticData.isAdvancedHeaderProperty
+						 || (!string.IsNullOrEmpty(propStaticData.advancedHeaderString)
+							&& propStaticData.advancedHeaderString != lastPropData.advancedHeaderString))
+						{
+							propStaticData.isAdvancedHeader = true;
+						}
+						// Else set to child
+						else
+						{
+							propStaticData.parent = lastPropData.isAdvancedHeader ? lastPropData : lastPropData.parent;
+						}
+					}
+
+					lastPropData = propStaticData;
 				}
 			}
 		}
@@ -484,12 +529,11 @@ namespace LWGUI
 			var displayModeData = lwgui.perShaderData.displayModeData;
 
 			if ( // if HideInInspector
-				(prop.flags & MaterialProperty.PropFlags.HideInInspector) != 0
+				Helper.IsPropertyHideInInspector(prop)
 				// if Search Filtered
 			 	|| !propertyStaticData.isSearchDisplayed
 				// if the Conditional Display Keyword is not active
 			 	|| (!string.IsNullOrEmpty(propertyStaticData.conditionalDisplayKeyword) && !material.shaderKeywords.Any((str => str == propertyStaticData.conditionalDisplayKeyword)))
-				// if is Hidden
 				|| (!displayModeData.showAllHiddenProperties && propertyStaticData.isHidden)
 				// if show modified only
 				|| (displayModeData.showOnlyModifiedProperties && !propertyDynamicData.hasModified)

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Jason Ma
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -121,6 +122,7 @@ namespace LWGUI
 			bool hasModified = prop.hasMixedValue;
 
 			var propDynamicData = lwgui.perFrameData.propertyDatas[prop.name];
+			var propStaticData = lwgui.perShaderData.propertyDatas[prop.name];
 			if (!hasModified)
 				hasModified = propDynamicData.hasModified;
 
@@ -134,20 +136,34 @@ namespace LWGUI
 			Rect rect = position;
 			if (DrawRevertButton(rect))
 			{
-				// GUI.changed = true;
-				propDynamicData.revertChanged = true;
-				SetPropertyToDefault(propDynamicData.defualtProperty, prop);
-				foreach (var extraPropName in extraPropNames)
+				DoRevertProperty(prop, lwgui);
+
+				foreach (var childStaticData in propStaticData.children)
 				{
-					var extraPropDynamicData = lwgui.perFrameData.propertyDatas[extraPropName];
-					extraPropDynamicData.revertChanged = true;
-					SetPropertyToDefault(extraPropDynamicData.defualtProperty, extraPropDynamicData.property);
+					DoRevertProperty(lwgui.perFrameData.propertyDatas[childStaticData.name].property, lwgui);
+					foreach (var childChildStaticData in childStaticData.children)
+						DoRevertProperty(lwgui.perFrameData.propertyDatas[childChildStaticData.name].property, lwgui);
 				}
+
 				// refresh keywords
 				MaterialEditor.ApplyMaterialPropertyDrawers(lwgui.materialEditor.targets);
 				return true;
 			}
 			return false;
+		}
+
+		private static void DoRevertProperty(MaterialProperty prop, LWGUI lwgui)
+		{
+			var propDynamicData = lwgui.perFrameData.propertyDatas[prop.name];
+			var extraPropNames = lwgui.perShaderData.propertyDatas[prop.name].extraPropNames;
+			propDynamicData.revertChanged = true;
+			SetPropertyToDefault(propDynamicData.defualtProperty, prop);
+			foreach (var extraPropName in extraPropNames)
+			{
+				var extraPropDynamicData = lwgui.perFrameData.propertyDatas[extraPropName];
+				extraPropDynamicData.revertChanged = true;
+				SetPropertyToDefault(extraPropDynamicData.defualtProperty, extraPropDynamicData.property);
+			}
 		}
 
 		private static readonly Texture _icon = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("e7bc1130858d984488bca32b8512ca96"));
