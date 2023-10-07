@@ -4,9 +4,8 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
   m_Name: LWGUI_SampleDrawer 1
   m_Shader: {fileID: 4800000, guid: 7ee048c9536c0344bb8b4860595a4d9b, type: 3}
   m_ShaderKeywords: _GROUP_ON _KEY3 _TOGGLE_KEYWORD
@@ -19,6 +18,14 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _AdvancedTex0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _AdvancedTex1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Ramp:
         m_Texture: {fileID: 2800000, guid: 87addb69bcbcc9b4ea7336eff8d6a52b, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -56,6 +63,12 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AdvancedRange0: 0.252
+    - _Advancedfloat0: 0.12
+    - _Advancedfloat1: 0.13
+    - _Advancedfloat3: 0.21
+    - _Advancedfloat4: 0
+    - _Advancedfloat7: 0.24
     - _enum: 2
     - _float: -0.8
     - _float1: -0.05
