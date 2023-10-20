@@ -526,6 +526,10 @@ _float_helpbox ("Float with Helpbox%这是中文Helpbox%これは日本語Helpbo
 
 ![image-20221231221254101](README_CN.assets/image-20221231221254101.png)
 
+Tips:
+
+- Tooltip may disappear when the Editor is running. This is a feature of Unity itself (or a bug)
+
 
 
 #### PassSwitch
@@ -541,7 +545,6 @@ public PassSwitchDecorator(string   lightModeName1, string lightModeName2, strin
 public PassSwitchDecorator(string   lightModeName1, string lightModeName2, string lightModeName3, string lightModeName4, string lightModeName5, string lightModeName6) 
 
 ```
-
 
 #### Advanced & AdvancedHeaderProperty
 
@@ -574,6 +577,10 @@ Example:
 ```
 
 ![image-20231007163044176](./README_CN.assets/image-20231007163044176.png)
+
+Tips:
+
+- LWGUI uses a tree data structure to store the relationship between Group, Advanced Block and their children. In theory, it can store unlimited multi-level parent-child relationships, but **currently LWGUI only manually handles 3-level parent-child relationships, which means you can put an Advanced Block in a Group, but a Group cannot be placed in an Advanced Block.**
 
 #### Hidden
 
@@ -638,13 +645,6 @@ MaterialPowerSliderDrawer(float power)
 MaterialToggleUIDrawer(string keyword)
 ```
 
-
-
-### Tips
-
-1. Drawer's first parameter is always `Group`, so when there is only one parameter, the behavior of different Drawers may be different. Therefore, if you want to use Drawers outside the Folding Group, the first parameter is best to give “_”.
-1. It is best to use `Title()` instead of the built-in `Header()` , otherwise there will be misplaced.
-1. If you change the Shader but the GUI is not updated, manually change the Shader to throw an error, and then change it back to refresh the GUI.
 
 
 ## Custom Shader GUI

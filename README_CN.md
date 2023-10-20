@@ -523,6 +523,10 @@ _float_helpbox ("Float with Helpbox%这是中文Helpbox%これは日本語Helpbo
 
 ![image-20221231221254101](README_CN.assets/image-20221231221254101.png)
 
+Tips:
+
+- Tooltip可能在Editor运行时消失, 这是Unity本身的特性 (或者是bug)
+
 
 
 #### PassSwitch
@@ -572,6 +576,10 @@ Example:
 ```
 
 ![image-20231007163044176](./README_CN.assets/image-20231007163044176.png)
+
+Tips:
+
+- LWGUI使用树状数据结构存储Group和Advanced Block及其子级的关系, 理论上可以存储无限多级父子关系, 但**目前LWGUI仅手动处理3层父子关系, 也就是说你可以将Advanced Block放在Group内, 而不能将Group放在Advanced Block内.**
 
 #### Hidden
 
@@ -635,12 +643,6 @@ MaterialToggleUIDrawer(string keyword)
 ```
 
 
-
-### Tips
-
-1. Drawer的第一个参数永远是`group`, 所以在只有一个参数的情况下, 不同Drawer的行为可能不同, 因此如果要在折叠组外使用Drawer, 第一个参数最好赋予“_”
-1. 最好使用Title()替代内置的Header(), 否则会有错位
-1. 如果出现改了Shader但GUI没有更新的情况请手动修改Shader使其报错, 然后再改回来以刷新GUI
 
 ## Custom Shader GUI
 
