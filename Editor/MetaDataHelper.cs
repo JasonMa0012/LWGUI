@@ -527,13 +527,25 @@ namespace LWGUI
 			var propertyStaticData = lwgui.perShaderData.propertyDatas[prop.name];
 			var propertyDynamicData = lwgui.perFrameData.propertyDatas[prop.name];
 			var displayModeData = lwgui.perShaderData.displayModeData;
+			
+			//if the Conditional Display Keyword is not active
+			if(!string.IsNullOrEmpty(propertyStaticData.conditionalDisplayKeyword))
+			{
+				var keywords = propertyStaticData.conditionalDisplayKeyword.Split(".");
+				
+				var commonElements = material.shaderKeywords.Intersect(keywords);
+				if (!commonElements.Any())
+				{
+					result = false;
+				}
+			}
 
 			if ( // if HideInInspector
 				Helper.IsPropertyHideInInspector(prop)
 				// if Search Filtered
 			 	|| !propertyStaticData.isSearchDisplayed
 				// if the Conditional Display Keyword is not active
-			 	|| (!string.IsNullOrEmpty(propertyStaticData.conditionalDisplayKeyword) && !material.shaderKeywords.Any((str => str == propertyStaticData.conditionalDisplayKeyword)))
+			 	//|| (!string.IsNullOrEmpty(propertyStaticData.conditionalDisplayKeyword) && !material.shaderKeywords.Any((str => str == propertyStaticData.conditionalDisplayKeyword)))
 				|| (!displayModeData.showAllHiddenProperties && propertyStaticData.isHidden)
 				// if show modified only
 				|| (displayModeData.showOnlyModifiedProperties && !propertyDynamicData.hasModified)
