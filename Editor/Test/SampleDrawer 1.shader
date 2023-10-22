@@ -2,7 +2,8 @@
 {
 	Properties
 	{
-		[Hidden][Title(Main Samples)]
+		[ShowIf(_enum, Equal, 1)]
+		[Title(ShowIf Main Samples)]
 		[Main(GroupName)] _group ("Group", float) = 0
 		[Sub(GroupName)] _float ("Float", float) = 0
 		[Sub(GroupName)] _Tex ("Tex", 2D) = "white" { }
@@ -17,16 +18,11 @@
 
 		[SubTitle(Group1, Conditional Display Samples       Enum)]
 		[KWEnum(Group1, Name 1, _KEY1, Name 2, _KEY2, Name 3, _KEY3)] _enum ("KWEnum", float) = 0
-		// Display when the keyword ("group name + keyword") is activated
-		[Sub(Group1_KEY1)] _key1_Float1 ("Key1 Float", float) = 0
-		[Sub(Group1_KEY2)] _key2_Float2 ("Key2 Float", float) = 0
-		[SubIntRange(Group1_KEY3)] _key3_Int_Range ("Key3 Int Range", Range(0, 10)) = 0
-		[SubPowerSlider(Group1_KEY3, 10)] _key3_Float4_PowerSlider ("Key3 Power Slider", Range(0, 1)) = 0
-
-		[SubTitle(Group1, Conditional Display Samples       Toggle)]
-		[SubToggle(Group1, _TOGGLE_KEYWORD)] _toggle ("SubToggle", float) = 0
-		[Tex(Group1_TOGGLE_KEYWORD)][Normal] _normal ("Normal Keyword", 2D) = "bump" { }
-		[Sub(Group1_TOGGLE_KEYWORD)] _float2 ("Float Keyword", float) = 0
+		[Sub(Group1)][ShowIf(_enum, Equal, 0)] _key1_Float1 ("Key1 Float", float) = 0
+		[Sub(Group1)][ShowIf(_enum, Equal, 1)] _key2_Float2 ("Key2 Float", float) = 0
+		[SubIntRange(Group1)][ShowIf(_enum, Equal, 2)] _key3_Int_Range ("Key3 Int Range", Range(0, 10)) = 0
+		[ShowIf(_enum, Equal, 0)][ShowIf(Or, _enum, Equal, 2)]
+		[SubPowerSlider(Group1, 3)] _key13_PowerSlider ("Key1 or Key3 Power Slider", Range(0, 1)) = 0
 
 
 		[Main(Group2, _, off, off)] _group2 ("Group - Without Toggle", float) = 0

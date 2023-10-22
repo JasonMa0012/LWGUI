@@ -46,6 +46,7 @@
     + [PassSwitch](#passswitch)
     + [Advanced & AdvancedHeaderProperty](#advanced--advancedheaderproperty)
     + [Hidden](#hidden)
+    + [ShowIf](#showif)
   * [Unity Builtin Drawers](#unity-builtin-drawers)
     + [Space](#space)
     + [Header](#header)
@@ -587,6 +588,44 @@ Tips:
 /// 类似于HideInInspector(), 区别在于Hidden()可以通过Display Mode按钮取消隐藏.
 public Hidden()
 ```
+
+#### ShowIf
+
+```c#
+/// 可以根据多个条件控制单个或者一组属性的显示 / 隐藏.
+/// logicalOperator: And | Or (Default: And).
+/// propName: Target Property Name used for comparison.
+/// compareFunction: Less | Greater | LEqual | GEqual | Equal | NotEqual.
+/// value: Target Property Value used for comparison.
+public ShowIfDecorator(string propName, string comparisonMethod, float value) : this("And", propName, comparisonMethod, value) { }
+public ShowIfDecorator(string logicalOperator, string propName, string compareFunction, float value)
+```
+
+Example:
+
+```c#
+[ShowIf(_enum, Equal, 1)]
+[Title(ShowIf Main Samples)]
+[Main(GroupName)] _group ("Group", float) = 0
+[Sub(GroupName)] _float ("Float", float) = 0
+[Sub(GroupName)] _Tex ("Tex", 2D) = "white" { }
+
+...
+
+[SubTitle(Group1, Conditional Display Samples       Enum)]
+[KWEnum(Group1, Name 1, _KEY1, Name 2, _KEY2, Name 3, _KEY3)] _enum ("KWEnum", float) = 0
+[Sub(Group1)][ShowIf(_enum, Equal, 0)] _key1_Float1 ("Key1 Float", float) = 0
+[Sub(Group1)][ShowIf(_enum, Equal, 1)] _key2_Float2 ("Key2 Float", float) = 0
+[SubIntRange(Group1)][ShowIf(_enum, Equal, 2)] _key3_Int_Range ("Key3 Int Range", Range(0, 10)) = 0
+[ShowIf(_enum, Equal, 0)][ShowIf(Or, _enum, Equal, 2)]
+[SubPowerSlider(Group1, 3)] _key13_PowerSlider ("Key1 or Key3 Power Slider", Range(0, 1)) = 0
+
+```
+
+| ![image-20231023010137495](./README_CN.assets/image-20231023010137495.png) | ![image-20231023010153213](./README_CN.assets/image-20231023010153213.png) | ![image-20231023010204399](./README_CN.assets/image-20231023010204399.png) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+
+
 
 
 

@@ -4,9 +4,8 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
   m_Name: LWGUI_KeywordTest
   m_Shader: {fileID: 4800000, guid: 98ad70357ecd6134dbac80aef9c63f6f, type: 3}
   m_ShaderKeywords: _KEYWORDENUM_KEY2 _KWENUM_KEY2 _SUBKEYWORDENUM_KEY1
@@ -15,17 +14,18 @@ Material:
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
-  disabledShaderPasses:
-  - ALWAYS
+  disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs: []
     m_Floats:
     - _ZWrite: 1
     - _enum: 1
-    - _group: 0
+    - _group: 1
+    - _group_toggle1: 0
     - _keywordEnum: 1
     - _kwenum: 1
+    - _preset2: 0
     - _subEnum: 1
     - _subKeywordEnum: 0
     - _toggle: 0

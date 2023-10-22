@@ -138,9 +138,8 @@ namespace LWGUI
 
 
 		#region MaterialProperty.PropertyData
-
-		private static Type			MaterialProperty_Type					= typeof(MaterialProperty);
 #if UNITY_2022_1_OR_NEWER
+		private static Type			MaterialProperty_Type					= typeof(MaterialProperty);
 		private static Type			PropertyData_Type						= MaterialProperty_Type.GetNestedType("PropertyData", BindingFlags.NonPublic);
 		// MergeStack(out bool lockedInChildren, out bool lockedByAncestor, out bool overriden)
 		private static MethodInfo   PropertyData_MergeStack_Method			= PropertyData_Type.GetMethod("MergeStack", BindingFlags.Static | BindingFlags.NonPublic);

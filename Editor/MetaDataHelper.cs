@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace LWGUI
 {
@@ -13,6 +14,12 @@ namespace LWGUI
 		Property = 1, // Search by property
 		Group    = 2, // Search by group
 		Num      = 3
+	}
+
+	public enum LogicalOperator
+	{
+		And,
+		Or
 	}
 
 	public struct DisplayModeData
@@ -25,6 +32,14 @@ namespace LWGUI
 		public int hiddenCount;
 
 		public bool IsDefaultDisplayMode() { return !(showAllAdvancedProperties || showAllHiddenProperties || showOnlyModifiedProperties); }
+	}
+
+	public class ShowIfData
+	{
+		public LogicalOperator logicalOperator    = LogicalOperator.And;
+		public string          targetPropertyName = string.Empty;
+		public CompareFunction compareFunction    = CompareFunction.Equal;
+		public float           value              = 0;
 	}
 
 	/// <summary>
@@ -46,10 +61,11 @@ namespace LWGUI
 		public List<PropertyStaticData> children                 = new List<PropertyStaticData>();
 
 		// Visibility
-		public string conditionalDisplayKeyword = string.Empty;	// [Group(groupName_conditionalDisplayKeyword)]
-		public bool   isSearchDisplayed         = true;			// Draws when the search match is successful
-		public bool   isExpanded                = false;		// Draws when the group has been expanded
-		public bool   isHidden                  = false;		// [Hidden]
+		public string           conditionalDisplayKeyword = string.Empty;           // [Group(groupName_conditionalDisplayKeyword)]
+		public bool             isSearchMatched           = true;                   // Draws when the search match is successful
+		public bool             isExpanding               = false;                  // Draws when the group is expanding
+		public bool             isHidden                  = false;                  // [Hidden]
+		public List<ShowIfData> showIfDatas               = new List<ShowIfData>(); // [ShowIf()]
 
 		// Metadata
 		public List<string>         extraPropNames          = new List<string>();	// Other Props that have been associated
@@ -244,7 +260,7 @@ namespace LWGUI
 			// The First Search
 			foreach (var propertyData in propertyDatas)
 			{
-				propertyData.Value.isSearchDisplayed = isSearchStringEmpty
+				propertyData.Value.isSearchMatched = isSearchStringEmpty
 					? true
 					: IsWholeWordMatch(propertyData.Value.displayName, propertyData.Key, searchKeywords);
 			}
@@ -257,7 +273,7 @@ namespace LWGUI
 				if (searchModeTemp == SearchMode.Auto)
 				{
 					// if has no group
-					if (!propertyDatas.Any((propertyData => propertyData.Value.isSearchDisplayed && propertyData.Value.isMain)))
+					if (!propertyDatas.Any((propertyData => propertyData.Value.isSearchMatched && propertyData.Value.isMain)))
 						searchModeTemp = SearchMode.Property;
 					else
 						searchModeTemp = SearchMode.Group;
@@ -269,8 +285,8 @@ namespace LWGUI
 					// when a SubProp is displayed, the MainProp is also displayed
 					foreach (var propertyData in propertyDatas)
 					{
-						if (propertyData.Value.isMain && propertyData.Value.children.Any((childPropertyData => childPropertyData.isSearchDisplayed)))
-							propertyData.Value.isSearchDisplayed = true;
+						if (propertyData.Value.isMain && propertyData.Value.children.Any((childPropertyData => childPropertyData.isSearchMatched)))
+							propertyData.Value.isSearchMatched = true;
 					}
 				}
 				// search by group
@@ -281,7 +297,7 @@ namespace LWGUI
 					{
 						if (propertyData.Value.isMain)
 							foreach (var childPropertyData in propertyData.Value.children)
-								childPropertyData.isSearchDisplayed = propertyData.Value.isSearchDisplayed;
+								childPropertyData.isSearchMatched = propertyData.Value.isSearchMatched;
 					}
 				}
 			}
@@ -308,7 +324,7 @@ namespace LWGUI
 			foreach (var propertyStaticDataPair in propertyDatas)
 			{
 				if (propertyStaticDataPair.Value.isAdvancedHeader)
-					propertyStaticDataPair.Value.isExpanded = displayModeData.showAllAdvancedProperties;
+					propertyStaticDataPair.Value.isExpanding = displayModeData.showAllAdvancedProperties;
 			}
 		}
 	}
@@ -321,8 +337,9 @@ namespace LWGUI
 		public MaterialProperty property;
 		public MaterialProperty defualtProperty;                        // Default values may be overridden by Preset
 		public string           defaultValueDescription = string.Empty; // Description of the default values used in Tooltip
-		public bool             hasModified		        = false;		// Are properties modified in the material?
-		public bool             revertChanged           = false;		// Used to call property EndChangeCheck()
+		public bool             hasModified             = false;        // Are properties modified in the material?
+		public bool             hasRevertChanged        = false;        // Used to call property EndChangeCheck()
+		public bool             isShowing               = true;			// ShowIf() result
 
 	}
 
@@ -355,6 +372,8 @@ namespace LWGUI
 			{
 				List<MaterialPropertyDrawer> decoratorDrawers;
 				var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
+
+				// Get Presets
 				if (drawer != null)
 				{
 					if (drawer is IBasePresetDrawer)
@@ -400,10 +419,13 @@ namespace LWGUI
 
 			foreach (var prop in props)
 			{
+				var propStaticData = perShaderData.propertyDatas[prop.name];
+				var propDynamicData = propertyDatas[prop.name];
+
 				// Override parent hasModified
-				if (propertyDatas[prop.name].hasModified)
+				if (propDynamicData.hasModified)
 				{
-					var parentPropData = perShaderData.propertyDatas[prop.name].parent;
+					var parentPropData = propStaticData.parent;
 					if (parentPropData != null)
 					{
 						propertyDatas[parentPropData.name].hasModified = true;
@@ -413,9 +435,9 @@ namespace LWGUI
 				}
 
 				// Get default value descriptions
+				List<MaterialPropertyDrawer> decoratorDrawers;
+				var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
 				{
-					List<MaterialPropertyDrawer> decoratorDrawers;
-					var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
 					if (decoratorDrawers != null && decoratorDrawers.Count > 0)
 					{
 						foreach (var decoratorDrawer in decoratorDrawers)
@@ -429,9 +451,48 @@ namespace LWGUI
 						if (drawer is IBaseDrawer)
 							(drawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, perShaderData, this);
 					}
-					if (string.IsNullOrEmpty(propertyDatas[prop.name].defaultValueDescription))
-						propertyDatas[prop.name].defaultValueDescription =
-							RevertableHelper.GetPropertyDefaultValueText(propertyDatas[prop.name].defualtProperty);
+					if (string.IsNullOrEmpty(propDynamicData.defaultValueDescription))
+						propDynamicData.defaultValueDescription =
+							RevertableHelper.GetPropertyDefaultValueText(propDynamicData.defualtProperty);
+				}
+
+				// Get ShowIf() results
+				foreach (var showIfData in propStaticData.showIfDatas)
+				{
+					var propCurrentValue = propertyDatas[showIfData.targetPropertyName].property.floatValue;
+					bool compareResult;
+
+					switch (showIfData.compareFunction)
+					{
+						case CompareFunction.Less:
+							compareResult = propCurrentValue < showIfData.value;
+							break;
+						case CompareFunction.LessEqual:
+							compareResult = propCurrentValue <= showIfData.value;
+							break;
+						case CompareFunction.Greater:
+							compareResult = propCurrentValue > showIfData.value;
+							break;
+						case CompareFunction.NotEqual:
+							compareResult = propCurrentValue != showIfData.value;
+							break;
+						case CompareFunction.GreaterEqual:
+							compareResult = propCurrentValue >= showIfData.value;
+							break;
+						default:
+							compareResult = propCurrentValue == showIfData.value;
+							break;
+					}
+
+					switch (showIfData.logicalOperator)
+					{
+						case LogicalOperator.And:
+							propDynamicData.isShowing &= compareResult;
+							break;
+						case LogicalOperator.Or:
+							propDynamicData.isShowing |= compareResult;
+							break;
+					}
 				}
 			}
 		}
@@ -457,8 +518,8 @@ namespace LWGUI
 			var result = EditorGUI.EndChangeCheck();
 			if (!string.IsNullOrEmpty(propName))
 			{
-				result |= propertyDatas[propName].revertChanged;
-				propertyDatas[propName].revertChanged = false;
+				result |= propertyDatas[propName].hasRevertChanged;
+				propertyDatas[propName].hasRevertChanged = false;
 			}
 			return result;
 		}
@@ -531,12 +592,14 @@ namespace LWGUI
 			if ( // if HideInInspector
 				Helper.IsPropertyHideInInspector(prop)
 				// if Search Filtered
-			 	|| !propertyStaticData.isSearchDisplayed
+			 	|| !propertyStaticData.isSearchMatched
 				// if the Conditional Display Keyword is not active
 			 	|| (!string.IsNullOrEmpty(propertyStaticData.conditionalDisplayKeyword) && !material.shaderKeywords.Any((str => str == propertyStaticData.conditionalDisplayKeyword)))
 				|| (!displayModeData.showAllHiddenProperties && propertyStaticData.isHidden)
 				// if show modified only
 				|| (displayModeData.showOnlyModifiedProperties && !propertyDynamicData.hasModified)
+				// ShowIf() == false
+				|| !propertyDynamicData.isShowing
 			   )
 			{
 				result = false;
@@ -550,7 +613,7 @@ namespace LWGUI
 			bool result = true;
 
 			if (parentPropStaticData != null
-				&& (!lwgui.perShaderData.propertyDatas[parentPropStaticData.name].isExpanded
+				&& (!lwgui.perShaderData.propertyDatas[parentPropStaticData.name].isExpanding
 					|| !MetaDataHelper.GetPropertyVisibility(lwgui.perFrameData.propertyDatas[parentPropStaticData.name].property, material, lwgui)))
 			{
 				result = false;

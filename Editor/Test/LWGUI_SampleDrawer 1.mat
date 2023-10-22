@@ -8,7 +8,7 @@ Material:
   m_PrefabInternal: {fileID: 0}
   m_Name: LWGUI_SampleDrawer 1
   m_Shader: {fileID: 4800000, guid: 7ee048c9536c0344bb8b4860595a4d9b, type: 3}
-  m_ShaderKeywords: _GROUP_ON _KEY3 _TOGGLE_KEYWORD
+  m_ShaderKeywords: _GROUP_ON _KEY2
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -69,7 +69,7 @@ Material:
     - _Advancedfloat3: 0.21
     - _Advancedfloat4: 0
     - _Advancedfloat7: 0.24
-    - _enum: 2
+    - _enum: 1
     - _float: -0.8
     - _float1: -0.05
     - _float2: -0.08
@@ -82,6 +82,7 @@ Material:
     - _group1: 0
     - _group2: 0
     - _group3: 0
+    - _key13_PowerSlider: 0.199
     - _key1_Float1: 0
     - _key2_Float2: 0
     - _key3_Float3: -0.34
@@ -94,7 +95,7 @@ Material:
     - _range: 0.42
     - _rangeEnd: 0.70471865
     - _rangeStart: 0.20471871
-    - _toggle: 1
+    - _toggle: 0
     - _toggle1: 1
     m_Colors:
     - _color: {r: 1, g: 0.5886792, b: 0.5886792, a: 1}

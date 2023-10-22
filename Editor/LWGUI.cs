@@ -98,9 +98,9 @@ namespace LWGUI
 						var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
 						var label = string.IsNullOrEmpty(propStaticData.advancedHeaderString) ? "Advanced" : propStaticData.advancedHeaderString;
 						RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, this);
-						propStaticData.isExpanded = EditorGUI.Foldout(rect, propStaticData.isExpanded, label);
+						propStaticData.isExpanding = EditorGUI.Foldout(rect, propStaticData.isExpanding, label);
 
-						if (!propStaticData.isExpanded)
+						if (!propStaticData.isExpanding)
 						{
 							RevertableHelper.SetRevertableGUIWidths();
 							EditorGUI.indentLevel = indentLevel;
@@ -163,7 +163,7 @@ namespace LWGUI
 			RevertableHelper.FixGUIWidthMismatch(prop.type, materialEditor);
 			RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, this);
 			if (propStaticData.isAdvancedHeaderProperty)
-				propStaticData.isExpanded = EditorGUI.Foldout(rect, propStaticData.isExpanded, string.Empty);
+				propStaticData.isExpanding = EditorGUI.Foldout(rect, propStaticData.isExpanding, string.Empty);
 			materialEditor.ShaderProperty(rect, prop, label);
 			Helper.EndProperty(this, prop);
 		}

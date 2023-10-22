@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: LWGUI_KeywordTest 1
   m_Shader: {fileID: 4800000, guid: 98ad70357ecd6134dbac80aef9c63f6f, type: 3}
-  m_ShaderKeywords: _KEYWORDENUM_KEY2 _KWENUM_KEY2 _SUBKEYWORDENUM_KEY2 _TOGGLE_KEYWORD
+  m_ShaderKeywords: _GROUP_TOGGLE_KEYWORD _KEYWORDENUM_KEY1 _KWENUM_KEY1 _SUBKEYWORDENUM_KEY1
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -23,10 +23,12 @@ Material:
     - _ZWrite: 1
     - _enum: 1
     - _group: 1
-    - _keywordEnum: 1
-    - _kwenum: 1
+    - _group_toggle1: 1
+    - _keywordEnum: 0
+    - _kwenum: 0
+    - _preset2: 1
     - _subEnum: 1
-    - _subKeywordEnum: 1
+    - _subKeywordEnum: 0
     - _toggle: 0
-    - _toggle1: 1
+    - _toggle1: 0
     m_Colors: []

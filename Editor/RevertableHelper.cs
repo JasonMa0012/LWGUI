@@ -156,12 +156,12 @@ namespace LWGUI
 		{
 			var propDynamicData = lwgui.perFrameData.propertyDatas[prop.name];
 			var extraPropNames = lwgui.perShaderData.propertyDatas[prop.name].extraPropNames;
-			propDynamicData.revertChanged = true;
+			propDynamicData.hasRevertChanged = true;
 			SetPropertyToDefault(propDynamicData.defualtProperty, prop);
 			foreach (var extraPropName in extraPropNames)
 			{
 				var extraPropDynamicData = lwgui.perFrameData.propertyDatas[extraPropName];
-				extraPropDynamicData.revertChanged = true;
+				extraPropDynamicData.hasRevertChanged = true;
 				SetPropertyToDefault(extraPropDynamicData.defualtProperty, extraPropDynamicData.property);
 			}
 		}

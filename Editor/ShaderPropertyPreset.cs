@@ -98,7 +98,7 @@ namespace LWGUI
 							break;
 					}
 
-					propDynamicData.revertChanged = true;
+					propDynamicData.hasRevertChanged = true;
 				}
 			}
 

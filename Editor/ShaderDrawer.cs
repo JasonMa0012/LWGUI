@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
 
 namespace LWGUI
@@ -62,7 +63,7 @@ namespace LWGUI
 		{
 			inoutPropertyStaticData.groupName = _group;
 			inoutPropertyStaticData.isMain = true;
-			inoutPropertyStaticData.isExpanded = _defaultFoldingState;
+			inoutPropertyStaticData.isExpanding = _defaultFoldingState;
 		}
 
 		public virtual void GetDefaultValueDescription(Shader           inShader,
@@ -85,7 +86,7 @@ namespace LWGUI
 
 			EditorGUI.BeginChangeCheck();
 
-			bool toggleResult = Helper.DrawFoldout(position, ref propertyStaticData.isExpanded, prop.floatValue > 0, _defaultToggleDisplayed, label);
+			bool toggleResult = Helper.DrawFoldout(position, ref propertyStaticData.isExpanding, prop.floatValue > 0, _defaultToggleDisplayed, label);
 
 			if (Helper.EndChangeCheck(lwgui, prop))
 			{
@@ -1324,6 +1325,39 @@ namespace LWGUI
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
 		{
 			inoutPropertyStaticData.isHidden = true;
+		}
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor) { }
+	}
+
+	/// <summary>
+	/// Control the show or hide of a single or a group of properties based on multiple conditions.
+	/// logicalOperator: And | Or (Default: And).
+	/// propName: Target Property Name used for comparison.
+	/// compareFunction: Less | Greater | LEqual | GEqual | Equal | NotEqual.
+	/// value: Target Property Value used for comparison.
+	/// </summary>
+	public class ShowIfDecorator : SubDrawer
+	{
+		private ShowIfData _showIfData = new ShowIfData();
+
+		public ShowIfDecorator(string propName, string comparisonMethod, float value) : this("And", propName, comparisonMethod, value) { }
+		public ShowIfDecorator(string logicalOperator, string propName, string compareFunction, float value)
+		{
+			_showIfData.logicalOperator = logicalOperator.ToLower() == "or" ? LogicalOperator.Or : LogicalOperator.And;
+			_showIfData.targetPropertyName = propName;
+			if (!Enum.IsDefined(typeof(CompareFunction), compareFunction))
+				Debug.LogError("Invalid compareFunction: '" + compareFunction + "', Must be one of the following: Less | Greater | LEqual | GEqual | Equal | NotEqual | Always.");
+			else
+				_showIfData.compareFunction = (CompareFunction)Enum.Parse(typeof(CompareFunction), compareFunction);
+			_showIfData.value = value;
+		}
+
+		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
+
+		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
+		{
+			inoutPropertyStaticData.showIfDatas.Add(_showIfData);
 		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor) { }

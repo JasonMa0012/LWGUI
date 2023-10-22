@@ -534,7 +534,7 @@ namespace LWGUI
 				foreach (var propertyStaticDataPair in lwgui.perShaderData.propertyDatas)
 				{
 					if (propertyStaticDataPair.Value.isMain || propertyStaticDataPair.Value.isAdvancedHeader)
-						propertyStaticDataPair.Value.isExpanded = true;
+						propertyStaticDataPair.Value.isExpanding = true;
 				}
 			}
 
@@ -546,7 +546,7 @@ namespace LWGUI
 				foreach (var propertyStaticDataPair in lwgui.perShaderData.propertyDatas)
 				{
 					if (propertyStaticDataPair.Value.isMain || propertyStaticDataPair.Value.isAdvancedHeader)
-						propertyStaticDataPair.Value.isExpanded = false;
+						propertyStaticDataPair.Value.isExpanding = false;
 				}
 			}
 
