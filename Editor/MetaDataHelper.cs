@@ -377,7 +377,7 @@ namespace LWGUI
 					new Material(shader);
 
 				foreach (var activePreset in activePresets)
-					activePreset.preset.Apply(defaultMaterial);
+					activePreset.preset.ApplyToDefaultMaterial(defaultMaterial);
 
 				var defaultProperties = MaterialEditor.GetMaterialProperties(new[] { defaultMaterial });
 				Debug.Assert(defaultProperties.Length == props.Length);

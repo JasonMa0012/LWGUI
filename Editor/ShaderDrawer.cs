@@ -1098,7 +1098,7 @@ namespace LWGUI
 			if (Helper.EndChangeCheck(lwgui, prop))
 			{
 				prop.floatValue = newIndex;
-				preset.Apply(prop.targets, (int)prop.floatValue);
+				preset.ApplyToMaterials(prop.targets, (int)prop.floatValue, lwgui.perFrameData);
 			}
 			EditorGUI.showMixedValue = false;
 		}

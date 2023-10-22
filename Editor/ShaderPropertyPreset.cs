@@ -35,7 +35,7 @@ namespace LWGUI
 
 			private int propertyNameID = -1;
 
-			public void Apply(Material material)
+			public void Apply(Material material, bool isDefaultMaterial, PerFrameData perFrameData = null)
 			{
 				if (propertyNameID == -1 || !material.HasProperty(propertyNameID))
 					propertyNameID = Shader.PropertyToID(propertyName);
@@ -52,21 +52,53 @@ namespace LWGUI
 							return;
 					}
 				}
-				switch (propertyType)
+
+				var isPropertyOtherMaterials = !isDefaultMaterial && perFrameData == null;
+				if (isPropertyOtherMaterials || isDefaultMaterial)
 				{
-					case PropertyType.Color:   
-						material.SetColor(propertyNameID, colorValue);
-						break;
-					case PropertyType.Vector:  
-						material.SetVector(propertyNameID, vectorValue);
-						break;
-					case PropertyType.Float:   
-					case PropertyType.Range:
-						material.SetFloat(propertyNameID, floatValue);
-						break;
-					case PropertyType.Texture: 
-						material.SetTexture(propertyNameID, textureValue);
-						break;
+					switch (propertyType)
+					{
+						case PropertyType.Color:
+							material.SetColor(propertyNameID, colorValue);
+							break;
+						case PropertyType.Vector:
+							material.SetVector(propertyNameID, vectorValue);
+							break;
+						case PropertyType.Float:
+						case PropertyType.Range:
+							material.SetFloat(propertyNameID, floatValue);
+							break;
+						case PropertyType.Texture:
+							material.SetTexture(propertyNameID, textureValue);
+							break;
+					}
+
+					if (isPropertyOtherMaterials)
+						MaterialEditor.ApplyMaterialPropertyDrawers(material);
+				}
+				else
+				// is Property Primary Material
+				{
+					var propDynamicData = perFrameData.propertyDatas[propertyName];
+					var prop = propDynamicData.property;
+					switch (propertyType)
+					{
+						case PropertyType.Color:
+							prop.colorValue = colorValue;
+							break;
+						case PropertyType.Vector:
+							prop.vectorValue = vectorValue;
+							break;
+						case PropertyType.Float:
+						case PropertyType.Range:
+							prop.floatValue = floatValue;
+							break;
+						case PropertyType.Texture:
+							prop.textureValue = textureValue;
+							break;
+					}
+
+					propDynamicData.revertChanged = true;
 				}
 			}
 
@@ -113,10 +145,10 @@ namespace LWGUI
 			public string              presetName;
 			public List<PropertyValue> propertyValues = new List<PropertyValue>();
 
-			public void Apply(Material material)
+			public void ApplyToDefaultMaterial(Material material)
 			{
 				foreach (var propertyValue in propertyValues)
-					propertyValue.Apply(material);
+					propertyValue.Apply(material, true);
 			}
 
 			public PropertyValue GetPropertyValue(string propName)
@@ -207,16 +239,17 @@ namespace LWGUI
 				PresetHelper.AddPreset(this);
 		}
 
-		public void Apply(UnityEngine.Object[] materials, int presetIndex)
+		public void ApplyToMaterials(UnityEngine.Object[] materials, int presetIndex, PerFrameData perFrameData)
 		{
 			if (this.presets.Count == 0) return;
 			
 			int index = (int)Mathf.Min(this.presets.Count - 1, Mathf.Max(0, presetIndex));
 			foreach (var propertyValue in this.presets[index].propertyValues)
 			{
-				foreach (Material material in materials)
+				for (int i = 0; i < materials.Length; i++)
 				{
-					propertyValue.Apply(material);
+					var material = materials[i] as Material;
+					propertyValue.Apply(material, false, i == 0 ? perFrameData : null);
 				}
 			}
 		}

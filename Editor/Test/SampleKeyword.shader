@@ -2,8 +2,7 @@ Shader "Hidden"
 {
 	Properties
 	{
-		[Enum(Name1, 2, Name2, 1)]
-		_enum ("Enum", float) = 1
+		[Preset(_, LWGUI_ShaderPropertyPreset2)] _preset2 ("Preset", float) = 0
 
 		[KeywordEnum(key1, key2)]
 		_keywordEnum ("KeywordEnum", float) = 0
@@ -12,16 +11,14 @@ Shader "Hidden"
 		_kwenum ("KWEnum", float) = 0
 		
 		[Toggle(_TOGGLE_KEYWORD)] _toggle1 ("Toggle", float) = 0
-		
+
+		[Main(g0, _GROUP_TOGGLE_KEYWORD)] _group_toggle1 ("Group Toggle", float) = 0
+
 		[Main(g1, _, on, on)]
 		[PassSwitch(Always)]
 		_group ("Pass Switch Group", float) = 1
 		[SubEnum(g1, Off, 0, On, 1)] _ZWrite ("ZWrite Mode", Float) = 1
 		[SubToggle(g1, _SUBTOGGLE_KEYWORD)] _toggle ("Sub Toggle", float) = 0
-
-		[SubEnum(g1, Name1, 1, Name2, 0.5)]
-		_subEnum ("SubEnum", float) = 0.5
-
 		[SubKeywordEnum(g1, key1, key2)]
 		_subKeywordEnum ("SubKeywordEnum", float) = 0
 	}
@@ -42,6 +39,7 @@ Shader "Hidden"
 			#pragma multi_compile _SUBKEYWORDENUM_KEY1 _SUBKEYWORDENUM_KEY2
 			#pragma multi_compile _ _SUBTOGGLE_KEYWORD
 			#pragma multi_compile _ _TOGGLE_KEYWORD
+			#pragma multi_compile _ _GROUP_TOGGLE_KEYWORD
 
 			#include "UnityCG.cginc"
 
@@ -60,9 +58,7 @@ Shader "Hidden"
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
-			
-			float _enum;
-			float _subEnum;
+
 
 			v2f vert(appdata v)
 			{
@@ -78,35 +74,37 @@ Shader "Hidden"
 				fixed4 col = 0;
 				
 				#if _KWENUM_KEY1
-					col.x = 0;
+					col.x += 0;
 				#elif _KWENUM_KEY2
-					col.x = 1;
+					col.x += 0.25;
 				#endif
 				
 				#if _KEYWORDENUM_KEY1
-					col.y = 0;
+					col.y += 0;
 				#elif _KEYWORDENUM_KEY2
-					col.y = 1;
+					col.y += 0.25;
 				#endif
 				
 				#if _SUBKEYWORDENUM_KEY1
-					col.z = 0;
+					col.y += 0.0;
 				#elif _SUBKEYWORDENUM_KEY2
-					col.z = 0.5;
+					col.y += 0.25;
 				#endif
 				
 				#if _SUBTOGGLE_KEYWORD
-					col.z = 0.75;
+					col.z += 0.25;
 				#endif
 				
 				#if _TOGGLE_KEYWORD
-					col.z = 1;
+					col.z += 0.25;
 				#endif
 
-				col.x *= _enum;
-				col.y *= _subEnum;
-				
-				return col;
+				#if _GROUP_TOGGLE_KEYWORD
+					col.z += 0.25;
+				#endif
+
+
+				return frac(col);
 			}
 			ENDCG
 		}

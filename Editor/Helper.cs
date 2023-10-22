@@ -247,6 +247,7 @@ namespace LWGUI
 				if (GUI.Button(rect, label, _guiStyle_Foldout))
 				{
 					isFolding = !isFolding;
+					GUI.changed = false;
 				}
 				GUI.backgroundColor = guiColor;
 				GUI.enabled = enabled;
@@ -858,6 +859,8 @@ namespace LWGUI
 				menus.AddSeparator("");
 				foreach (var activePresetData in lwgui.perFrameData.activePresets)
 				{
+					if (activePresetData.property == prop) continue;
+
 					var activePreset = activePresetData.preset;
 					var presetAsset = lwgui.perShaderData.propertyDatas[activePresetData.property.name].propertyPresetAsset;
 					var presetPropDisplayName = lwgui.perShaderData.propertyDatas[activePresetData.property.name].displayName;
