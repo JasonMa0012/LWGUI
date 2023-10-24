@@ -205,7 +205,7 @@ namespace LWGUI
 			return rects;
 		}
 
-		private static GUIStyle _guiStyle_Foldout = new GUIStyle("minibutton")
+		private static GUIStyle _guiStyle_Foldout = new GUIStyle(EditorStyles.miniButton)
 		{
 			contentOffset = new Vector2(22, 0),
 			fixedHeight = 27,
