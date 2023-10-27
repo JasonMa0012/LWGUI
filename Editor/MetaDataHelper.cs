@@ -173,6 +173,7 @@ namespace LWGUI
 			// Build Display Mode Data
 			{
 				PropertyStaticData lastPropData = null;
+				PropertyStaticData lastHeaderPropData = null;
 				for (int i = 0; i < props.Length; i++)
 				{
 					var prop = props[i];
@@ -201,12 +202,15 @@ namespace LWGUI
 							&& propStaticData.advancedHeaderString != lastPropData.advancedHeaderString))
 						{
 							propStaticData.isAdvancedHeader = true;
+							lastHeaderPropData = propStaticData;
 						}
 						// Else set to child
 						else
 						{
-							propStaticData.parent = lastPropData.isAdvancedHeader ? lastPropData : lastPropData.parent;
+							propStaticData.parent = lastHeaderPropData;
+							lastHeaderPropData.children.Add(propStaticData);
 						}
+
 					}
 
 					lastPropData = propStaticData;
@@ -338,6 +342,7 @@ namespace LWGUI
 		public MaterialProperty defualtProperty;                        // Default values may be overridden by Preset
 		public string           defaultValueDescription = string.Empty; // Description of the default values used in Tooltip
 		public bool             hasModified             = false;        // Are properties modified in the material?
+		public bool             hasChildrenModified     = false;        // Are Children properties modified in the material?
 		public bool             hasRevertChanged        = false;        // Used to call property EndChangeCheck()
 		public bool             isShowing               = true;			// ShowIf() result
 
@@ -428,9 +433,9 @@ namespace LWGUI
 					var parentPropData = propStaticData.parent;
 					if (parentPropData != null)
 					{
-						propertyDatas[parentPropData.name].hasModified = true;
+						propertyDatas[parentPropData.name].hasChildrenModified = true;
 						if (parentPropData.parent != null)
-							propertyDatas[parentPropData.parent.name].hasModified = true;
+							propertyDatas[parentPropData.parent.name].hasChildrenModified = true;
 					}
 				}
 

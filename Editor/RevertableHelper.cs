@@ -117,7 +117,7 @@ namespace LWGUI
 
 		#region Draw revert button
 
-		public static bool DrawRevertableProperty(Rect position, MaterialProperty prop, LWGUI lwgui)
+		public static bool DrawRevertableProperty(Rect position, MaterialProperty prop, LWGUI lwgui, bool isHeader = false)
 		{
 			bool hasModified = prop.hasMixedValue;
 
@@ -125,6 +125,9 @@ namespace LWGUI
 			var propStaticData = lwgui.perShaderData.propertyDatas[prop.name];
 			if (!hasModified)
 				hasModified = propDynamicData.hasModified;
+
+			if (!hasModified && isHeader)
+				hasModified = propDynamicData.hasChildrenModified;
 
 			var extraPropNames = lwgui.perShaderData.propertyDatas[prop.name].extraPropNames;
 			if (!hasModified && extraPropNames.Count > 0)
