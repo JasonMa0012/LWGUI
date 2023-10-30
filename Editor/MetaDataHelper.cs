@@ -602,7 +602,7 @@ namespace LWGUI
 			 	|| (!string.IsNullOrEmpty(propertyStaticData.conditionalDisplayKeyword) && !material.shaderKeywords.Any((str => str == propertyStaticData.conditionalDisplayKeyword)))
 				|| (!displayModeData.showAllHiddenProperties && propertyStaticData.isHidden)
 				// if show modified only
-				|| (displayModeData.showOnlyModifiedProperties && !propertyDynamicData.hasModified)
+				|| (displayModeData.showOnlyModifiedProperties && !(propertyDynamicData.hasModified || propertyDynamicData.hasChildrenModified))
 				// ShowIf() == false
 				|| !propertyDynamicData.isShowing
 			   )
