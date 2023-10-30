@@ -173,7 +173,7 @@ namespace LWGUI
 
 		#region GUI Styles
 
-		public static readonly GUIStyle guiStyles_IconButton = new GUIStyle("IconButton") { fixedHeight = 0, fixedWidth = 0};
+		public static readonly GUIStyle guiStyles_IconButton = new GUIStyle(EditorStyles.iconButton) { fixedHeight = 0, fixedWidth = 0};
 
 		#endregion
 
@@ -217,8 +217,6 @@ namespace LWGUI
 #endif
 		};
 
-		private static GUIStyle _guiStyle_Toggle      = new GUIStyle("Toggle");
-		private static GUIStyle _guiStyle_ToggleMixed = new GUIStyle("ToggleMixed");
 		public static bool DrawFoldout(Rect rect, ref bool isFolding, bool toggleValue, bool hasToggle, GUIContent label)
 		{
 			var toggleRect = new Rect(rect.x + 8f, rect.y + 7f, 13f, 13f);
@@ -256,8 +254,7 @@ namespace LWGUI
 			// Toggle Icon
 			if (hasToggle)
 			{
-				GUI.Toggle(toggleRect, EditorGUI.showMixedValue ? false : toggleValue, String.Empty,
-						   EditorGUI.showMixedValue ? _guiStyle_ToggleMixed : _guiStyle_Toggle);
+				EditorGUI.Toggle(toggleRect, string.Empty, toggleValue);
 			}
 
 			return toggleValue;
