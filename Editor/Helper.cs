@@ -173,13 +173,94 @@ namespace LWGUI
 
 		#region GUI Styles
 
-		public static readonly GUIStyle guiStyles_IconButton = new GUIStyle(
+		// Tips: Use properties to fix null reference errors
+
+		private static GUIStyle _guiStyles_IconButton;
+		public static  GUIStyle guiStyles_IconButton
+		{
+			get
+			{
+				if (_guiStyles_IconButton == null)
+				{
+					_guiStyles_IconButton = new GUIStyle(
 #if UNITY_2021_2_OR_NEWER
-																			EditorStyles.iconButton
+														 EditorStyles.iconButton
 #else
-																			"iconButton"
+						"iconButton"
 #endif
-																			) { fixedHeight = 0, fixedWidth = 0};
+														) { fixedHeight = 0, fixedWidth = 0 };
+				}
+				return _guiStyles_IconButton;
+			}
+		}
+
+		private static GUIStyle _guiStyle_Foldout;
+
+		public static GUIStyle guiStyle_Foldout
+		{
+			get
+			{
+				if (_guiStyle_Foldout == null)
+				{
+					_guiStyle_Foldout =
+						new GUIStyle(EditorStyles.miniButton)
+						{
+							contentOffset = new Vector2(22, 0),
+							fixedHeight = 27,
+							alignment = TextAnchor.MiddleLeft,
+							font = EditorStyles.boldLabel.font,
+							fontSize = EditorStyles.boldLabel.fontSize
+				#if UNITY_2019_4_OR_NEWER
+									 + 1,
+				#endif
+						};
+				}
+				return _guiStyle_Foldout;
+			}
+		}
+
+		private static GUIStyle _guiStyle_Helpbox;
+
+		public static GUIStyle guiStyle_Helpbox
+		{
+			get
+			{
+				if (_guiStyle_Helpbox == null)
+				{
+					_guiStyle_Helpbox = new GUIStyle(EditorStyles.helpBox) { fontSize = 12 };
+				}
+				return _guiStyle_Helpbox;
+			}
+		}
+
+		private static GUIStyle _guiStyles_ToolbarSearchTextFieldPopup;
+		public static GUIStyle guiStyles_ToolbarSearchTextFieldPopup
+		{
+			get
+			{
+				if (_guiStyles_ToolbarSearchTextFieldPopup == null)
+				{
+					string toolbarSeachTextFieldPopupStr = "ToolbarSeachTextFieldPopup";
+					{
+						// ToolbarSeachTextFieldPopup has renamed at Unity 2021.3.28+
+	#if !UNITY_2022_3_OR_NEWER
+						string[] versionParts = Application.unityVersion.Split('.');
+						int majorVersion = int.Parse(versionParts[0]);
+						int minorVersion = int.Parse(versionParts[1]);
+						Match patchVersionMatch = Regex.Match(versionParts[2], @"\d+");
+						int patchVersion = int.Parse(patchVersionMatch.Value);
+						if (majorVersion >= 2021 && minorVersion >= 3 && patchVersion >= 28)
+	#endif
+						{
+							toolbarSeachTextFieldPopupStr = "ToolbarSearchTextFieldPopup";
+						}
+					}
+					_guiStyles_ToolbarSearchTextFieldPopup = new GUIStyle(toolbarSeachTextFieldPopupStr);
+				}
+				return _guiStyles_ToolbarSearchTextFieldPopup;
+			}
+		}
+
 
 		#endregion
 
@@ -211,17 +292,6 @@ namespace LWGUI
 			return rects;
 		}
 
-		private static GUIStyle _guiStyle_Foldout = new GUIStyle(EditorStyles.miniButton)
-		{
-			contentOffset = new Vector2(22, 0),
-			fixedHeight = 27,
-			alignment = TextAnchor.MiddleLeft,
-			font = EditorStyles.boldLabel.font,
-			fontSize = EditorStyles.boldLabel.fontSize
-#if UNITY_2019_4_OR_NEWER
-					 + 1,
-#endif
-		};
 
 		public static bool DrawFoldout(Rect rect, ref bool isFolding, bool toggleValue, bool hasToggle, GUIContent label)
 		{
@@ -248,7 +318,7 @@ namespace LWGUI
 				GUI.enabled = true;
 				var guiColor = GUI.backgroundColor;
 				GUI.backgroundColor = isFolding ? Color.white : new Color(0.85f, 0.85f, 0.85f);
-				if (GUI.Button(rect, label, _guiStyle_Foldout))
+				if (GUI.Button(rect, label, guiStyle_Foldout))
 				{
 					isFolding = !isFolding;
 					GUI.changed = false;
@@ -280,7 +350,6 @@ namespace LWGUI
 		}
 
 		private static readonly Texture2D _helpboxIcon     = EditorGUIUtility.IconContent("console.infoicon").image as Texture2D;
-		public static readonly  GUIStyle  guiStyle_Helpbox = new GUIStyle(EditorStyles.helpBox) { fontSize = 12 };
 
 		public static void DrawHelpbox(PropertyStaticData propertyStaticData, PropertyDynamicData propertyDynamicData)
 		{
@@ -613,29 +682,6 @@ namespace LWGUI
 				return new GUIContent(((SearchMode)i).ToString());
 			})).ToArray();
 
-
-		private static GUIStyle guiStyles_ToolbarSearchTextFieldPopup
-		{
-			get
-			{
-				string toolbarSeachTextFieldPopupStr = "ToolbarSeachTextFieldPopup";
-				{
-					// ToolbarSeachTextFieldPopup has renamed at Unity 2021.3.28+
-#if !UNITY_2022_3_OR_NEWER
-					string[] versionParts = Application.unityVersion.Split('.');
-					int majorVersion = int.Parse(versionParts[0]);
-					int minorVersion = int.Parse(versionParts[1]);
-					Match patchVersionMatch = Regex.Match(versionParts[2], @"\d+");
-					int patchVersion = int.Parse(patchVersionMatch.Value);
-					if (majorVersion >= 2021 && minorVersion >= 3 && patchVersion >= 28)
-#endif
-					{
-						toolbarSeachTextFieldPopupStr = "ToolbarSearchTextFieldPopup";
-					}
-				}
-				return new GUIStyle(toolbarSeachTextFieldPopupStr);
-			}
-		}
 
 		/// <returns>is has changed?</returns>
 		public static bool DrawSearchField(Rect rect, LWGUI lwgui)

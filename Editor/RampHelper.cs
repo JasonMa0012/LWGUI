@@ -34,8 +34,6 @@ namespace LWGUI
 										   _iconDiscard = new GUIContent(EditorGUIUtility.IconContent("d_TreeEditor.Refresh").image, "Discard"),
 										   _iconSave    = new GUIContent(EditorGUIUtility.IconContent("SaveActive").image, "Save");
 
-		private static readonly GUIStyle _styleEdit = new GUIStyle("button");
-
 		public static bool RampEditor(
 			Rect               buttonRect,
 			MaterialProperty   prop,
@@ -87,7 +85,7 @@ namespace LWGUI
 			if (currEvent.type == EventType.Repaint)
 			{
 				var isHover = editRect.Contains(currEvent.mousePosition);
-				_styleEdit.Draw(editRect, _iconEdit, isHover, false, false, false);
+				(new GUIStyle("button")).Draw(editRect, _iconEdit, isHover, false, false, false);
 			}
 			
 			// Create button
