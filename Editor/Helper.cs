@@ -173,7 +173,13 @@ namespace LWGUI
 
 		#region GUI Styles
 
-		public static readonly GUIStyle guiStyles_IconButton = new GUIStyle(EditorStyles.iconButton) { fixedHeight = 0, fixedWidth = 0};
+		public static readonly GUIStyle guiStyles_IconButton = new GUIStyle(
+#if UNITY_2021_2_OR_NEWER
+																			EditorStyles.iconButton
+#else
+																			"iconButton"
+#endif
+																			) { fixedHeight = 0, fixedWidth = 0};
 
 		#endregion
 
