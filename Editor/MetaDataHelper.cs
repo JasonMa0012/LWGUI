@@ -250,7 +250,7 @@ namespace LWGUI
 			}
 
 			if (propStaticData.helpboxMessages.EndsWith("\n"))
-				propStaticData.helpboxMessages = propStaticData.helpboxMessages.Substring(0, propStaticData.helpboxMessages.Length - "\n".Length - 1);
+				propStaticData.helpboxMessages = propStaticData.helpboxMessages.Substring(0, propStaticData.helpboxMessages.Length - 1);
 
 			propStaticData.displayName = prop.displayName.Split(new String[] { _tooltipSplitter, _helpboxSplitter }, StringSplitOptions.None)[0];
 		}
