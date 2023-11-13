@@ -48,7 +48,7 @@ namespace LWGUI
 							material.renderQueue = (int)floatValue;
 							return;
 						default:
-							Debug.LogWarning("Unable to find Preset Property: " + propertyName + " in Material: " + material + "!");
+							// Debug.LogWarning("Unable to find Preset Property: " + propertyName + " in Material: " + material + "!");
 							return;
 					}
 				}
