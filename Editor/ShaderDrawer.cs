@@ -1334,22 +1334,40 @@ namespace LWGUI
 	/// Control the show or hide of a single or a group of properties based on multiple conditions.
 	/// logicalOperator: And | Or (Default: And).
 	/// propName: Target Property Name used for comparison.
-	/// compareFunction: Less | Equal | LessEqual | Greater | NotEqual | GreaterEqual.
+	/// compareFunction: Less (L) | Equal (E) | LessEqual (LEqual / LE) | Greater (G) | NotEqual (NEqual / NE) | GreaterEqual (GEqual / GE).
 	/// value: Target Property Value used for comparison.
 	/// </summary>
 	public class ShowIfDecorator : SubDrawer
 	{
 		private ShowIfData _showIfData = new ShowIfData();
+		private readonly Dictionary<string, string> _compareFunctionLUT = new Dictionary<string, string>()
+		{
+			{ "Less",			"Less" },
+			{ "L",				"Less" },
+			{ "Equal",			"Equal" },
+			{ "E",				"Equal" },
+			{ "LessEqual",		"LessEqual" },
+			{ "LEqual",			"LessEqual" },
+			{ "LE",				"LessEqual" },
+			{ "Greater",		"Greater" },
+			{ "G",				"Greater" },
+			{ "NotEqual",		"NotEqual" },
+			{ "NEqual",			"NotEqual" },
+			{ "NE",				"NotEqual" },
+			{ "GreaterEqual",	"GreaterEqual" },
+			{ "GEqual",			"GreaterEqual" },
+			{ "GE",				"GreaterEqual" },
+		};
 
 		public ShowIfDecorator(string propName, string comparisonMethod, float value) : this("And", propName, comparisonMethod, value) { }
 		public ShowIfDecorator(string logicalOperator, string propName, string compareFunction, float value)
 		{
 			_showIfData.logicalOperator = logicalOperator.ToLower() == "or" ? LogicalOperator.Or : LogicalOperator.And;
 			_showIfData.targetPropertyName = propName;
-			if (!Enum.IsDefined(typeof(CompareFunction), compareFunction))
-				Debug.LogError("Invalid compareFunction: '" + compareFunction + "', Must be one of the following: Less | Equal | LessEqual | Greater | NotEqual | GreaterEqual.");
+			if (!_compareFunctionLUT.ContainsKey(compareFunction) || !Enum.IsDefined(typeof(CompareFunction), _compareFunctionLUT[compareFunction]))
+				Debug.LogError("Invalid compareFunction: '" + compareFunction + "', Must be one of the following: Less (L) | Equal (E) | LessEqual (LEqual / LE) | Greater (G) | NotEqual (NEqual / NE) | GreaterEqual (GEqual / GE).");
 			else
-				_showIfData.compareFunction = (CompareFunction)Enum.Parse(typeof(CompareFunction), compareFunction);
+				_showIfData.compareFunction = (CompareFunction)Enum.Parse(typeof(CompareFunction), _compareFunctionLUT[compareFunction]);
 			_showIfData.value = value;
 		}
 

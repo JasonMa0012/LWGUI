@@ -595,7 +595,7 @@ public Hidden()
 /// 可以根据多个条件控制单个或者一组属性的显示 / 隐藏.
 /// logicalOperator: And | Or (Default: And).
 /// propName: Target Property Name used for comparison.
-/// compareFunction: Less | Equal | LessEqual | Greater | NotEqual | GreaterEqual.
+/// compareFunction: Less (L) | Equal (E) | LessEqual (LEqual / LE) | Greater (G) | NotEqual (NEqual / NE) | GreaterEqual (GEqual / GE).
 /// value: Target Property Value used for comparison.
 public ShowIfDecorator(string propName, string comparisonMethod, float value) : this("And", propName, comparisonMethod, value) { }
 public ShowIfDecorator(string logicalOperator, string propName, string compareFunction, float value)
