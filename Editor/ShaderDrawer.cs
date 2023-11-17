@@ -1334,7 +1334,7 @@ namespace LWGUI
 	/// Control the show or hide of a single or a group of properties based on multiple conditions.
 	/// logicalOperator: And | Or (Default: And).
 	/// propName: Target Property Name used for comparison.
-	/// compareFunction: Less | Greater | LEqual | GEqual | Equal | NotEqual.
+	/// compareFunction: Less | Equal | LessEqual | Greater | NotEqual | GreaterEqual.
 	/// value: Target Property Value used for comparison.
 	/// </summary>
 	public class ShowIfDecorator : SubDrawer
@@ -1347,7 +1347,7 @@ namespace LWGUI
 			_showIfData.logicalOperator = logicalOperator.ToLower() == "or" ? LogicalOperator.Or : LogicalOperator.And;
 			_showIfData.targetPropertyName = propName;
 			if (!Enum.IsDefined(typeof(CompareFunction), compareFunction))
-				Debug.LogError("Invalid compareFunction: '" + compareFunction + "', Must be one of the following: Less | Greater | LEqual | GEqual | Equal | NotEqual | Always.");
+				Debug.LogError("Invalid compareFunction: '" + compareFunction + "', Must be one of the following: Less | Equal | LessEqual | Greater | NotEqual | GreaterEqual.");
 			else
 				_showIfData.compareFunction = (CompareFunction)Enum.Parse(typeof(CompareFunction), compareFunction);
 			_showIfData.value = value;

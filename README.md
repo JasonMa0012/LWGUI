@@ -596,7 +596,7 @@ public Hidden()
 /// Control the show or hide of a single or a group of properties based on multiple conditions.
 /// logicalOperator: And | Or (Default: And).
 /// propName: Target Property Name used for comparison.
-/// compareFunction: Less | Greater | LEqual | GEqual | Equal | NotEqual.
+/// compareFunction: Less | Equal | LessEqual | Greater | NotEqual | GreaterEqual.
 /// value: Target Property Value used for comparison.
 public ShowIfDecorator(string propName, string comparisonMethod, float value) : this("And", propName, comparisonMethod, value) { }
 public ShowIfDecorator(string logicalOperator, string propName, string compareFunction, float value)
