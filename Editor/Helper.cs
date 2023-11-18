@@ -310,7 +310,7 @@ namespace LWGUI
 
 			// Button
 			{
-				// Right Click to Context Click
+				// Cancel Right Click
 				if (Event.current.type == EventType.MouseDown && Event.current.button == 1 && rect.Contains(Event.current.mousePosition))
 					Event.current.Use();
 

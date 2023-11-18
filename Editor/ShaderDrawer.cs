@@ -612,7 +612,7 @@ namespace LWGUI
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// extraPropName: extra property name (Default: none)
 	/// Target Property Type: Texture
-	/// Extra Property Type: Any, except Texture
+	/// Extra Property Type: Color, Vector
 	/// </summary>
 	public class TexDrawer : SubDrawer
 	{
@@ -663,14 +663,17 @@ namespace LWGUI
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var rect = position;
 			var texLabel = label.text;
-			label.text = " ";
+			// label.text = " ";
 
 			MaterialProperty extraProp = lwgui.perFrameData.GetProperty(_extraPropName);
-			if (extraProp != null && extraProp.type != MaterialProperty.PropType.Texture)
+			if (extraProp != null && (
+					extraProp.type == MaterialProperty.PropType.Color
+					|| extraProp.type == MaterialProperty.PropType.Vector
+				))
 			{
-				RevertableHelper.FixGUIWidthMismatch(extraProp.type, editor);
-
 				var i = EditorGUI.indentLevel;
+				RevertableHelper.FixGUIWidthMismatch(extraProp.type, editor);
+				EditorGUI.indentLevel += 2;
 
 				if (extraProp.type == MaterialProperty.PropType.Vector)
 					_channelDrawer.OnGUI(rect, extraProp, label, editor);
@@ -680,7 +683,7 @@ namespace LWGUI
 				EditorGUI.indentLevel = i;
 			}
 			
-			editor.TexturePropertyMiniThumbnail(rect, prop, texLabel, label.tooltip);
+			editor.TexturePropertyMiniThumbnail(rect, prop, string.Empty, label.tooltip);
 
 			EditorGUI.showMixedValue = false;
 		}

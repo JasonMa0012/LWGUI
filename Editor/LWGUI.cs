@@ -91,14 +91,10 @@ namespace LWGUI
 							EditorGUI.indentLevel++;
 					}
 
-					// Advanced
+					// Advanced Header
 					if (propStaticData.isAdvancedHeader && !propStaticData.isAdvancedHeaderProperty)
 					{
-						var rect = EditorGUILayout.GetControlRect();
-						var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
-						var label = string.IsNullOrEmpty(propStaticData.advancedHeaderString) ? "Advanced" : propStaticData.advancedHeaderString;
-						propStaticData.isExpanding = EditorGUI.Foldout(rect, propStaticData.isExpanding, label);
-						RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, this, true);
+						DrawAdvancedHeader(propStaticData, prop);
 
 						if (!propStaticData.isExpanding)
 						{
@@ -145,6 +141,18 @@ namespace LWGUI
 			Helper.DrawLogo();
 		}
 
+		private void DrawAdvancedHeader(PropertyStaticData propStaticData, MaterialProperty prop)
+		{
+			var rect = EditorGUILayout.GetControlRect();
+			var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
+			var label = string.IsNullOrEmpty(propStaticData.advancedHeaderString) ? "Advanced" : propStaticData.advancedHeaderString;
+			propStaticData.isExpanding = EditorGUI.Foldout(rect, propStaticData.isExpanding, label);
+			if (Event.current.type == EventType.MouseDown && Event.current.button == 0 && rect.Contains(Event.current.mousePosition))
+				propStaticData.isExpanding = !propStaticData.isExpanding;
+			RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, this, true);
+			Helper.DoPropertyContextMenus(rect, prop, this);
+		}
+
 		private void DrawProperty(MaterialProperty prop)
 		{
 			var propStaticData = perShaderData.propertyDatas[prop.name];
@@ -167,6 +175,5 @@ namespace LWGUI
 			materialEditor.ShaderProperty(rect, prop, label);
 			Helper.EndProperty(this, prop);
 		}
-
 	}
 } //namespace LWGUI

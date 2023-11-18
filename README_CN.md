@@ -285,7 +285,7 @@ public SubKeywordEnumDrawer(string group, string kw1, string kw2, string kw3, st
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// extraPropName: extra property name  (Default: none)
 /// Target Property Type: Texture
-/// Extra Property Type: Any, except Texture
+/// Extra Property Type: Color, Vector
 public TexDrawer() { }
 public TexDrawer(string group) : this(group, String.Empty) { }
 public TexDrawer(string group, string extraPropName)
@@ -309,10 +309,6 @@ Example:
 [Main(Group3, _, on)] _group3 ("Group - Tex and Color Samples", float) = 0
 [Tex(Group3, _color)] _tex_color ("Tex with Color", 2D) = "white" { }
 [HideInInspector] _color (" ", Color) = (1, 0, 0, 1)
-[Tex(Group3, _float4)] _tex_float ("Tex with Float", 2D) = "white" { }
-[HideInInspector] _float4 (" ", float) = 0
-[Tex(Group3, _range)] _tex_range ("Tex with Range", 2D) = "white" { }
-[HideInInspector] _range (" ", Range(0,1)) = 0
 [Tex(Group3, _textureChannelMask1)] _tex_channel ("Tex with Channel", 2D) = "white" { }
 [HideInInspector] _textureChannelMask1(" ", Vector) = (0,0,0,1)
 
