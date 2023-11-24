@@ -53,6 +53,7 @@
 
 
 		[Main(Group3, _, on)] _group3 ("Group - Tex and Color Samples", float) = 0
+		[Advanced][Tex(Group3)] _tex_single_line ("Tex Single Line", 2D) = "white" { }
 		[Advanced][Tex(Group3, _color)] _tex_color ("Tex with Color", 2D) = "white" { }
 		[Advanced][HideInInspector] _color (" ", Color) = (1, 0, 0, 1)
 		[Advanced][Tex(Group3, _textureChannelMask1)] _tex_channel ("Tex with Channel", 2D) = "white" { }

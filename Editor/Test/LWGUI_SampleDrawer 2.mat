@@ -19,6 +19,14 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _AdvancedTex0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _AdvancedTex1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Ramp:
         m_Texture: {fileID: 2800000, guid: df4a1e363556192459af030f3e1d4e89, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -56,6 +64,12 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AdvancedRange0: 0.62
+    - _Advancedfloat0: 0
+    - _Advancedfloat1: 0
+    - _Advancedfloat3: 0
+    - _Advancedfloat4: 0
+    - _Advancedfloat7: 3.21
     - _enum: 2
     - _float: 0.53
     - _float1: 0
@@ -69,6 +83,7 @@ Material:
     - _group1: 1
     - _group2: 0
     - _group3: 0
+    - _key13_PowerSlider: 0
     - _key1_Float1: 0
     - _key2_Float2: 0
     - _key3_Float3: 0
@@ -86,6 +101,8 @@ Material:
     - _toggle: 0
     - _toggle1: 0
     m_Colors:
+    - _AdvancedColor0: {r: 1, g: 1, b: 1, a: 1}
+    - _AdvancedColor7: {r: 1, g: 1, b: 1, a: 1}
     - _color: {r: 1, g: 0, b: 0, a: 1}
     - _color1: {r: 0.7, g: 0.7, b: 1, a: 1}
     - _mColor: {r: 1, g: 1, b: 1, a: 1}

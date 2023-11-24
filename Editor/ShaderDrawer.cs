@@ -662,8 +662,6 @@ namespace LWGUI
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var rect = position;
-			var texLabel = label.text;
-			// label.text = " ";
 
 			MaterialProperty extraProp = lwgui.perFrameData.GetProperty(_extraPropName);
 			if (extraProp != null && (
@@ -672,18 +670,20 @@ namespace LWGUI
 				))
 			{
 				var i = EditorGUI.indentLevel;
-				RevertableHelper.FixGUIWidthMismatch(extraProp.type, editor);
-				EditorGUI.indentLevel += 2;
+				EditorGUI.indentLevel = 0;
+
+				var extraRect = MaterialEditor.GetRightAlignedFieldRect(rect);
+				extraRect.height = rect.height;
 
 				if (extraProp.type == MaterialProperty.PropType.Vector)
-					_channelDrawer.OnGUI(rect, extraProp, label, editor);
+					_channelDrawer.OnGUI(extraRect, extraProp, GUIContent.none, editor);
 				else
-					editor.ShaderProperty(rect, extraProp, label);
+					editor.ShaderProperty(extraRect, extraProp, GUIContent.none);
 
 				EditorGUI.indentLevel = i;
 			}
 			
-			editor.TexturePropertyMiniThumbnail(rect, prop, string.Empty, label.tooltip);
+			editor.TexturePropertyMiniThumbnail(rect, prop, label.text, label.tooltip);
 
 			EditorGUI.showMixedValue = false;
 		}
