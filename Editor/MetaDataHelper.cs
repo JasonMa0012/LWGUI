@@ -458,13 +458,13 @@ namespace LWGUI
 						foreach (var decoratorDrawer in decoratorDrawers)
 						{
 							if (decoratorDrawer is IBaseDrawer)
-								(decoratorDrawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, perShaderData, this);
+								(decoratorDrawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, propDynamicData.defualtProperty, perShaderData, this);
 						}
 					}
 					if (drawer != null)
 					{
 						if (drawer is IBaseDrawer)
-							(drawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, perShaderData, this);
+							(drawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, propDynamicData.defualtProperty, perShaderData, this);
 					}
 					if (string.IsNullOrEmpty(propDynamicData.defaultValueDescription))
 						propDynamicData.defaultValueDescription =
