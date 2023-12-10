@@ -370,12 +370,13 @@ namespace LWGUI
 			var w = EditorGUIUtility.labelWidth;
 			EditorGUIUtility.labelWidth = 0;
 			Rect inputRect = MaterialEditor.GetRectAfterLabelWidth(controlRect); // this is the remaining rect area after label's area
-			EditorGUIUtility.labelWidth = w;
 
 			// draw label
 			EditorGUI.PrefixLabel(controlRect, label);
 
 			// draw min max slider
+			var indentLevel = EditorGUI.indentLevel;
+			EditorGUI.indentLevel = 0;
 			Rect[] splittedRect = Helper.SplitRect(inputRect, 3);
 
 			EditorGUI.BeginChangeCheck();
@@ -408,6 +409,9 @@ namespace LWGUI
 				minProp.floatValue = Mathf.Clamp(minf, minProp.rangeLimits.x, minProp.rangeLimits.y);
 				maxProp.floatValue = Mathf.Clamp(maxf, maxProp.rangeLimits.x, maxProp.rangeLimits.y);
 			}
+
+			EditorGUI.indentLevel = indentLevel;
+			EditorGUIUtility.labelWidth = w;
 		}
 	}
 
