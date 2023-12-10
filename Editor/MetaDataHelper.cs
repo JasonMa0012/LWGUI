@@ -420,6 +420,16 @@ namespace LWGUI
 						hasModified = hasModified
 					});
 				}
+
+				// Extra Prop hasModified
+				for (int i = 0; i < props.Length; i++)
+				{
+					foreach (var extraPropName in perShaderData.propertyDatas[props[i].name].extraPropNames)
+					{
+						if (propertyDatas[extraPropName].hasModified)
+							propertyDatas[props[i].name].hasChildrenModified = true;
+					}
+				}
 			}
 
 			foreach (var prop in props)
