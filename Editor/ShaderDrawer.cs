@@ -943,7 +943,7 @@ namespace LWGUI
 			// per prop variables
 			bool isDirty;
 			// used to read/write Gradient value in code
-			RampHelper.GradientObject gradientObject = ScriptableObject.CreateInstance<RampHelper.GradientObject>();
+			GradientObject gradientObject = ScriptableObject.CreateInstance<GradientObject>();
 			// used to modify Gradient value for users
 			SerializedObject serializedObject = new SerializedObject(gradientObject);
 			SerializedProperty serializedProperty = serializedObject.FindProperty("gradient");

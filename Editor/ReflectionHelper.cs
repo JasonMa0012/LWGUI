@@ -94,7 +94,7 @@ namespace LWGUI
 		private static Type         EditorGUI_Type            = typeof(EditorGUI);
 		private static PropertyInfo EditorGUI_Indent_Property = EditorGUI_Type.GetProperty("indent", BindingFlags.NonPublic | BindingFlags.Static);
 
-		public static float EditorGUI_Indent { get { return (float)EditorGUI_Indent_Property.GetValue(null); } }
+		public static float EditorGUI_Indent { get { return (float)EditorGUI_Indent_Property.GetValue(null, null); } }
 
 		#endregion
 

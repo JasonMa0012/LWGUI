@@ -11,12 +11,7 @@ namespace LWGUI
 	public class RampHelper
 	{
 		#region RampEditor
-		[Serializable]
-		public class GradientObject : ScriptableObject
-		{
-			[SerializeField] public Gradient gradient = new Gradient();
-		}
-		
+
 		public static readonly string projectPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6);
 
 		public static string lastSavePath
