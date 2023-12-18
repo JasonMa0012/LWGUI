@@ -127,7 +127,7 @@ namespace LWGUI
 			return hasChange;
 		}
 
-		public static bool HasGradient(AssetImporter assetImporter) { return assetImporter.userData.Contains("LWGUI");}
+		public static bool HasGradient(AssetImporter assetImporter) { return assetImporter.userData.Contains("#");}
 		
 		public static Gradient GetGradientFromTexture(Texture texture, out bool isDirty, bool doReimport = false)
 		{
