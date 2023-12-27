@@ -125,9 +125,9 @@ namespace LWGUI
 			}
 		}
 
-		public static void AdaptiveFieldWidth(GUIStyle style, GUIContent content, float extraWidth = 0)
+		public static void AdaptiveFieldWidth(GUIStyle style, GUIContent content)
 		{
-			var extraTextWidth = Mathf.Max(0, style.CalcSize(content).x + extraWidth - EditorGUIUtility.fieldWidth);
+			var extraTextWidth = Mathf.Max(0, style.CalcSize(content).x - (EditorGUIUtility.fieldWidth - RevertableHelper.revertButtonWidth));
 			EditorGUIUtility.labelWidth -= extraTextWidth;
 			EditorGUIUtility.fieldWidth += extraTextWidth;
 		}

@@ -535,7 +535,7 @@ namespace LWGUI
 				return;
 			}
 
-			Helper.AdaptiveFieldWidth(EditorStyles.popup, _names[index], EditorStyles.popup.lineHeight);
+			Helper.AdaptiveFieldWidth(EditorStyles.popup, _names[index]);
 			int newIndex = EditorGUI.Popup(rect, label, index, _names);
 			EditorGUI.showMixedValue = false;
 			if (Helper.EndChangeCheck(lwgui, prop))
@@ -1109,7 +1109,7 @@ namespace LWGUI
 			}
 			
 			var presetNames = preset.presets.Select(((inPreset) => new GUIContent(inPreset.presetName))).ToArray();
-			Helper.AdaptiveFieldWidth(EditorStyles.popup, presetNames[index], EditorStyles.popup.lineHeight);
+			Helper.AdaptiveFieldWidth(EditorStyles.popup, presetNames[index]);
 			int newIndex = EditorGUI.Popup(rect, label, index, presetNames);
 			if (Helper.EndChangeCheck(lwgui, prop))
 			{
