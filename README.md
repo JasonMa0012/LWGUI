@@ -583,8 +583,19 @@ Tips:
 
 ```c#
 /// Similar to HideInInspector(), the difference is that Hidden() can be unhidden through the Display Mode button.
-public Hidden()
+public HiddenDecorator()
 ```
+
+
+
+#### ReadOnly
+
+```c#
+/// Set the property to read-only.
+public ReadOnlyDecorator()
+```
+
+
 
 #### ShowIf
 

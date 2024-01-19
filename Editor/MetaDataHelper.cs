@@ -65,6 +65,7 @@ namespace LWGUI
 		public bool             isSearchMatched           = true;                   // Draws when the search match is successful
 		public bool             isExpanding               = false;                  // Draws when the group is expanding
 		public bool             isHidden                  = false;                  // [Hidden]
+		public bool             isReadOnly                = false;                  // [ReadOnly]
 		public List<ShowIfData> showIfDatas               = new List<ShowIfData>(); // [ShowIf()]
 
 		// Metadata

@@ -166,6 +166,8 @@ namespace LWGUI
 
 			var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
 
+			var enabled = GUI.enabled;
+			if (propStaticData.isReadOnly) GUI.enabled = false;
 			Helper.BeginProperty(rect, prop, this);
 			Helper.DoPropertyContextMenus(rect, prop, this);
 			RevertableHelper.FixGUIWidthMismatch(prop.type, materialEditor);
@@ -174,6 +176,7 @@ namespace LWGUI
 			RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, this, propStaticData.isMain || propStaticData.isAdvancedHeaderProperty);
 			materialEditor.ShaderProperty(rect, prop, label);
 			Helper.EndProperty(this, prop);
+			GUI.enabled = enabled;
 		}
 	}
 } //namespace LWGUI

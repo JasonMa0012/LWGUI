@@ -1346,6 +1346,21 @@ namespace LWGUI
 	}
 
 	/// <summary>
+	/// Set the property to read-only.
+	/// </summary>
+	public class ReadOnlyDecorator : SubDrawer
+	{
+		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
+
+		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
+		{
+			inoutPropertyStaticData.isReadOnly = true;
+		}
+
+		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor) { }
+	}
+
+	/// <summary>
 	/// Control the show or hide of a single or a group of properties based on multiple conditions.
 	/// logicalOperator: And | Or (Default: And).
 	/// propName: Target Property Name used for comparison.

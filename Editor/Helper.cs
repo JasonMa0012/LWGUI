@@ -870,6 +870,7 @@ namespace LWGUI
 					}
 				}
 			};
+
 			if (_copiedMaterial != null && _copiedProps.Count > 0 && GUI.enabled)
 				menus.AddItem(new GUIContent("Paste"), false, pasteAction);
 			else

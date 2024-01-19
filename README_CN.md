@@ -584,8 +584,19 @@ Tips:
 
 ```c#
 /// 类似于HideInInspector(), 区别在于Hidden()可以通过Display Mode按钮取消隐藏.
-public Hidden()
+public HiddenDecorator()
 ```
+
+
+
+#### ReadOnly
+
+```c#
+/// 将属性设为只读.
+public ReadOnlyDecorator()
+```
+
+
 
 #### ShowIf
 
