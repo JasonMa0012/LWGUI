@@ -380,16 +380,11 @@ namespace LWGUI
 				var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
 
 				// Get Presets
-				if (drawer != null)
+				if (drawer != null && drawer is IBasePresetDrawer)
 				{
-					if (drawer is IBasePresetDrawer)
-					{
-						var activePreset = (drawer as IBasePresetDrawer).GetActivePreset(prop, perShaderData.propertyDatas[prop.name].propertyPresetAsset);
-						if (activePreset != null)
-						{
-							activePresets.Add(new PersetDynamicData(activePreset, prop));
-						}
-					}
+					var activePreset = (drawer as IBasePresetDrawer).GetActivePreset(prop, perShaderData.propertyDatas[prop.name].propertyPresetAsset);
+					if (activePreset != null)
+						activePresets.Add(new PersetDynamicData(activePreset, prop));
 				}
 			}
 
