@@ -77,6 +77,7 @@ namespace LWGUI
 				}
 
 			}
+			MaterialEditor.ApplyMaterialPropertyDrawers(material);
 		}
 	}
 }
