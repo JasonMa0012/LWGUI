@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Object = UnityEngine.Object;
 
 namespace LWGUI
 {
@@ -41,6 +42,7 @@ namespace LWGUI
 					propertyNameID = Shader.PropertyToID(propertyName);
 				if (!material.HasProperty(propertyNameID))
 				{
+					// Legacy
 					var propertyNameLower = propertyName.ToLower();
 					switch (propertyNameLower)
 					{
@@ -53,6 +55,9 @@ namespace LWGUI
 					}
 				}
 
+
+				// Must be modified MaterialProperty directly for the material editing in ShaderGUI.
+				// For the Material in background, just use Material.SetXXX().
 				var isPropertyOtherMaterials = !isDefaultMaterial && perFrameData == null;
 				if (isPropertyOtherMaterials || isDefaultMaterial)
 				{
@@ -143,12 +148,50 @@ namespace LWGUI
 		public class Preset
 		{
 			public string              presetName;
-			public List<PropertyValue> propertyValues = new List<PropertyValue>();
+			public List<PropertyValue> propertyValues   = new List<PropertyValue>();
+			public List<string>        enabledKeywords  = new List<string>();
+			public List<string>        disabledKeywords = new List<string>();
+			public int                 renderQueue      = -1;
+
 
 			public void ApplyToDefaultMaterial(Material material)
 			{
 				foreach (var propertyValue in propertyValues)
 					propertyValue.Apply(material, true);
+				foreach (var enabledKeyword in enabledKeywords)
+					material.EnableKeyword(enabledKeyword);
+				foreach (var disabledKeyword in disabledKeywords)
+					material.DisableKeyword(disabledKeyword);
+				if (renderQueue >= 0)
+					material.renderQueue = renderQueue;
+			}
+
+			public void ApplyToEditingMaterial(UnityEngine.Object[] materials, PerFrameData perFrameData)
+			{
+				for (int i = 0; i < materials.Length; i++)
+				{
+					var material = materials[i] as Material;
+					foreach (var propertyValue in propertyValues)
+						propertyValue.Apply(material, false, i == 0 ? perFrameData : null);
+					foreach (var enabledKeyword in enabledKeywords)
+						material.EnableKeyword(enabledKeyword);
+					foreach (var disabledKeyword in disabledKeywords)
+						material.DisableKeyword(disabledKeyword);
+					if (renderQueue >= 0)
+						material.renderQueue = renderQueue;
+				}
+			}
+
+			public void ApplyKeywordsToMaterials(UnityEngine.Object[] materials)
+			{
+				for (int i = 0; i < materials.Length; i++)
+				{
+					var material = materials[i] as Material;
+					foreach (var enabledKeyword in enabledKeywords)
+						material.EnableKeyword(enabledKeyword);
+					foreach (var disabledKeyword in disabledKeywords)
+						material.DisableKeyword(disabledKeyword);
+				}
 			}
 
 			public PropertyValue GetPropertyValue(string propName)
@@ -203,55 +246,19 @@ namespace LWGUI
 			}
 		}
 
+
 		public List<Preset> presets;
 
-		// private void Awake()
-		// {
-		// 	Debug.Log($"{this.name} Awake");
-		// }
-		//
-		// private void OnDestroy()
-		// {
-		// 	Debug.Log($"{this.name} OnDestroy");
-		// }
-		//
-		// private void OnDisable()
-		// {
-		// 	Debug.Log($"{this.name} OnDisable");
-		// }
-		//
-		// private void Reset()
-		// {
-		// 	Debug.Log($"{this.name} Reset");
-		// }
 		
 		private void OnValidate()
 		{
-			// Debug.Log($"{this.name} OnValidate");
 			PresetHelper.ForceInit();
 		}
 		
 		private void OnEnable()
 		{
-			// Debug.Log($"{this.name} OnEnable");
-			// manually added when a preset is manually created
 			if (PresetHelper.IsInitComplete)
 				PresetHelper.AddPreset(this);
-		}
-
-		public void ApplyToMaterials(UnityEngine.Object[] materials, int presetIndex, PerFrameData perFrameData)
-		{
-			if (this.presets.Count == 0) return;
-			
-			int index = (int)Mathf.Min(this.presets.Count - 1, Mathf.Max(0, presetIndex));
-			foreach (var propertyValue in this.presets[index].propertyValues)
-			{
-				for (int i = 0; i < materials.Length; i++)
-				{
-					var material = materials[i] as Material;
-					propertyValue.Apply(material, false, i == 0 ? perFrameData : null);
-				}
-			}
 		}
 	}
 }

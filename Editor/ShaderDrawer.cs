@@ -101,7 +101,7 @@ namespace LWGUI
 			return _height;
 		}
 
-		// Call when creating new material 
+		// Call when creating new material, used to set keywords
 		public override void Apply(MaterialProperty prop)
 		{
 			base.Apply(prop);
@@ -1097,8 +1097,8 @@ namespace LWGUI
 			var rect = position;
 
 			int index = (int)Mathf.Max(0, prop.floatValue);
-			var preset = PresetHelper.GetPresetFile(presetFileName);
-			if (preset == null || preset.presets.Count == 0)
+			var presetFile = PresetHelper.GetPresetFile(presetFileName);
+			if (presetFile == null || presetFile.presets.Count == 0)
 			{
 				var c = GUI.color;
 				GUI.color = Color.red;
@@ -1107,16 +1107,24 @@ namespace LWGUI
 				GUI.color = c;
 				return;
 			}
-			
-			var presetNames = preset.presets.Select(((inPreset) => new GUIContent(inPreset.presetName))).ToArray();
+
+			var presetNames = presetFile.presets.Select(((inPreset) => new GUIContent(inPreset.presetName))).ToArray();
 			Helper.AdaptiveFieldWidth(EditorStyles.popup, presetNames[index]);
 			int newIndex = EditorGUI.Popup(rect, label, index, presetNames);
 			if (Helper.EndChangeCheck(lwgui, prop))
 			{
 				prop.floatValue = newIndex;
-				preset.ApplyToMaterials(prop.targets, (int)prop.floatValue, lwgui.perFrameData);
+				presetFile.presets[newIndex].ApplyToEditingMaterial(prop.targets, lwgui.perFrameData);
 			}
 			EditorGUI.showMixedValue = false;
+		}
+
+		public override void Apply(MaterialProperty prop)
+		{
+			base.Apply(prop);
+			var presetFile = PresetHelper.GetPresetFile(presetFileName);
+			if (presetFile != null && prop.floatValue < presetFile.presets.Count)
+				presetFile.presets[(int)prop.floatValue].ApplyKeywordsToMaterials(prop.targets);
 		}
 	}
 	
