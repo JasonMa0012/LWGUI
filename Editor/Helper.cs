@@ -635,9 +635,9 @@ namespace LWGUI
 			{
 				string[] displayModeMenus = new[]
 				{
-					"Show All Advanced	(" + lwgui.perShaderData.displayModeData.advancedCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
-					"Show All Hidden	(" + lwgui.perShaderData.displayModeData.hiddenCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
-					"Show Only Modified	(" + lwgui.perFrameData.modifiedCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
+					"Show All Advanced Properties	(" + lwgui.perShaderData.displayModeData.advancedCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
+					"Show All Hidden Properties		(" + lwgui.perShaderData.displayModeData.hiddenCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
+					"Show Only Modified Properties	(" + lwgui.perFrameData.modifiedCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
 				};
 				bool[] enabled = new[] { true, true, true };
 				bool[] separator = new bool[3];
