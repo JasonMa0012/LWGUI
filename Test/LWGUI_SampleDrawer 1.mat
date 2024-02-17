@@ -58,6 +58,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _tex_single_line:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _tex_toggle:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -70,7 +74,7 @@ Material:
     - _Advancedfloat4: 0
     - _Advancedfloat7: 0.24
     - _enum: 1
-    - _float: -0.8
+    - _float: -0.46
     - _float1: -0.05
     - _float2: -0.08
     - _float3: 0
@@ -90,7 +94,7 @@ Material:
     - _key3_Float4_PowerSlider: 0
     - _key3_Int_Range: 1
     - _minMaxSlider: 1
-    - _preset: 1
+    - _preset: 0
     - _preset1: 0
     - _range: 0.42
     - _rangeEnd: 0.70471865
@@ -98,6 +102,8 @@ Material:
     - _toggle: 0
     - _toggle1: 1
     m_Colors:
+    - _AdvancedColor0: {r: 1, g: 1, b: 1, a: 1}
+    - _AdvancedColor7: {r: 1, g: 1, b: 1, a: 1}
     - _color: {r: 1, g: 0.5886792, b: 0.5886792, a: 1}
     - _color1: {r: 0, g: 1, b: 0.296113, a: 0}
     - _mColor: {r: 0.6132076, g: 0.4014774, b: 0.4014774, a: 1}

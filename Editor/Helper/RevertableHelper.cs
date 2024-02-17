@@ -117,21 +117,21 @@ namespace LWGUI
 
 		#region Draw revert button
 
-		public static bool DrawRevertableProperty(Rect position, MaterialProperty prop, LWGUI lwgui, bool isHeader = false)
+		public static bool DrawRevertableProperty(Rect position, MaterialProperty prop, LWGUIMetaDatas metaDatas, bool isHeader = false)
 		{
+			var (propStaticData, propDynamicData, propInspectorData) = metaDatas.GetPropDatas(prop);
+
 			bool hasModified = prop.hasMixedValue;
 
-			var propDynamicData = lwgui.perFrameData.propertyDatas[prop.name];
-			var propStaticData = lwgui.perShaderData.propertyDatas[prop.name];
 			if (!hasModified)
 				hasModified = propDynamicData.hasModified;
 
 			if (!hasModified && isHeader)
 				hasModified = propDynamicData.hasChildrenModified;
 
-			var extraPropNames = lwgui.perShaderData.propertyDatas[prop.name].extraPropNames;
+			var extraPropNames = propStaticData.extraPropNames;
 			if (!hasModified && extraPropNames.Count > 0)
-				hasModified = extraPropNames.Any((extraPropName => lwgui.perFrameData.propertyDatas[extraPropName].hasModified));
+				hasModified = extraPropNames.Any((extraPropName => metaDatas.GetPropDynamicData(extraPropName).hasModified));
 
 			if (!hasModified)
 				return false;
@@ -139,31 +139,30 @@ namespace LWGUI
 			Rect rect = position;
 			if (DrawRevertButton(rect))
 			{
-				DoRevertProperty(prop, lwgui);
+				DoRevertProperty(prop, metaDatas);
 
 				foreach (var childStaticData in propStaticData.children)
 				{
-					DoRevertProperty(lwgui.perFrameData.propertyDatas[childStaticData.name].property, lwgui);
+					DoRevertProperty(metaDatas.GetProperty(childStaticData.name), metaDatas);
 					foreach (var childChildStaticData in childStaticData.children)
-						DoRevertProperty(lwgui.perFrameData.propertyDatas[childChildStaticData.name].property, lwgui);
+						DoRevertProperty(metaDatas.GetProperty(childChildStaticData.name), metaDatas);
 				}
 
 				// refresh keywords
-				MaterialEditor.ApplyMaterialPropertyDrawers(lwgui.materialEditor.targets);
+				MaterialEditor.ApplyMaterialPropertyDrawers(metaDatas.GetMaterialEditor().targets);
 				return true;
 			}
 			return false;
 		}
 
-		private static void DoRevertProperty(MaterialProperty prop, LWGUI lwgui)
+		private static void DoRevertProperty(MaterialProperty prop, LWGUIMetaDatas metaDatas)
 		{
-			var propDynamicData = lwgui.perFrameData.propertyDatas[prop.name];
-			var extraPropNames = lwgui.perShaderData.propertyDatas[prop.name].extraPropNames;
+			var propDynamicData = metaDatas.GetPropDynamicData(prop.name);
 			propDynamicData.hasRevertChanged = true;
 			SetPropertyToDefault(propDynamicData.defualtProperty, prop);
-			foreach (var extraPropName in extraPropNames)
+			foreach (var extraPropName in metaDatas.GetPropStaticData(prop.name).extraPropNames)
 			{
-				var extraPropDynamicData = lwgui.perFrameData.propertyDatas[extraPropName];
+				var extraPropDynamicData = metaDatas.GetPropDynamicData(extraPropName);
 				extraPropDynamicData.hasRevertChanged = true;
 				SetPropertyToDefault(extraPropDynamicData.defualtProperty, extraPropDynamicData.property);
 			}

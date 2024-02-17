@@ -36,7 +36,7 @@ namespace LWGUI
 
 			private int propertyNameID = -1;
 
-			public void Apply(Material material, bool isDefaultMaterial, PerFrameData perFrameData = null)
+			public void Apply(Material material, bool isDefaultMaterial, PerMaterialData perMaterialData = null)
 			{
 				if (propertyNameID == -1 || !material.HasProperty(propertyNameID))
 					propertyNameID = Shader.PropertyToID(propertyName);
@@ -58,7 +58,7 @@ namespace LWGUI
 
 				// Must be modified MaterialProperty directly for the material editing in ShaderGUI.
 				// For the Material in background, just use Material.SetXXX().
-				var isPropertyOtherMaterials = !isDefaultMaterial && perFrameData == null;
+				var isPropertyOtherMaterials = !isDefaultMaterial && perMaterialData == null;
 				if (isPropertyOtherMaterials || isDefaultMaterial)
 				{
 					switch (propertyType)
@@ -84,7 +84,7 @@ namespace LWGUI
 				else
 				// is Property Primary Material
 				{
-					var propDynamicData = perFrameData.propertyDatas[propertyName];
+					var propDynamicData = perMaterialData.propDynamicDatas[propertyName];
 					var prop = propDynamicData.property;
 					switch (propertyType)
 					{
@@ -166,13 +166,13 @@ namespace LWGUI
 					material.renderQueue = renderQueue;
 			}
 
-			public void ApplyToEditingMaterial(UnityEngine.Object[] materials, PerFrameData perFrameData)
+			public void ApplyToEditingMaterial(UnityEngine.Object[] materials, PerMaterialData perMaterialData)
 			{
 				for (int i = 0; i < materials.Length; i++)
 				{
 					var material = materials[i] as Material;
 					foreach (var propertyValue in propertyValues)
-						propertyValue.Apply(material, false, i == 0 ? perFrameData : null);
+						propertyValue.Apply(material, false, i == 0 ? perMaterialData : null);
 					foreach (var enabledKeyword in enabledKeywords)
 						material.EnableKeyword(enabledKeyword);
 					foreach (var disabledKeyword in disabledKeywords)
@@ -220,12 +220,12 @@ namespace LWGUI
 					propertyValues.Add(new PropertyValue(prop));
 			}
 
-			public void AddOrUpdateIncludeExtraProperties(LWGUI lwgui, MaterialProperty prop)
+			public void AddOrUpdateIncludeExtraProperties(LWGUIMetaDatas metaDatas, MaterialProperty prop)
 			{
 				AddOrUpdate(prop);
-				foreach (var extraPropName in lwgui.perShaderData.propertyDatas[prop.name].extraPropNames)
+				foreach (var extraPropName in metaDatas.GetPropStaticData(prop).extraPropNames)
 				{
-					AddOrUpdate(lwgui.perFrameData.propertyDatas[extraPropName].property);
+					AddOrUpdate(metaDatas.GetProperty(extraPropName));
 				}
 			}
 
@@ -236,12 +236,12 @@ namespace LWGUI
 					propertyValues.Remove(propertyValue);
 			}
 
-			public void RemoveIncludeExtraProperties(LWGUI lwgui, string propName)
+			public void RemoveIncludeExtraProperties(LWGUIMetaDatas metaDatas, string propName)
 			{
 				Remove(propName);
-				foreach (var extraPropName in lwgui.perShaderData.propertyDatas[propName].extraPropNames)
+				foreach (var extraPropName in metaDatas.GetPropStaticData(propName).extraPropNames)
 				{
-					Remove(lwgui.perFrameData.propertyDatas[extraPropName].property.name);
+					Remove(metaDatas.GetProperty(extraPropName).name);
 				}
 			}
 		}

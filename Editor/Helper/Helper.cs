@@ -106,13 +106,9 @@ namespace LWGUI
 			}
 		}
 
-		/// <summary>
-		/// make Drawer can get all current Material props by customShaderGUI
-		/// Unity 2019.2+
-		/// </summary>
 		public static LWGUI GetLWGUI(MaterialEditor editor)
 		{
-			var customShaderGUI = ReflectionHelper.GetCustomShaderGUI(editor);
+			var customShaderGUI = editor.customShaderGUI;
 			if (customShaderGUI != null && customShaderGUI is LWGUI)
 			{
 				LWGUI gui = customShaderGUI as LWGUI;
@@ -125,6 +121,8 @@ namespace LWGUI
 			}
 		}
 
+		public static LWGUIMetaDatas GetLWGUIMetadatas(MaterialEditor editor) => GetLWGUI(editor).metaDatas;
+
 		public static void AdaptiveFieldWidth(GUIStyle style, GUIContent content)
 		{
 			var extraTextWidth = Mathf.Max(0, style.CalcSize(content).x - (EditorGUIUtility.fieldWidth - RevertableHelper.revertButtonWidth));
@@ -132,27 +130,27 @@ namespace LWGUI
 			EditorGUIUtility.fieldWidth += extraTextWidth;
 		}
 
-		public static void BeginProperty(Rect rect, MaterialProperty property, LWGUI lwgui)
+		public static void BeginProperty(Rect rect, MaterialProperty property, LWGUIMetaDatas metaDatas)
 		{
 #if UNITY_2022_1_OR_NEWER
 			MaterialEditor.BeginProperty(rect, property);
-			foreach (var extraPropName in lwgui.perShaderData.propertyDatas[property.name].extraPropNames)
-				MaterialEditor.BeginProperty(rect, lwgui.perFrameData.propertyDatas[extraPropName].property);
+			foreach (var extraPropName in metaDatas.GetPropStaticData(property.name).extraPropNames)
+				MaterialEditor.BeginProperty(rect, metaDatas.GetPropDynamicData(extraPropName).property);
 #endif
 		}
 
-		public static void EndProperty(LWGUI lwgui, MaterialProperty property)
+		public static void EndProperty(LWGUIMetaDatas metaDatas, MaterialProperty property)
 		{
 #if UNITY_2022_1_OR_NEWER
 			MaterialEditor.EndProperty();
-			foreach (var extraPropName in lwgui.perShaderData.propertyDatas[property.name].extraPropNames)
+			foreach (var extraPropName in metaDatas.GetPropStaticData(property.name).extraPropNames)
 				MaterialEditor.EndProperty();
 #endif
 		}
 
-		public static bool EndChangeCheck(LWGUI lwgui, MaterialProperty property)
+		public static bool EndChangeCheck(LWGUIMetaDatas metaDatas, MaterialProperty property)
 		{
-			return lwgui.perFrameData.EndChangeCheck(property.name);
+			return metaDatas.perMaterialData.EndChangeCheck(property.name);
 		}
 
 		#endregion
@@ -209,10 +207,7 @@ namespace LWGUI
 							fixedHeight = 27,
 							alignment = TextAnchor.MiddleLeft,
 							font = EditorStyles.boldLabel.font,
-							fontSize = EditorStyles.boldLabel.fontSize
-				#if UNITY_2019_4_OR_NEWER
-									 + 1,
-				#endif
+							fontSize = EditorStyles.boldLabel.fontSize + 1,
 						};
 				}
 				return _guiStyle_Foldout;
@@ -438,18 +433,18 @@ namespace LWGUI
 			(uint)CopyMaterialValueMask.RenderQueue,
 		};
 
-		private static void DoPasteMaterialProperties(LWGUI lwgui , uint valueMask)
+		private static void DoPasteMaterialProperties(LWGUIMetaDatas metaDatas , uint valueMask)
 		{
 			if (!_copiedMaterial)
 			{
 				Debug.LogError("Please copy Material Properties first!");
 				return;
 			}
-			foreach (Material material in lwgui.materialEditor.targets)
+			foreach (Material material in metaDatas.GetMaterialEditor().targets)
 			{
 				if (!VersionControlHelper.Checkout(material))
 				{
-					Debug.LogError("Material: '" + lwgui.material.name + "' unable to write!");
+					Debug.LogError("Material: '" + metaDatas.GetMaterial().name + "' unable to write!");
 					return;
 				}
 
@@ -505,15 +500,17 @@ namespace LWGUI
 			}
 		}
 
-		public static void DrawToolbarButtons(ref Rect toolBarRect, LWGUI lwgui)
+		public static void DrawToolbarButtons(ref Rect toolBarRect, LWGUIMetaDatas metaDatas)
 		{
+			var (perShaderData, perMaterialData, perInspectorData) = metaDatas.GetDatas();
+
 			// Copy
 			var buttonRectOffset = toolBarRect.height + 2;
 			var buttonRect = new Rect(toolBarRect.x, toolBarRect.y, toolBarRect.height, toolBarRect.height);
 			toolBarRect.xMin += buttonRectOffset;
 			if (GUI.Button(buttonRect, _guiContentCopy, Helper.guiStyles_IconButton))
 			{
-				_copiedMaterial = UnityEngine.Object.Instantiate(lwgui.material);
+				_copiedMaterial = UnityEngine.Object.Instantiate(metaDatas.GetMaterial());
 			}
 
 			// Paste
@@ -527,14 +524,14 @@ namespace LWGUI
 				EditorUtility.DisplayCustomMenu(new Rect(Event.current.mousePosition.x, Event.current.mousePosition.y, 0, 0), _pasteMaterialMenus, -1,
 												(data, options, selected) =>
 												{
-													DoPasteMaterialProperties(lwgui, _pasteMaterialMenuValueMasks[selected]);
+													DoPasteMaterialProperties(metaDatas, _pasteMaterialMenuValueMasks[selected]);
 												}, null);
 				Event.current.Use();
 			}
 			// Left Click
 			if (GUI.Button(buttonRect, _guiContentPaste, Helper.guiStyles_IconButton))
 			{
-				DoPasteMaterialProperties(lwgui, (uint)CopyMaterialValueMask.All);
+				DoPasteMaterialProperties(metaDatas, (uint)CopyMaterialValueMask.All);
 			}
 
 			// Select Material Asset, jump from a Runtime Material Instance to a Material Asset
@@ -542,14 +539,16 @@ namespace LWGUI
 			toolBarRect.xMin += buttonRectOffset;
 			if (GUI.Button(buttonRect, _guiContentSelect, Helper.guiStyles_IconButton))
 			{
-				if (AssetDatabase.Contains(lwgui.material))
+				var material = metaDatas.GetMaterial();
+
+				if (AssetDatabase.Contains(material))
 				{
-					Selection.activeObject = lwgui.material;
+					Selection.activeObject = material;
 				}
 				else
 				{
 					// Get Material Asset name
-					var name = lwgui.material.name;
+					var name = material.name;
 					foreach (var nameEnd in _materialInstanceNameEnd)
 					{
 						if (name.EndsWith(nameEnd))
@@ -595,7 +594,7 @@ namespace LWGUI
 			toolBarRect.xMin += buttonRectOffset;
 			if (GUI.Button(buttonRect, _guiContentChechout, Helper.guiStyles_IconButton))
 			{
-				foreach (var material in lwgui.materialEditor.targets)
+				foreach (var material in metaDatas.GetMaterialEditor().targets)
 				{
 					VersionControlHelper.Checkout(material);
 				}
@@ -606,10 +605,10 @@ namespace LWGUI
 			toolBarRect.xMin += buttonRectOffset;
 			if (GUI.Button(buttonRect, _guiContentExpand, Helper.guiStyles_IconButton))
 			{
-				foreach (var propertyStaticDataPair in lwgui.perShaderData.propertyDatas)
+				foreach (var propStaticDataKVPair in perShaderData.propStaticDatas)
 				{
-					if (propertyStaticDataPair.Value.isMain || propertyStaticDataPair.Value.isAdvancedHeader)
-						propertyStaticDataPair.Value.isExpanding = true;
+					if (propStaticDataKVPair.Value.isMain || propStaticDataKVPair.Value.isAdvancedHeader)
+						metaDatas.GetPropInspectorData(propStaticDataKVPair.Key).isExpanding = true;
 				}
 			}
 
@@ -618,10 +617,10 @@ namespace LWGUI
 			toolBarRect.xMin += buttonRectOffset;
 			if (GUI.Button(buttonRect, _guiContentCollapse, Helper.guiStyles_IconButton))
 			{
-				foreach (var propertyStaticDataPair in lwgui.perShaderData.propertyDatas)
+				foreach (var propStaticDataKVPair in perShaderData.propStaticDatas)
 				{
-					if (propertyStaticDataPair.Value.isMain || propertyStaticDataPair.Value.isAdvancedHeader)
-						propertyStaticDataPair.Value.isExpanding = false;
+					if (propStaticDataKVPair.Value.isMain || propStaticDataKVPair.Value.isAdvancedHeader)
+						metaDatas.GetPropInspectorData(propStaticDataKVPair.Key).isExpanding = false;
 				}
 			}
 
@@ -629,23 +628,23 @@ namespace LWGUI
 			buttonRect.x += buttonRectOffset;
 			toolBarRect.xMin += buttonRectOffset;
 			var color = GUI.color;
-			if (!lwgui.perShaderData.displayModeData.IsDefaultDisplayMode())
+			if (!perInspectorData.displayModeDynamicData.IsDefaultDisplayMode())
 				GUI.color = Color.yellow;
 			if (GUI.Button(buttonRect, _guiContentVisibility, Helper.guiStyles_IconButton))
 			{
 				string[] displayModeMenus = new[]
 				{
-					"Show All Advanced Properties	(" + lwgui.perShaderData.displayModeData.advancedCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
-					"Show All Hidden Properties		(" + lwgui.perShaderData.displayModeData.hiddenCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
-					"Show Only Modified Properties	(" + lwgui.perFrameData.modifiedCount + " of " + lwgui.perShaderData.propertyDatas.Count + ")",
+					"Show All Advanced Properties	(" + perShaderData.displayModeStaticData.advancedCount + " of " + perShaderData.propStaticDatas.Count + ")",
+					"Show All Hidden Properties		(" + perShaderData.displayModeStaticData.hiddenCount + " of " + perShaderData.propStaticDatas.Count + ")",
+					"Show Only Modified Properties	(" + perMaterialData.modifiedCount + " of " + perShaderData.propStaticDatas.Count + ")",
 				};
 				bool[] enabled = new[] { true, true, true };
 				bool[] separator = new bool[3];
 				int[] selected = new[]
 				{
-					lwgui.perShaderData.displayModeData.showAllAdvancedProperties	? 0 : -1,
-					lwgui.perShaderData.displayModeData.showAllHiddenProperties		? 1 : -1,
-					lwgui.perShaderData.displayModeData.showOnlyModifiedProperties	? 2 : -1,
+					perInspectorData.displayModeDynamicData.showAllAdvancedProperties	? 0 : -1,
+					perInspectorData.displayModeDynamicData.showAllHiddenProperties		? 1 : -1,
+					perInspectorData.displayModeDynamicData.showOnlyModifiedProperties	? 2 : -1,
 				};
 				ReflectionHelper.DisplayCustomMenuWithSeparators(new Rect(Event.current.mousePosition.x, Event.current.mousePosition.y, 0, 0),
 															  displayModeMenus, enabled, separator, selected,
@@ -654,14 +653,14 @@ namespace LWGUI
 																  switch (selectedIndex)
 																  {
 																	  case 0:
-																		  lwgui.perShaderData.displayModeData.showAllAdvancedProperties = !lwgui.perShaderData.displayModeData.showAllAdvancedProperties;
-																		  lwgui.perShaderData.ToggleShowAllAdvancedProperties();
+																		  perInspectorData.displayModeDynamicData.showAllAdvancedProperties = !perInspectorData.displayModeDynamicData.showAllAdvancedProperties;
+																		  perInspectorData.ToggleShowAllAdvancedProperties(perShaderData);
 																		  break;
 																	  case 1:
-																		  lwgui.perShaderData.displayModeData.showAllHiddenProperties = !lwgui.perShaderData.displayModeData.showAllHiddenProperties;
+																		  perInspectorData.displayModeDynamicData.showAllHiddenProperties = !perInspectorData.displayModeDynamicData.showAllHiddenProperties;
 																		  break;
 																	  case 2:
-																		  lwgui.perShaderData.displayModeData.showOnlyModifiedProperties = !lwgui.perShaderData.displayModeData.showOnlyModifiedProperties;
+																		  perInspectorData.displayModeDynamicData.showOnlyModifiedProperties = !perInspectorData.displayModeDynamicData.showOnlyModifiedProperties;
 																		  break;
 																  }
 															  });
@@ -687,8 +686,10 @@ namespace LWGUI
 
 
 		/// <returns>is has changed?</returns>
-		public static bool DrawSearchField(Rect rect, LWGUI lwgui)
+		public static bool DrawSearchField(Rect rect, LWGUIMetaDatas metaDatas)
 		{
+			var (perShaderData, perMaterialData, perInspectorData) = metaDatas.GetDatas();
+
 			bool hasChanged = false;
 			EditorGUI.BeginChangeCheck();
 
@@ -702,54 +703,49 @@ namespace LWGUI
 			modeRect.width = 20f;
 			if (Event.current.type == UnityEngine.EventType.MouseDown && modeRect.Contains(Event.current.mousePosition))
 			{
-				EditorUtility.DisplayCustomMenu(rect, _searchModeMenus, (int)lwgui.perShaderData.searchMode,
+				EditorUtility.DisplayCustomMenu(rect, _searchModeMenus, (int)perInspectorData.searchMode,
 												(data, options, selected) =>
 												{
-													lwgui.perShaderData.searchMode = (SearchMode)selected;
+													perInspectorData.searchMode = (SearchMode)selected;
 													hasChanged = true;
 												}, null);
 				Event.current.Use();
 			}
 
-			lwgui.perShaderData.searchString = EditorGUI.TextField(rect, String.Empty, lwgui.perShaderData.searchString, guiStyles_ToolbarSearchTextFieldPopup);
+			perInspectorData.searchString = EditorGUI.TextField(rect, String.Empty, perInspectorData.searchString, guiStyles_ToolbarSearchTextFieldPopup);
 
 			if (EditorGUI.EndChangeCheck())
 				hasChanged = true;
 
 			// revert button
-			if (!string.IsNullOrEmpty(lwgui.perShaderData.searchString)
+			if (!string.IsNullOrEmpty(perInspectorData.searchString)
 			 && RevertableHelper.DrawRevertButton(revertButtonRect))
 			{
-				lwgui.perShaderData.searchString = string.Empty;
+				perInspectorData.searchString = string.Empty;
 				hasChanged = true;
 				GUIUtility.keyboardControl = 0;
 			}
 
 			// display search mode
 			if (GUIUtility.keyboardControl != controlId
-			 && string.IsNullOrEmpty(lwgui.perShaderData.searchString)
+			 && string.IsNullOrEmpty(perInspectorData.searchString)
 			 && Event.current.type == UnityEngine.EventType.Repaint)
 			{
 				using (new EditorGUI.DisabledScope(true))
 				{
-#if UNITY_2019_2_OR_NEWER
 					var disableTextRect = new Rect(rect.x, rect.y, rect.width,
 												   guiStyles_ToolbarSearchTextFieldPopup.fixedHeight > 0.0
 													   ? guiStyles_ToolbarSearchTextFieldPopup.fixedHeight
 													   : rect.height);
-#else
-					var disableTextRect = rect;
-					disableTextRect.yMin -= 3f;
-#endif
 					disableTextRect = guiStyles_ToolbarSearchTextFieldPopup.padding.Remove(disableTextRect);
 					int fontSize = EditorStyles.label.fontSize;
 					EditorStyles.label.fontSize = guiStyles_ToolbarSearchTextFieldPopup.fontSize;
-					EditorStyles.label.Draw(disableTextRect, new GUIContent(lwgui.perShaderData.searchMode.ToString()), false, false, false, false);
+					EditorStyles.label.Draw(disableTextRect, new GUIContent(perInspectorData.searchMode.ToString()), false, false, false, false);
 					EditorStyles.label.fontSize = fontSize;
 				}
 			}
 
-			if (hasChanged) lwgui.perShaderData.UpdateSearchFilter();
+			if (hasChanged) perInspectorData.UpdateSearchFilter(perShaderData);
 
 			return hasChanged;
 		}
@@ -759,7 +755,7 @@ namespace LWGUI
 
 		#region Context Menu
 
-		private static void EditPresetEvent(string mode, ShaderPropertyPreset presetAsset, ShaderPropertyPreset.Preset activePreset, MaterialProperty prop, LWGUI lwgui)
+		private static void EditPresetEvent(string mode, ShaderPropertyPreset presetAsset, ShaderPropertyPreset.Preset activePreset, MaterialProperty prop, LWGUIMetaDatas metaDatas)
 		{
 			if (!VersionControlHelper.Checkout(presetAsset))
 			{
@@ -770,21 +766,23 @@ namespace LWGUI
 			{
 				case "Add":
 				case "Update":
-					activePreset.AddOrUpdateIncludeExtraProperties(lwgui, prop);
+					activePreset.AddOrUpdateIncludeExtraProperties(metaDatas, prop);
 					break;
 				case "Remove":
-					activePreset.RemoveIncludeExtraProperties(lwgui, prop.name);
+					activePreset.RemoveIncludeExtraProperties(metaDatas, prop.name);
 					break;
 			}
 			EditorUtility.SetDirty(presetAsset);
 		}
 
-		public static void DoPropertyContextMenus(Rect rect, MaterialProperty prop, LWGUI lwgui)
+		public static void DoPropertyContextMenus(Rect rect, MaterialProperty prop, LWGUIMetaDatas metaDatas)
 		{
 			if (Event.current.type != EventType.ContextClick || !rect.Contains(Event.current.mousePosition)) return;
 
 			Event.current.Use();
-			var propStaticData = lwgui.perShaderData.propertyDatas[prop.name];
+
+			var (perShaderData, perMaterialData, perInspectorData) = metaDatas.GetDatas();
+			var (propStaticData, propDynamicData, propInspectorData) = metaDatas.GetPropDatas(prop);
 			var menus = new GenericMenu();
 
 			// 2022+ Material Varant Menus
@@ -795,7 +793,7 @@ namespace LWGUI
 			// Copy
 			menus.AddItem(new GUIContent("Copy"), false, () =>
 			{
-				_copiedMaterial = UnityEngine.Object.Instantiate(lwgui.material);
+				_copiedMaterial = UnityEngine.Object.Instantiate(metaDatas.GetMaterial());
 				_copiedProps.Clear();
 				_copiedProps.Add(prop.name);
 				foreach (var extraPropName in propStaticData.extraPropNames)
@@ -831,7 +829,7 @@ namespace LWGUI
 				{
 					if (!VersionControlHelper.Checkout(material))
 					{
-						Debug.LogError("Material: '" + lwgui.material.name + "' unable to write!");
+						Debug.LogError("Material: '" + metaDatas.GetMaterial().name + "' unable to write!");
 						return;
 					}
 
@@ -910,22 +908,22 @@ namespace LWGUI
 			if (GUI.enabled)
 			{
 				menus.AddSeparator("");
-				foreach (var activePresetData in lwgui.perFrameData.activePresets)
+				foreach (var activePresetData in perMaterialData.activePresets)
 				{
 					if (activePresetData.property == prop) continue;
 
 					var activePreset = activePresetData.preset;
-					var presetAsset = lwgui.perShaderData.propertyDatas[activePresetData.property.name].propertyPresetAsset;
-					var presetPropDisplayName = lwgui.perShaderData.propertyDatas[activePresetData.property.name].displayName;
+					var presetAsset = perShaderData.propStaticDatas[activePresetData.property.name].propertyPresetAsset;
+					var presetPropDisplayName = perShaderData.propStaticDatas[activePresetData.property.name].displayName;
 
 					if (activePreset.GetPropertyValue(prop.name) != null)
 					{
-						menus.AddItem(new GUIContent("Update to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Update", presetAsset, activePreset, prop, lwgui));
-						menus.AddItem(new GUIContent("Remove from Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Remove", presetAsset, activePreset, prop, lwgui));
+						menus.AddItem(new GUIContent("Update to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Update", presetAsset, activePreset, prop, metaDatas));
+						menus.AddItem(new GUIContent("Remove from Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Remove", presetAsset, activePreset, prop, metaDatas));
 					}
 					else
 					{
-						menus.AddItem(new GUIContent("Add to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Add", presetAsset, activePreset, prop, lwgui));
+						menus.AddItem(new GUIContent("Add to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Add", presetAsset, activePreset, prop, metaDatas));
 					}
 				}
 			}

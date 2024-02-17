@@ -59,7 +59,7 @@ namespace LWGUI
 			return _loadedPresets[presetFileName];
 		}
 
-		// Call this after a material has modified in code
+		// For Developers: Call this after a material has modified in code
 		public static void ApplyPresetsInMaterial(Material material)
 		{
 			var props = MaterialEditor.GetMaterialProperties(new[] { material });
@@ -68,7 +68,7 @@ namespace LWGUI
 				List<MaterialPropertyDrawer> decoratorDrawers;
 				var drawer = ReflectionHelper.GetPropertyDrawer(material.shader, prop, out decoratorDrawers);
 
-				// Get Presets
+				// Apply active preset
 				if (drawer != null && drawer is IBasePresetDrawer)
 				{
 					var activePreset = (drawer as IBasePresetDrawer).GetActivePreset(prop, PresetHelper.GetPresetFile((drawer as PresetDrawer).presetFileName));

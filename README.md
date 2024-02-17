@@ -68,7 +68,11 @@ Having been validated through numerous large-scale commercial projects, employin
 
 ## Installation
 
-1. Make sure your environment is compatible with LWGUI: **Unity 2017.4+**
+1. Make sure your environment is compatible with LWGUI
+
+   - LWGUI 1.x: **Unity 2017.4+**
+
+   - LWGUI 2.x: **Unity 2019.4+**
 2. Open your project
 3. `Window > Package Manager > Add > Add package from git URL` , enter: `https://github.com/JasonMa0012/LWGUI.git`
 

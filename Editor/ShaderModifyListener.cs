@@ -15,7 +15,7 @@ namespace LWGUI
 				if (Path.GetExtension(assetPath).Equals(".shader", StringComparison.OrdinalIgnoreCase))
 				{
 					var shader = AssetDatabase.LoadAssetAtPath<Shader>(assetPath);
-					MetaDataHelper.ForceRebuildPerShaderData(shader);
+					MetaDataHelper.ReleaseShaderMetadataCache(shader);
 				}
 			}
 		}

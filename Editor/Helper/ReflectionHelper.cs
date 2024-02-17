@@ -43,18 +43,6 @@ namespace LWGUI
 		private static MethodInfo   MaterialEditor_DoPowerRangeProperty_Method			= MaterialEditor_Type.GetMethod("DoPowerRangeProperty", BindingFlags.Static | BindingFlags.NonPublic);
 		private static MethodInfo   MaterialEditor_DefaultShaderPropertyInternal_Method = MaterialEditor_Type.GetMethod("DefaultShaderPropertyInternal", BindingFlags.NonPublic | BindingFlags.Instance, null,
 			new []{typeof(Rect), typeof(MaterialProperty), typeof(GUIContent)}, null);
-#if !UNITY_2019_2_OR_NEWER
-		private static FieldInfo	MaterialEditor_CustomShaderGUI_Field				= MaterialEditor_Type.GetField("m_CustomShaderGUI", BindingFlags.NonPublic | BindingFlags.Instance);
-#endif
-
-		public static ShaderGUI GetCustomShaderGUI(MaterialEditor editor)
-		{
-#if !UNITY_2019_2_OR_NEWER
-			return MaterialEditor_CustomShaderGUI_Field.GetValue(editor) as ShaderGUI;
-#else
-			return editor.customShaderGUI;
-#endif
-		}
 
 		public static float DoPowerRangeProperty(Rect position, MaterialProperty prop, GUIContent label, float power)
 		{
@@ -98,6 +86,7 @@ namespace LWGUI
 
 		#endregion
 
+
 		#region MaterialEnumDrawer
 		// UnityEditor.MaterialEnumDrawer(string enumName)
 		private static System.Type[] _types;
@@ -124,24 +113,6 @@ namespace LWGUI
 															})).ToArray<System.Type>();
 			}
 			return _types;
-		}
-		#endregion
-
-
-		#region Ramp
-		private static Type       EditorWindow_Type             = typeof(EditorWindow);
-		private static MethodInfo EditorWindow_ShowModal_Method = EditorWindow_Type.GetMethod("ShowModal", BindingFlags.NonPublic | BindingFlags.Instance);
-
-		// UnityEditor.EditorWindow.ShowModal
-		// Other windows will not be accessible and any script recompilation will not happen until this window is closed
-		// https://docs.unity3d.com/ScriptReference/EditorWindow.ShowModal.html
-		public static void ShowModal(EditorWindow window)
-		{
-			#if UNITY_2019_3_OR_NEWER
-				window.ShowModal();
-			#else
-				EditorWindow_ShowModal_Method.Invoke(window, null);
-			#endif
 		}
 		#endregion
 
