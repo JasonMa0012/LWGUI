@@ -71,12 +71,12 @@ Material:
     - _AdvancedRange0: 0.62
     - _Advancedfloat0: 0.54
     - _Advancedfloat1: 0.45
-    - _Advancedfloat3: 0
+    - _Advancedfloat3: 1
     - _Advancedfloat4: 0
     - _Advancedfloat7: 3.21
     - _enum: 2
     - _float: 0.53
-    - _float1: 0
+    - _float1: 1
     - _float2: -0.57
     - _float3: 0
     - _float4: 0
@@ -95,11 +95,11 @@ Material:
     - _key3_Float4_PowerSlider: 0.0033800516
     - _key3_Int_Range: 0
     - _minMaxSlider: 1
-    - _preset: 0
+    - _preset: 1
     - _preset1: 0
     - _range: 0
-    - _rangeEnd: 0.5
-    - _rangeStart: 0.089
+    - _rangeEnd: 0.6
+    - _rangeStart: 0.166
     - _rangeStart1: 0
     - _rangeStart2: 0
     - _toggle: 0

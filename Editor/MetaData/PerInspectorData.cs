@@ -49,10 +49,14 @@ namespace LWGUI
 		public PerInspectorData(MaterialEditor materialEditor, PerShaderData perShaderData, PerMaterialData perMaterialData)
 		{
 			this.materialEditor = materialEditor;
-			foreach (var propName in perShaderData.propStaticDatas.Keys)
+			foreach (var propStaticDataKVPair in perShaderData.propStaticDatas)
 			{
-				if (!propInspectorDatas.ContainsKey(propName))
-					propInspectorDatas.Add(propName, new PropertyInspectorData());
+				if (!propInspectorDatas.ContainsKey(propStaticDataKVPair.Key))
+					propInspectorDatas.Add(propStaticDataKVPair.Key, new PropertyInspectorData());
+
+				(propStaticDataKVPair.Value.drawer as IBaseDrawer)?.InitInspectorData(propInspectorDatas[propStaticDataKVPair.Key]);
+				propStaticDataKVPair.Value.decoratorDrawers?.ForEach(decoratorDrawer =>
+					(decoratorDrawer as IBaseDrawer)?.InitInspectorData(propInspectorDatas[propStaticDataKVPair.Key]));
 			}
 		}
 

@@ -24,7 +24,7 @@ namespace LWGUI
 		public float           value              = 0;
 	}
 
-	public struct DisplayModeStaticData
+	public class DisplayModeStaticData
 	{
 		public int advancedCount;
 		public int hiddenCount;
@@ -92,14 +92,9 @@ namespace LWGUI
 					propStaticData.drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out propStaticData.decoratorDrawers);
 
 					// Build Drawer StaticMetaData
-					if (propStaticData.drawer != null && propStaticData.drawer is IBaseDrawer)
-					{
-						(propStaticData.drawer as IBaseDrawer).BuildStaticMetaData(shader, prop, props, propStaticData);
-					}
+					(propStaticData.drawer as IBaseDrawer)?.BuildStaticMetaData(shader, prop, props, propStaticData);
 					propStaticData.decoratorDrawers?.ForEach(decoratorDrawer =>
-					{
-						if (decoratorDrawer is IBaseDrawer) (decoratorDrawer as IBaseDrawer).BuildStaticMetaData(shader, prop, props, propStaticData);
-					});
+						(decoratorDrawer as IBaseDrawer)?.BuildStaticMetaData(shader, prop, props, propStaticData));
 				}
 
 				DecodeMetaDataFromDisplayName(prop, propStaticData);

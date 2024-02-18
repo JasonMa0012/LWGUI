@@ -42,11 +42,11 @@ namespace LWGUI
 	/// </summary>
 	public class PerMaterialData
 	{
-		public Dictionary<string, PropertyDynamicData> propDynamicDatas   = new Dictionary<string, PropertyDynamicData>();
-		public MaterialProperty[]                      props              = null;
-		public Material                                material           = null;
-		public List<PersetDynamicData>                 activePresets      = new List<PersetDynamicData>();
-		public int                                     modifiedCount      = 0;
+		public Dictionary<string, PropertyDynamicData> propDynamicDatas = new Dictionary<string, PropertyDynamicData>();
+		public MaterialProperty[]                      props            = null;
+		public Material                                material         = null;
+		public List<PersetDynamicData>                 activePresets    = new List<PersetDynamicData>();
+		public int                                     modifiedCount    = 0;
 
 		public PerMaterialData(Material material, MaterialProperty[] props)
 		{
@@ -57,19 +57,13 @@ namespace LWGUI
 		public void Update(Shader shader, Material material, MaterialProperty[] props, PerShaderData perShaderData)
 		{
 			// Get active presets
+			activePresets.Clear();
 			foreach (var prop in props)
 			{
-				List<MaterialPropertyDrawer> decoratorDrawers;
-				var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
-
-				// Get Presets
-				activePresets.Clear();
-				if (drawer != null && drawer is IBasePresetDrawer)
-				{
-					var activePreset = (drawer as IBasePresetDrawer).GetActivePreset(prop, perShaderData.propStaticDatas[prop.name].propertyPresetAsset);
-					if (activePreset != null)
-						activePresets.Add(new PersetDynamicData(activePreset, prop));
-				}
+				var activePreset = (perShaderData.propStaticDatas[prop.name].drawer as IBasePresetDrawer)
+					?.GetActivePreset(prop, perShaderData.propStaticDatas[prop.name].propertyPresetAsset);
+				if (activePreset != null)
+					activePresets.Add(new PersetDynamicData(activePreset, prop));
 			}
 
 			{
@@ -80,7 +74,7 @@ namespace LWGUI
 						? UnityEngine.Object.Instantiate(material.parent)
 						:
 #endif
-					new Material(shader);
+						new Material(shader);
 
 				foreach (var activePreset in activePresets)
 					activePreset.preset.ApplyToDefaultMaterial(defaultMaterial);
@@ -134,29 +128,12 @@ namespace LWGUI
 				var propStaticData = perShaderData.propStaticDatas[prop.name];
 				var propDynamicData = propDynamicDatas[prop.name];
 
-
 				// Get default value descriptions
-				List<MaterialPropertyDrawer> decoratorDrawers;
-				var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out decoratorDrawers);
-				{
-					if (decoratorDrawers != null && decoratorDrawers.Count > 0)
-					{
-						foreach (var decoratorDrawer in decoratorDrawers)
-						{
-							if (decoratorDrawer is IBaseDrawer)
-								(decoratorDrawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, propDynamicData.defualtProperty,
-																							perShaderData, this);
-						}
-					}
-					if (drawer != null)
-					{
-						if (drawer is IBaseDrawer)
-							(drawer as IBaseDrawer).GetDefaultValueDescription(shader, prop, propDynamicData.defualtProperty, perShaderData, this);
-					}
-					if (string.IsNullOrEmpty(propDynamicData.defaultValueDescription))
-						propDynamicData.defaultValueDescription =
-							RevertableHelper.GetPropertyDefaultValueText(propDynamicData.defualtProperty);
-				}
+				(propStaticData.drawer as IBaseDrawer)?.GetDefaultValueDescription(shader, prop, propDynamicData.defualtProperty, perShaderData, this);
+				propStaticData.decoratorDrawers?.ForEach(propertyDrawer =>
+															 (propertyDrawer as IBaseDrawer)?.GetDefaultValueDescription(shader, prop, propDynamicData.defualtProperty, perShaderData, this));
+				if (string.IsNullOrEmpty(propDynamicData.defaultValueDescription))
+					propDynamicData.defaultValueDescription = RevertableHelper.GetPropertyDefaultValueText(propDynamicData.defualtProperty);
 
 				// Get ShowIf() results
 				foreach (var showIfData in propStaticData.showIfDatas)
