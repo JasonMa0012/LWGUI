@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Jason Ma
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -174,7 +175,8 @@ namespace LWGUI
 		// Tips: Use properties to fix null reference errors
 
 		private static GUIStyle _guiStyles_IconButton;
-		public static  GUIStyle guiStyles_IconButton
+
+		public static GUIStyle guiStyles_IconButton
 		{
 			get
 			{
@@ -184,7 +186,7 @@ namespace LWGUI
 #if UNITY_2021_2_OR_NEWER
 														 EditorStyles.iconButton
 #else
-						"iconButton"
+														 "iconButton"
 #endif
 														) { fixedHeight = 0, fixedWidth = 0 };
 				}
@@ -229,6 +231,7 @@ namespace LWGUI
 		}
 
 		private static GUIStyle _guiStyles_ToolbarSearchTextFieldPopup;
+
 		public static GUIStyle guiStyles_ToolbarSearchTextFieldPopup
 		{
 			get
@@ -238,14 +241,14 @@ namespace LWGUI
 					string toolbarSeachTextFieldPopupStr = "ToolbarSeachTextFieldPopup";
 					{
 						// ToolbarSeachTextFieldPopup has renamed at Unity 2021.3.28+
-	#if !UNITY_2022_3_OR_NEWER
+#if !UNITY_2022_3_OR_NEWER
 						string[] versionParts = Application.unityVersion.Split('.');
 						int majorVersion = int.Parse(versionParts[0]);
 						int minorVersion = int.Parse(versionParts[1]);
 						Match patchVersionMatch = Regex.Match(versionParts[2], @"\d+");
 						int patchVersion = int.Parse(patchVersionMatch.Value);
 						if (majorVersion >= 2021 && minorVersion >= 3 && patchVersion >= 28)
-	#endif
+#endif
 						{
 							toolbarSeachTextFieldPopupStr = "ToolbarSearchTextFieldPopup";
 						}
@@ -256,8 +259,8 @@ namespace LWGUI
 			}
 		}
 
-
 		#endregion
+
 
 		#region Draw GUI for Drawer
 
@@ -286,7 +289,6 @@ namespace LWGUI
 
 			return rects;
 		}
-
 
 		public static bool DrawFoldout(Rect rect, ref bool isFolding, bool toggleValue, bool hasToggle, GUIContent label)
 		{
@@ -344,7 +346,7 @@ namespace LWGUI
 			EditorGUI.DrawRect(rect, new Color(0, 0, 0, 0.45f));
 		}
 
-		private static readonly Texture2D _helpboxIcon     = EditorGUIUtility.IconContent("console.infoicon").image as Texture2D;
+		private static readonly Texture2D _helpboxIcon = EditorGUIUtility.IconContent("console.infoicon").image as Texture2D;
 
 		public static void DrawHelpbox(PropertyStaticData propertyStaticData, PropertyDynamicData propertyDynamicData)
 		{
@@ -352,8 +354,12 @@ namespace LWGUI
 			if (!string.IsNullOrEmpty(helpboxStr))
 			{
 				var content = new GUIContent(helpboxStr, _helpboxIcon);
-				var textWidth = EditorGUIUtility.currentViewWidth - ReflectionHelper.EditorGUI_Indent - RevertableHelper.revertButtonWidth
-							  - _helpboxIcon.width - guiStyle_Helpbox.margin.horizontal + 0.5f;
+				var textWidth = EditorGUIUtility.currentViewWidth
+							  - ReflectionHelper.EditorGUI_Indent
+							  - RevertableHelper.revertButtonWidth
+							  - _helpboxIcon.width
+							  - guiStyle_Helpbox.margin.horizontal
+							  + 0.5f;
 				var textHeight = guiStyle_Helpbox.CalcHeight(new GUIContent(helpboxStr), textWidth);
 				var helpboxRect = EditorGUI.IndentedRect(EditorGUILayout.GetControlRect(true, textHeight));
 				helpboxRect.xMax -= RevertableHelper.revertButtonWidth;
@@ -362,12 +368,11 @@ namespace LWGUI
 			}
 		}
 
-
 		private static Texture _logo = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("26b9d845eb7b1a747bf04dc84e5bcc2c"));
 		private static GUIContent _logoGuiContent = new GUIContent(string.Empty, _logo,
 																   "LWGUI (Light Weight Shader GUI)\n\n"
-																	+ "A Lightweight, Flexible, Powerful Unity Shader GUI system.\n\n"
-																	+ "Copyright (c) Jason Ma");
+																 + "A Lightweight, Flexible, Powerful Unity Shader GUI system.\n\n"
+																 + "Copyright (c) Jason Ma");
 
 		public static void DrawLogo()
 		{
@@ -381,27 +386,29 @@ namespace LWGUI
 				Application.OpenURL("https://github.com/JasonMa0012/LWGUI");
 			}
 		}
+
 		#endregion
 
 
 		#region Toolbar Buttons
+
 		private static Material     _copiedMaterial;
 		private static List<string> _copiedProps = new List<string>();
 
-		private static Texture _iconCopy = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("9cdef444d18d2ce4abb6bbc4fed4d109"));
-		private static Texture _iconPaste = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("8e7a78d02e4c3574998524a0842a8ccb"));
-		private static Texture _iconSelect = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("6f44e40b24300974eb607293e4224ecc"));
-		private static Texture _iconCheckout = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("72488141525eaa8499e65e52755cb6d0"));
-		private static Texture _iconExpand = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("2382450e7f4ddb94c9180d6634c41378"));
-		private static Texture _iconCollapse = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("929b6e5dfacc42b429d715a3e1ca2b57"));
+		private static Texture _iconCopy       = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("9cdef444d18d2ce4abb6bbc4fed4d109"));
+		private static Texture _iconPaste      = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("8e7a78d02e4c3574998524a0842a8ccb"));
+		private static Texture _iconSelect     = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("6f44e40b24300974eb607293e4224ecc"));
+		private static Texture _iconCheckout   = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("72488141525eaa8499e65e52755cb6d0"));
+		private static Texture _iconExpand     = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("2382450e7f4ddb94c9180d6634c41378"));
+		private static Texture _iconCollapse   = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("929b6e5dfacc42b429d715a3e1ca2b57"));
 		private static Texture _iconVisibility = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath("9576e23a695b35d49a9fc55c9a948b4f"));
 
-		private static GUIContent _guiContentCopy = new GUIContent("", _iconCopy, "Copy Material Properties");
-		private static GUIContent _guiContentPaste = new GUIContent("", _iconPaste, "Paste Material Properties\n\nRight-click to paste values by type.");
-		private static GUIContent _guiContentSelect = new GUIContent("", _iconSelect, "Select the Material Asset\n\nUsed to jump from a Runtime Material Instance to a Material Asset.");
-		private static GUIContent _guiContentChechout = new GUIContent("", _iconCheckout, "Checkout selected Material Assets");
-		private static GUIContent _guiContentExpand = new GUIContent("", _iconExpand, "Expand All Groups");
-		private static GUIContent _guiContentCollapse = new GUIContent("", _iconCollapse, "Collapse All Groups");
+		private static GUIContent _guiContentCopy       = new GUIContent("", _iconCopy, "Copy Material Properties");
+		private static GUIContent _guiContentPaste      = new GUIContent("", _iconPaste, "Paste Material Properties\n\nRight-click to paste values by type.");
+		private static GUIContent _guiContentSelect     = new GUIContent("", _iconSelect, "Select the Material Asset\n\nUsed to jump from a Runtime Material Instance to a Material Asset.");
+		private static GUIContent _guiContentChechout   = new GUIContent("", _iconCheckout, "Checkout selected Material Assets");
+		private static GUIContent _guiContentExpand     = new GUIContent("", _iconExpand, "Expand All Groups");
+		private static GUIContent _guiContentCollapse   = new GUIContent("", _iconCollapse, "Collapse All Groups");
 		private static GUIContent _guiContentVisibility = new GUIContent("", _iconVisibility, "Display Mode");
 
 		private static string[] _materialInstanceNameEnd = new[] { "_Instantiated", " (Instance)" };
@@ -433,7 +440,7 @@ namespace LWGUI
 			(uint)CopyMaterialValueMask.RenderQueue,
 		};
 
-		private static void DoPasteMaterialProperties(LWGUIMetaDatas metaDatas , uint valueMask)
+		private static void DoPasteMaterialProperties(LWGUIMetaDatas metaDatas, uint valueMask)
 		{
 			if (!_copiedMaterial)
 			{
@@ -628,42 +635,75 @@ namespace LWGUI
 			buttonRect.x += buttonRectOffset;
 			toolBarRect.xMin += buttonRectOffset;
 			var color = GUI.color;
-			if (!perInspectorData.displayModeDynamicData.IsDefaultDisplayMode())
+			var displayModeDynamicData = perInspectorData.displayModeDynamicData;
+			if (!displayModeDynamicData.IsDefaultDisplayMode())
 				GUI.color = Color.yellow;
 			if (GUI.Button(buttonRect, _guiContentVisibility, Helper.guiStyles_IconButton))
 			{
+				// Build Display Mode Menu Items
 				string[] displayModeMenus = new[]
 				{
-					"Show All Advanced Properties	(" + perShaderData.displayModeStaticData.advancedCount + " of " + perShaderData.propStaticDatas.Count + ")",
-					"Show All Hidden Properties		(" + perShaderData.displayModeStaticData.hiddenCount + " of " + perShaderData.propStaticDatas.Count + ")",
-					"Show Only Modified Properties	(" + perMaterialData.modifiedCount + " of " + perShaderData.propStaticDatas.Count + ")",
+					"Show All Advanced Properties			(" + perShaderData.displayModeStaticData.advancedCount + " of " + perShaderData.propStaticDatas.Count + ")",
+					"Show All Hidden Properties				(" + perShaderData.displayModeStaticData.hiddenCount + " of " + perShaderData.propStaticDatas.Count + ")",
+					"Show Only Modified Properties			(" + perMaterialData.modifiedCount + " of " + perShaderData.propStaticDatas.Count + ")",
+					"Show Only Modified Properties by Group	(" + perMaterialData.modifiedCount + " of " + perShaderData.propStaticDatas.Count + ")",
 				};
-				bool[] enabled = new[] { true, true, true };
-				bool[] separator = new bool[3];
+				bool[] enabled = new[] { true, true, true, true };
+				bool[] separator = new bool[4];
 				int[] selected = new[]
 				{
-					perInspectorData.displayModeDynamicData.showAllAdvancedProperties	? 0 : -1,
-					perInspectorData.displayModeDynamicData.showAllHiddenProperties		? 1 : -1,
-					perInspectorData.displayModeDynamicData.showOnlyModifiedProperties	? 2 : -1,
+					displayModeDynamicData.showAllAdvancedProperties ? 0 : -1,
+					displayModeDynamicData.showAllHiddenProperties ? 1 : -1,
+					displayModeDynamicData.showOnlyModifiedProperties ? 2 : -1,
+					displayModeDynamicData.showOnlyModifiedGroups ? 3 : -1,
 				};
+
+				void CacheModifiedProps(bool doCacheOrClear)
+				{
+					if (doCacheOrClear)
+					{
+						// Store Modified Props
+						displayModeDynamicData.cachedModifiedProperties = new Dictionary<string, bool>();
+						foreach (var propDynamicDataKVPair in perMaterialData.propDynamicDatas)
+						{
+							if (propDynamicDataKVPair.Value.hasModified || propDynamicDataKVPair.Value.hasChildrenModified)
+							{
+								displayModeDynamicData.cachedModifiedProperties.Add(propDynamicDataKVPair.Key, true);
+								Debug.Log(propDynamicDataKVPair.Key);
+							}
+						}
+					}
+					else
+						displayModeDynamicData.cachedModifiedProperties = null;
+				}
+
+				// Click Event
+				void OnSwitchDisplayMode(object data, string[] options, int selectedIndex)
+				{
+					switch (selectedIndex)
+					{
+						case 0: // Show All Advanced Properties
+							displayModeDynamicData.showAllAdvancedProperties = !displayModeDynamicData.showAllAdvancedProperties;
+							perInspectorData.ToggleShowAllAdvancedProperties(perShaderData);
+							break;
+						case 1: // Show All Hidden Properties
+							displayModeDynamicData.showAllHiddenProperties = !displayModeDynamicData.showAllHiddenProperties;
+							break;
+						case 2: // Show Only Modified Properties
+							displayModeDynamicData.showOnlyModifiedProperties = !displayModeDynamicData.showOnlyModifiedProperties;
+							if (displayModeDynamicData.showOnlyModifiedProperties) displayModeDynamicData.showOnlyModifiedGroups = false;
+							CacheModifiedProps(displayModeDynamicData.showOnlyModifiedProperties);
+							break;
+						case 3: // Show Only Modified Groups
+							displayModeDynamicData.showOnlyModifiedGroups = !displayModeDynamicData.showOnlyModifiedGroups;
+							if (displayModeDynamicData.showOnlyModifiedGroups) displayModeDynamicData.showOnlyModifiedProperties = false;
+							CacheModifiedProps(displayModeDynamicData.showOnlyModifiedGroups);
+							break;
+					}
+				}
+
 				ReflectionHelper.DisplayCustomMenuWithSeparators(new Rect(Event.current.mousePosition.x, Event.current.mousePosition.y, 0, 0),
-															  displayModeMenus, enabled, separator, selected,
-															  (data, options, selectedIndex) =>
-															  {
-																  switch (selectedIndex)
-																  {
-																	  case 0:
-																		  perInspectorData.displayModeDynamicData.showAllAdvancedProperties = !perInspectorData.displayModeDynamicData.showAllAdvancedProperties;
-																		  perInspectorData.ToggleShowAllAdvancedProperties(perShaderData);
-																		  break;
-																	  case 1:
-																		  perInspectorData.displayModeDynamicData.showAllHiddenProperties = !perInspectorData.displayModeDynamicData.showAllHiddenProperties;
-																		  break;
-																	  case 2:
-																		  perInspectorData.displayModeDynamicData.showOnlyModifiedProperties = !perInspectorData.displayModeDynamicData.showOnlyModifiedProperties;
-																		  break;
-																  }
-															  });
+																 displayModeMenus, enabled, separator, selected, OnSwitchDisplayMode);
 			}
 			GUI.color = color;
 
@@ -674,6 +714,7 @@ namespace LWGUI
 
 
 		#region Search Field
+
 		private static readonly int s_TextFieldHash = "EditorTextField".GetHashCode();
 		private static readonly GUIContent[] _searchModeMenus =
 			(new GUIContent[(int)SearchMode.Num]).Select(((guiContent, i) =>
@@ -683,7 +724,6 @@ namespace LWGUI
 
 				return new GUIContent(((SearchMode)i).ToString());
 			})).ToArray();
-
 
 		/// <returns>is has changed?</returns>
 		public static bool DrawSearchField(Rect rect, LWGUIMetaDatas metaDatas)
@@ -818,7 +858,6 @@ namespace LWGUI
 							_copiedProps.Add(extraPropName);
 						}
 					}
-
 				}
 			});
 
@@ -930,7 +969,7 @@ namespace LWGUI
 
 			menus.ShowAsContext();
 		}
-		#endregion
 
+		#endregion
 	}
 }

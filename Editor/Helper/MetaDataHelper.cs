@@ -154,6 +154,8 @@ namespace LWGUI
 
 			var (propStaticData, propDynamicData, propInspectorData) = metaDatas.GetPropDatas(prop);
 			var displayModeDynamicData = metaDatas.perInspectorData.displayModeDynamicData;
+			var cachedModifiedProperties = metaDatas.perInspectorData.displayModeDynamicData.cachedModifiedProperties;
+Debug.Log(cachedModifiedProperties?.Count);
 
 			if ( // if HideInInspector
 				Helper.IsPropertyHideInInspector(prop)
@@ -164,7 +166,10 @@ namespace LWGUI
 			  && !material.shaderKeywords.Any((str => str == propStaticData.conditionalDisplayKeyword)))
 			 || (!displayModeDynamicData.showAllHiddenProperties && propStaticData.isHidden)
 				// if show modified only
-			 || (displayModeDynamicData.showOnlyModifiedProperties && !(propDynamicData.hasModified || propDynamicData.hasChildrenModified))
+			 || (cachedModifiedProperties != null && !(
+					(displayModeDynamicData.showOnlyModifiedProperties && cachedModifiedProperties.ContainsKey(prop.name))
+					// if show modified group only
+					|| (displayModeDynamicData.showOnlyModifiedGroups && cachedModifiedProperties.ContainsKey(propStaticData.parent != null ? propStaticData.parent.name : prop.name))))
 				// ShowIf() == false
 			 || !propDynamicData.isShowing
 			   )

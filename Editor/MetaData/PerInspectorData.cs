@@ -17,13 +17,15 @@ namespace LWGUI
 		Num      = 3
 	}
 
-	public struct DisplayModeDynamicData
+	public class DisplayModeDynamicData
 	{
-		public bool showAllAdvancedProperties;
-		public bool showAllHiddenProperties;
-		public bool showOnlyModifiedProperties;
+		public bool                     showAllAdvancedProperties;
+		public bool                     showAllHiddenProperties;
+		public bool                     showOnlyModifiedProperties;
+		public bool                     showOnlyModifiedGroups;
+		public Dictionary<string, bool> cachedModifiedProperties;
 
-		public bool IsDefaultDisplayMode() { return !(showAllAdvancedProperties || showAllHiddenProperties || showOnlyModifiedProperties); }
+		public bool IsDefaultDisplayMode() { return !(showAllAdvancedProperties || showAllHiddenProperties || showOnlyModifiedProperties || showOnlyModifiedGroups); }
 	}
 
 	public class PropertyInspectorData

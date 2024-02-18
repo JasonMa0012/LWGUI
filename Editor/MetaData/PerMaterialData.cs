@@ -42,11 +42,11 @@ namespace LWGUI
 	/// </summary>
 	public class PerMaterialData
 	{
-		public Dictionary<string, PropertyDynamicData> propDynamicDatas = new Dictionary<string, PropertyDynamicData>();
-		public MaterialProperty[]                      props            = null;
-		public Material                                material         = null;
-		public List<PersetDynamicData>                 activePresets    = new List<PersetDynamicData>();
-		public int                                     modifiedCount    = 0;
+		public Dictionary<string, PropertyDynamicData> propDynamicDatas   = new Dictionary<string, PropertyDynamicData>();
+		public MaterialProperty[]                      props              = null;
+		public Material                                material           = null;
+		public List<PersetDynamicData>                 activePresets      = new List<PersetDynamicData>();
+		public int                                     modifiedCount      = 0;
 
 		public PerMaterialData(Material material, MaterialProperty[] props)
 		{
@@ -90,6 +90,7 @@ namespace LWGUI
 
 				// Init propDynamicDatas
 				propDynamicDatas.Clear();
+				modifiedCount = 0;
 				for (int i = 0; i < props.Length; i++)
 				{
 					Debug.Assert(props[i].name == defaultProperties[i].name);
@@ -105,13 +106,25 @@ namespace LWGUI
 					});
 				}
 
-				// Extra Prop hasModified
-				for (int i = 0; i < props.Length; i++)
+				foreach (var prop in props)
 				{
-					foreach (var extraPropName in perShaderData.propStaticDatas[props[i].name].extraPropNames)
+					var propStaticData = perShaderData.propStaticDatas[prop.name];
+					var propDynamicData = propDynamicDatas[prop.name];
+
+					// Extra Prop hasModified
+					foreach (var extraPropName in propStaticData.extraPropNames)
+						propDynamicData.hasModified |= propDynamicDatas[extraPropName].hasModified;
+
+					// Override parent hasModified
+					if (propDynamicData.hasModified)
 					{
-						if (propDynamicDatas[extraPropName].hasModified)
-							propDynamicDatas[props[i].name].hasChildrenModified = true;
+						var parentPropData = propStaticData.parent;
+						if (parentPropData != null)
+						{
+							propDynamicDatas[parentPropData.name].hasChildrenModified = true;
+							if (parentPropData.parent != null)
+								propDynamicDatas[parentPropData.parent.name].hasChildrenModified = true;
+						}
 					}
 				}
 			}
@@ -121,17 +134,6 @@ namespace LWGUI
 				var propStaticData = perShaderData.propStaticDatas[prop.name];
 				var propDynamicData = propDynamicDatas[prop.name];
 
-				// Override parent hasModified
-				if (propDynamicData.hasModified)
-				{
-					var parentPropData = propStaticData.parent;
-					if (parentPropData != null)
-					{
-						propDynamicDatas[parentPropData.name].hasChildrenModified = true;
-						if (parentPropData.parent != null)
-							propDynamicDatas[parentPropData.parent.name].hasChildrenModified = true;
-					}
-				}
 
 				// Get default value descriptions
 				List<MaterialPropertyDrawer> decoratorDrawers;

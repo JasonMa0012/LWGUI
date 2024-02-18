@@ -69,8 +69,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AdvancedRange0: 0.62
-    - _Advancedfloat0: 0
-    - _Advancedfloat1: 0
+    - _Advancedfloat0: 0.54
+    - _Advancedfloat1: 0.45
     - _Advancedfloat3: 0
     - _Advancedfloat4: 0
     - _Advancedfloat7: 3.21
@@ -82,7 +82,7 @@ Material:
     - _float4: 0
     - _floatN: 0
     - _float_helpbox: 1
-    - _float_tooltip: 1
+    - _float_tooltip: 1.45
     - _group: 0
     - _group1: 1
     - _group2: 0
@@ -98,8 +98,8 @@ Material:
     - _preset: 0
     - _preset1: 0
     - _range: 0
-    - _rangeEnd: 0.7474536
-    - _rangeStart: 0.26
+    - _rangeEnd: 0.5
+    - _rangeStart: 0.089
     - _rangeStart1: 0
     - _rangeStart2: 0
     - _toggle: 0

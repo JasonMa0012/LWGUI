@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Jason Ma
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,10 @@ namespace LWGUI
 	public class ReflectionHelper
 	{
 		private static Assembly UnityEditor_Assembly = Assembly.GetAssembly(typeof(Editor));
-		
+
+
 		#region MaterialPropertyHandler
+
 		private static Type         MaterialPropertyHandler_Type                    = UnityEditor_Assembly.GetType("UnityEditor.MaterialPropertyHandler");
 		private static MethodInfo   MaterialPropertyHandler_GetHandler_Method       = MaterialPropertyHandler_Type.GetMethod("GetHandler", BindingFlags.Static | BindingFlags.NonPublic);
 		private static PropertyInfo MaterialPropertyHandler_PropertyDrawer_Property = MaterialPropertyHandler_Type.GetProperty("propertyDrawer");
@@ -35,14 +38,16 @@ namespace LWGUI
 			List<MaterialPropertyDrawer> decoratorDrawers;
 			return GetPropertyDrawer(shader, prop, out decoratorDrawers);
 		}
+
 		#endregion
 
 
 		#region MaterialEditor
-		private static Type			MaterialEditor_Type									= typeof(MaterialEditor);
-		private static MethodInfo   MaterialEditor_DoPowerRangeProperty_Method			= MaterialEditor_Type.GetMethod("DoPowerRangeProperty", BindingFlags.Static | BindingFlags.NonPublic);
-		private static MethodInfo   MaterialEditor_DefaultShaderPropertyInternal_Method = MaterialEditor_Type.GetMethod("DefaultShaderPropertyInternal", BindingFlags.NonPublic | BindingFlags.Instance, null,
-			new []{typeof(Rect), typeof(MaterialProperty), typeof(GUIContent)}, null);
+
+		private static Type       MaterialEditor_Type                        = typeof(MaterialEditor);
+		private static MethodInfo MaterialEditor_DoPowerRangeProperty_Method = MaterialEditor_Type.GetMethod("DoPowerRangeProperty", BindingFlags.Static | BindingFlags.NonPublic);
+		private static MethodInfo MaterialEditor_DefaultShaderPropertyInternal_Method = MaterialEditor_Type.GetMethod("DefaultShaderPropertyInternal", BindingFlags.NonPublic | BindingFlags.Instance, null,
+																													  new[] { typeof(Rect), typeof(MaterialProperty), typeof(GUIContent) }, null);
 
 		public static float DoPowerRangeProperty(Rect position, MaterialProperty prop, GUIContent label, float power)
 		{
@@ -62,18 +67,11 @@ namespace LWGUI
 		private static MethodInfo   EditorUtility_DisplayCustomMenuWithSeparators_Method = EditorUtility_Type.GetMethod("DisplayCustomMenuWithSeparators", BindingFlags.NonPublic | BindingFlags.Static, null,
 			new []{typeof(Rect), typeof(string[]), typeof(bool[]), typeof(bool[]), typeof(int[]), typeof(EditorUtility.SelectMenuItemFunction), typeof(object), typeof(bool)}, null);
 
-		public static void DisplayCustomMenuWithSeparators(
-			Rect                                 position,
-			string[]                             options,
-			bool[]                               enabled,
-			bool[]                               separator,
-			int[]                                selected,
-			EditorUtility.SelectMenuItemFunction callback,
-			object                               userData = null,
-			bool                                 showHotkey = false)
+		public static void DisplayCustomMenuWithSeparators(Rect position, string[] options, bool[] enabled, bool[] separator, int[] selected, EditorUtility.SelectMenuItemFunction callback, object userData = null, bool showHotkey = false)
 		{
 			EditorUtility_DisplayCustomMenuWithSeparators_Method.Invoke(null, new System.Object[] { position, options, enabled, separator, selected, callback, userData, showHotkey });
 		}
+
 		#endregion
 
 
@@ -88,6 +86,7 @@ namespace LWGUI
 
 
 		#region MaterialEnumDrawer
+
 		// UnityEditor.MaterialEnumDrawer(string enumName)
 		private static System.Type[] _types;
 
@@ -114,17 +113,19 @@ namespace LWGUI
 			}
 			return _types;
 		}
+
 		#endregion
 
 
 		#region MaterialProperty.PropertyData
+
 #if UNITY_2022_1_OR_NEWER
-		private static Type			MaterialProperty_Type					= typeof(MaterialProperty);
-		private static Type			PropertyData_Type						= MaterialProperty_Type.GetNestedType("PropertyData", BindingFlags.NonPublic);
+		private static Type			MaterialProperty_Type = typeof(MaterialProperty);
+		private static Type			PropertyData_Type = MaterialProperty_Type.GetNestedType("PropertyData", BindingFlags.NonPublic);
 		// MergeStack(out bool lockedInChildren, out bool lockedByAncestor, out bool overriden)
-		private static MethodInfo   PropertyData_MergeStack_Method			= PropertyData_Type.GetMethod("MergeStack", BindingFlags.Static | BindingFlags.NonPublic);
+		private static MethodInfo   PropertyData_MergeStack_Method = PropertyData_Type.GetMethod("MergeStack", BindingFlags.Static | BindingFlags.NonPublic);
 		// HandleApplyRevert(GenericMenu menu, bool singleEditing, UnityEngine.Object[] targets)
-		private static MethodInfo   PropertyData_HandleApplyRevert_Method   = PropertyData_Type.GetMethod("HandleApplyRevert", BindingFlags.Static | BindingFlags.NonPublic);
+		private static MethodInfo   PropertyData_HandleApplyRevert_Method = PropertyData_Type.GetMethod("HandleApplyRevert", BindingFlags.Static | BindingFlags.NonPublic);
 
 		public static void HandleApplyRevert(GenericMenu menu, MaterialProperty prop)
 		{
@@ -142,6 +143,7 @@ namespace LWGUI
 			}
 		}
 #endif
+
 		#endregion
 	}
 }
