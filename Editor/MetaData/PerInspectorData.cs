@@ -46,17 +46,14 @@ namespace LWGUI
 		public string                                                 searchString           = string.Empty;
 
 
-		public PerInspectorData(MaterialEditor materialEditor, PerShaderData perShaderData, PerMaterialData perMaterialData)
+		public PerInspectorData(MaterialProperty[] props, PerShaderData perShaderData, PerMaterialData perMaterialData)
 		{
-			this.materialEditor = materialEditor;
-			foreach (var propStaticDataKVPair in perShaderData.propStaticDatas)
+			foreach (var prop in props)
 			{
-				if (!propInspectorDatas.ContainsKey(propStaticDataKVPair.Key))
-					propInspectorDatas.Add(propStaticDataKVPair.Key, new PropertyInspectorData());
+				if (!propInspectorDatas.ContainsKey(prop.name))
+					propInspectorDatas.Add(prop.name, new PropertyInspectorData());
 
-				(propStaticDataKVPair.Value.drawer as IBaseDrawer)?.InitInspectorData(propInspectorDatas[propStaticDataKVPair.Key]);
-				propStaticDataKVPair.Value.decoratorDrawers?.ForEach(decoratorDrawer =>
-					(decoratorDrawer as IBaseDrawer)?.InitInspectorData(propInspectorDatas[propStaticDataKVPair.Key]));
+				perShaderData.propStaticDatas[prop.name].baseDrawers?.ForEach(baseDrawer => baseDrawer.InitInspectorData(propInspectorDatas[prop.name]));
 			}
 		}
 

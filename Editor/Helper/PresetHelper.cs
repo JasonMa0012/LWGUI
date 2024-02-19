@@ -41,7 +41,6 @@ namespace LWGUI
 			if (!_loadedPresets.ContainsKey(preset.name))
 			{
 				_loadedPresets.Add(preset.name, preset);
-				// Debug.Log(preset.name);
 			}
 		}
 

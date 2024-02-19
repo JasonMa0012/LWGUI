@@ -10,20 +10,6 @@ using UnityEngine.Rendering;
 
 namespace LWGUI
 {
-	public enum LogicalOperator
-	{
-		And,
-		Or
-	}
-
-	public class ShowIfData
-	{
-		public LogicalOperator logicalOperator    = LogicalOperator.And;
-		public string          targetPropertyName = string.Empty;
-		public CompareFunction compareFunction    = CompareFunction.Equal;
-		public float           value              = 0;
-	}
-
 	public class DisplayModeStaticData
 	{
 		public int advancedCount;
@@ -46,14 +32,14 @@ namespace LWGUI
 		public List<PropertyStaticData> children                 = new List<PropertyStaticData>();
 
 		// Visibility
-		public string           conditionalDisplayKeyword = string.Empty;           // [Group(groupName_conditionalDisplayKeyword)]
-		public bool             isHidden                  = false;                  // [Hidden]
-		public bool             isReadOnly                = false;                  // [ReadOnly]
-		public List<ShowIfData> showIfDatas               = new List<ShowIfData>(); // [ShowIf()]
+		public string                           conditionalDisplayKeyword = string.Empty;                           // [Group(groupName_conditionalDisplayKeyword)]
+		public bool                             isHidden                  = false;                                  // [Hidden]
+		public bool                             isReadOnly                = false;                                  // [ReadOnly]
+		public List<ShowIfDecorator.ShowIfData> showIfDatas               = new List<ShowIfDecorator.ShowIfData>(); // [ShowIf()]
 
 		// Drawers
-		public MaterialPropertyDrawer       drawer           = null;
-		public List<MaterialPropertyDrawer> decoratorDrawers = null;
+		public IBasePresetDrawer presetDrawer = null;
+		public List<IBaseDrawer> baseDrawers  = null;
 
 		// Metadata
 		public List<string>         extraPropNames      = new List<string>(); // Other Props that have been associated
@@ -76,10 +62,12 @@ namespace LWGUI
 		public Shader                                 shader                = null;
 		public DisplayModeStaticData                  displayModeStaticData = new DisplayModeStaticData();
 		public List<string>                           favoriteproperties    = new List<string>();
+		public Material                               defaultMaterial       = null;
 
 		public PerShaderData(Shader shader, MaterialProperty[] props)
 		{
 			this.shader = shader;
+			defaultMaterial = new Material(shader);
 
 			// Get Property Static Data
 			foreach (var prop in props)
@@ -87,14 +75,33 @@ namespace LWGUI
 				var propStaticData = new PropertyStaticData() { name = prop.name };
 				propStaticDatas[prop.name] = propStaticData;
 
+				// Get Drawers and Build Drawer StaticMetaData
 				{
-					// Get Drawers
-					propStaticData.drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out propStaticData.decoratorDrawers);
+					var drawer = ReflectionHelper.GetPropertyDrawer(shader, prop, out var decoratorDrawers);
 
-					// Build Drawer StaticMetaData
-					(propStaticData.drawer as IBaseDrawer)?.BuildStaticMetaData(shader, prop, props, propStaticData);
-					propStaticData.decoratorDrawers?.ForEach(decoratorDrawer =>
-						(decoratorDrawer as IBaseDrawer)?.BuildStaticMetaData(shader, prop, props, propStaticData));
+					if (drawer is IBasePresetDrawer)
+						propStaticData.presetDrawer = drawer as IBasePresetDrawer;
+
+					var baseDrawer = drawer as IBaseDrawer;
+					if (baseDrawer != null)
+					{
+						propStaticData.baseDrawers = new List<IBaseDrawer>() { baseDrawer };
+						baseDrawer.BuildStaticMetaData(shader, prop, props, propStaticData);
+					}
+
+					decoratorDrawers?.ForEach(decoratorDrawer =>
+					{
+						baseDrawer = decoratorDrawer as IBaseDrawer;
+						if (baseDrawer != null)
+						{
+							if (propStaticData.baseDrawers == null)
+								propStaticData.baseDrawers = new List<IBaseDrawer>() { baseDrawer };
+							else
+								propStaticData.baseDrawers.Add(baseDrawer);
+
+							baseDrawer.BuildStaticMetaData(shader, prop, props, propStaticData);
+						}
+					});
 				}
 
 				DecodeMetaDataFromDisplayName(prop, propStaticData);

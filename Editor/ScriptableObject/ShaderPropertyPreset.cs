@@ -252,7 +252,8 @@ namespace LWGUI
 		
 		private void OnValidate()
 		{
-			PresetHelper.ForceInit();
+			// Update All Material Default Values
+			MetaDataHelper.ReleaseAllShadersMetadataCache();
 		}
 		
 		private void OnEnable()

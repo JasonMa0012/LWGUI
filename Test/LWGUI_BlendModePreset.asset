@@ -33,12 +33,9 @@ MonoBehaviour:
       colorValue: {r: 0, g: 0, b: 0, a: 0}
       vectorValue: {x: 0, y: 0, z: 0, w: 0}
       textureValue: {fileID: 0}
-    - propertyName: renderqueue
-      propertyType: 2
-      floatValue: 2000
-      colorValue: {r: 0, g: 0, b: 0, a: 0}
-      vectorValue: {x: 0, y: 0, z: 0, w: 0}
-      textureValue: {fileID: 0}
+    enabledKeywords: []
+    disabledKeywords: []
+    renderQueue: 2000
   - presetName: Translucency
     propertyValues:
     - propertyName: _SrcBlend
@@ -59,9 +56,6 @@ MonoBehaviour:
       colorValue: {r: 0, g: 0, b: 0, a: 0}
       vectorValue: {x: 0, y: 0, z: 0, w: 0}
       textureValue: {fileID: 0}
-    - propertyName: renderqueue
-      propertyType: 2
-      floatValue: 3000
-      colorValue: {r: 0, g: 0, b: 0, a: 0}
-      vectorValue: {x: 0, y: 0, z: 0, w: 0}
-      textureValue: {fileID: 0}
+    enabledKeywords: []
+    disabledKeywords: []
+    renderQueue: 3000

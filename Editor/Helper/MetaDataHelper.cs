@@ -89,7 +89,7 @@ namespace LWGUI
 
 			// perMaterialData
 			if (!perShaderCache.perMaterialDataCachesDic.ContainsKey(material))
-				perShaderCache.perMaterialDataCachesDic.Add(material, new PerMaterialCache() { perMaterialData = new PerMaterialData(material, props) });
+				perShaderCache.perMaterialDataCachesDic.Add(material, new PerMaterialCache() { perMaterialData = new PerMaterialData(shader, material, props, outDatas.perShaderData) });
 
 			var perMaterialCache = perShaderCache.perMaterialDataCachesDic[material];
 			outDatas.perMaterialData = perMaterialCache.perMaterialData;
@@ -97,12 +97,17 @@ namespace LWGUI
 
 			// perInspectorData
 			if (!perMaterialCache.perInspectorDataCachesDic.ContainsKey(lwgui))
-				perMaterialCache.perInspectorDataCachesDic.Add(lwgui, new PerInspectorData(materialEditor, outDatas.perShaderData, outDatas.perMaterialData));
+				perMaterialCache.perInspectorDataCachesDic.Add(lwgui, new PerInspectorData(props, outDatas.perShaderData, outDatas.perMaterialData));
 
 			outDatas.perInspectorData = perMaterialCache.perInspectorDataCachesDic[lwgui];
 			outDatas.perInspectorData.Update(materialEditor);
 
 			return outDatas;
+		}
+
+		public static void ReleaseAllShadersMetadataCache()
+		{
+			_perShaderCachesDic.Clear();
 		}
 
 		public static void ReleaseShaderMetadataCache(Shader shader)
@@ -120,13 +125,20 @@ namespace LWGUI
 				_perShaderCachesDic[material.shader].perMaterialDataCachesDic.Remove(material);
 		}
 
+		public static void ForceUpdateMaterialMetadataCache(Material material)
+		{
+			if (material
+			 && material.shader
+			 && _perShaderCachesDic.ContainsKey(material.shader)
+			 && _perShaderCachesDic[material.shader].perMaterialDataCachesDic.ContainsKey(material))
+				_perShaderCachesDic[material.shader].perMaterialDataCachesDic[material].perMaterialData.forceUpdate = true;
+		}
+
 		public static string GetPropertyTooltip(PropertyStaticData propertyStaticData, PropertyDynamicData propertyDynamicData)
 		{
 			var str = propertyStaticData.tooltipMessages;
-			if (!string.IsNullOrEmpty(str))
-				str += "\n\n";
-			str += "Property Name: " + propertyDynamicData.property.name + "\n";
-			str += "Default Value: " + propertyDynamicData.defaultValueDescription;
+			var lineEnd = string.IsNullOrEmpty(str) ? string.Empty : "\n\n";
+			str += $"{lineEnd}Property Name: {propertyDynamicData.property.name}\nDefault Value: {propertyDynamicData.defaultValueDescription}";
 			return str;
 		}
 
@@ -155,7 +167,6 @@ namespace LWGUI
 			var (propStaticData, propDynamicData, propInspectorData) = metaDatas.GetPropDatas(prop);
 			var displayModeDynamicData = metaDatas.perInspectorData.displayModeDynamicData;
 			var cachedModifiedProperties = metaDatas.perInspectorData.displayModeDynamicData.cachedModifiedProperties;
-Debug.Log(cachedModifiedProperties?.Count);
 
 			if ( // if HideInInspector
 				Helper.IsPropertyHideInInspector(prop)

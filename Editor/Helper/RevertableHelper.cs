@@ -91,22 +91,22 @@ namespace LWGUI
 			switch (defaultProp.type)
 			{
 				case MaterialProperty.PropType.Color:
-					defaultText += defaultProp.colorValue;
+					defaultText = defaultProp.colorValue.ToString();
 					break;
 				case MaterialProperty.PropType.Float:
 				case MaterialProperty.PropType.Range:
-					defaultText += defaultProp.floatValue;
+					defaultText = defaultProp.floatValue.ToString();
 					break;
 #if UNITY_2021_1_OR_NEWER
 				case MaterialProperty.PropType.Int:
-					defaultText += defaultProp.intValue;
+					defaultText = defaultProp.intValue.ToString();
 					break;
 #endif
 				case MaterialProperty.PropType.Texture:
-					defaultText += defaultProp.textureValue != null ? defaultProp.textureValue.name : "None";
+					defaultText = defaultProp.textureValue != null ? defaultProp.textureValue.name : "None";
 					break;
 				case MaterialProperty.PropType.Vector:
-					defaultText += defaultProp.vectorValue;
+					defaultText = defaultProp.vectorValue.ToString();
 					break;
 			}
 			return defaultText;

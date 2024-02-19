@@ -36,9 +36,6 @@ namespace LWGUI
 
 	/// <summary>
 	/// Contains Metadata that may be different for each Material.
-	///
-	/// Some of which may need to be updated every frame, such as the default value.
-	/// (Because there are many other ways to modify the default value externally)
 	/// </summary>
 	public class PerMaterialData
 	{
@@ -47,34 +44,40 @@ namespace LWGUI
 		public Material                                material         = null;
 		public List<PersetDynamicData>                 activePresets    = new List<PersetDynamicData>();
 		public int                                     modifiedCount    = 0;
+		public bool                                    forceUpdate      = true;
 
-		public PerMaterialData(Material material, MaterialProperty[] props)
+		public PerMaterialData(Shader shader, Material material, MaterialProperty[] props, PerShaderData perShaderData)
 		{
-			this.props = props;
-			this.material = material;
+			Update(shader, material, props, perShaderData);
 		}
 
 		public void Update(Shader shader, Material material, MaterialProperty[] props, PerShaderData perShaderData)
 		{
-			// Get active presets
+			if (!forceUpdate) return;
+
+			// Reset Datas
+			this.props = props;
+			this.material = material;
 			activePresets.Clear();
+			propDynamicDatas.Clear();
+			modifiedCount = 0;
+			forceUpdate = false;
+
+			// Get active presets
 			foreach (var prop in props)
 			{
-				var activePreset = (perShaderData.propStaticDatas[prop.name].drawer as IBasePresetDrawer)
-					?.GetActivePreset(prop, perShaderData.propStaticDatas[prop.name].propertyPresetAsset);
-				if (activePreset != null)
-					activePresets.Add(new PersetDynamicData(activePreset, prop));
+				var activePreset = perShaderData.propStaticDatas[prop.name].presetDrawer?.GetActivePreset(prop, perShaderData.propStaticDatas[prop.name].propertyPresetAsset);
+				if (activePreset != null) activePresets.Add(new PersetDynamicData(activePreset, prop));
 			}
 
 			{
 				// Apply presets to default material
-				var defaultMaterial =
+				var defaultMaterial = UnityEngine.Object.Instantiate(
 #if UNITY_2022_1_OR_NEWER
-					material.parent
-						? UnityEngine.Object.Instantiate(material.parent)
-						:
+																	 material.parent ? material.parent :
 #endif
-						new Material(shader);
+																	 perShaderData.defaultMaterial
+																	);
 
 				foreach (var activePreset in activePresets)
 					activePreset.preset.ApplyToDefaultMaterial(defaultMaterial);
@@ -83,8 +86,6 @@ namespace LWGUI
 				Debug.Assert(defaultProperties.Length == props.Length);
 
 				// Init propDynamicDatas
-				propDynamicDatas.Clear();
-				modifiedCount = 0;
 				for (int i = 0; i < props.Length; i++)
 				{
 					Debug.Assert(props[i].name == defaultProperties[i].name);
@@ -129,52 +130,15 @@ namespace LWGUI
 				var propDynamicData = propDynamicDatas[prop.name];
 
 				// Get default value descriptions
-				(propStaticData.drawer as IBaseDrawer)?.GetDefaultValueDescription(shader, prop, propDynamicData.defualtProperty, perShaderData, this);
-				propStaticData.decoratorDrawers?.ForEach(propertyDrawer =>
-															 (propertyDrawer as IBaseDrawer)?.GetDefaultValueDescription(shader, prop, propDynamicData.defualtProperty, perShaderData, this));
+				propStaticData.baseDrawers?.ForEach(propertyDrawer => propertyDrawer.GetDefaultValueDescription(shader, prop, propDynamicData.defualtProperty, perShaderData, this));
 				if (string.IsNullOrEmpty(propDynamicData.defaultValueDescription))
 					propDynamicData.defaultValueDescription = RevertableHelper.GetPropertyDefaultValueText(propDynamicData.defualtProperty);
 
 				// Get ShowIf() results
-				foreach (var showIfData in propStaticData.showIfDatas)
-				{
-					var propCurrentValue = propDynamicDatas[showIfData.targetPropertyName].property.floatValue;
-					bool compareResult;
-
-					switch (showIfData.compareFunction)
-					{
-						case CompareFunction.Less:
-							compareResult = propCurrentValue < showIfData.value;
-							break;
-						case CompareFunction.LessEqual:
-							compareResult = propCurrentValue <= showIfData.value;
-							break;
-						case CompareFunction.Greater:
-							compareResult = propCurrentValue > showIfData.value;
-							break;
-						case CompareFunction.NotEqual:
-							compareResult = propCurrentValue != showIfData.value;
-							break;
-						case CompareFunction.GreaterEqual:
-							compareResult = propCurrentValue >= showIfData.value;
-							break;
-						default:
-							compareResult = propCurrentValue == showIfData.value;
-							break;
-					}
-
-					switch (showIfData.logicalOperator)
-					{
-						case LogicalOperator.And:
-							propDynamicData.isShowing &= compareResult;
-							break;
-						case LogicalOperator.Or:
-							propDynamicData.isShowing |= compareResult;
-							break;
-					}
-				}
+				ShowIfDecorator.GetShowIfResult(propStaticData, propDynamicData, this);
 			}
 		}
+
 
 		public bool EndChangeCheck(string propName = null)
 		{

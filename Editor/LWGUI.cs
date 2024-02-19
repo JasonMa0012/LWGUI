@@ -133,14 +133,6 @@ namespace LWGUI
 			Helper.DrawLogo();
 		}
 
-		/// <summary>
-		/// Release Material Metadata Cache when the ShaderGUI is being closed.
-		/// </summary>
-		public override void OnClosed(Material material)
-		{
-			MetaDataHelper.ReleaseMaterialMetadataCache(material);
-		}
-
 		private void DrawAdvancedHeader(PropertyStaticData propStaticData, PropertyInspectorData propInspectorData, MaterialProperty prop)
 		{
 			var rect = EditorGUILayout.GetControlRect();
@@ -177,6 +169,26 @@ namespace LWGUI
 			materialEditor.ShaderProperty(rect, prop, label);
 			Helper.EndProperty(metaDatas, prop);
 			GUI.enabled = enabled;
+		}
+
+		public override void OnClosed(Material material)
+		{
+			base.OnClosed(material);
+			MetaDataHelper.ReleaseMaterialMetadataCache(material);
+		}
+
+		public override void AssignNewShaderToMaterial(Material material, Shader oldShader, Shader newShader)
+		{
+			base.AssignNewShaderToMaterial(material, oldShader, newShader);
+			if (newShader != oldShader)
+				MetaDataHelper.ReleaseMaterialMetadataCache(material);
+		}
+
+		// Called after editing the material
+		public override void ValidateMaterial(Material material)
+		{
+			base.ValidateMaterial(material);
+			MetaDataHelper.ForceUpdateMaterialMetadataCache(material);
 		}
 	}
 } //namespace LWGUI

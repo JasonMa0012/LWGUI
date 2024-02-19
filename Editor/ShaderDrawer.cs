@@ -1377,6 +1377,20 @@ namespace LWGUI
 	/// </summary>
 	public class ShowIfDecorator : SubDrawer
 	{
+		public enum LogicalOperator
+		{
+			And,
+			Or
+		}
+
+		public class ShowIfData
+		{
+			public LogicalOperator logicalOperator    = LogicalOperator.And;
+			public string          targetPropertyName = string.Empty;
+			public CompareFunction compareFunction    = CompareFunction.Equal;
+			public float           value              = 0;
+		}
+
 		private ShowIfData _showIfData = new ShowIfData();
 		private readonly Dictionary<string, string> _compareFunctionLUT = new Dictionary<string, string>()
 		{
@@ -1420,5 +1434,46 @@ namespace LWGUI
 		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor) { }
+
+		public static void GetShowIfResult(PropertyStaticData propStaticData, PropertyDynamicData propDynamicData, PerMaterialData perMaterialData)
+		{
+			foreach (var showIfData in propStaticData.showIfDatas)
+			{
+				var propCurrentValue = perMaterialData.propDynamicDatas[showIfData.targetPropertyName].property.floatValue;
+				bool compareResult;
+
+				switch (showIfData.compareFunction)
+				{
+					case CompareFunction.Less:
+						compareResult = propCurrentValue < showIfData.value;
+						break;
+					case CompareFunction.LessEqual:
+						compareResult = propCurrentValue <= showIfData.value;
+						break;
+					case CompareFunction.Greater:
+						compareResult = propCurrentValue > showIfData.value;
+						break;
+					case CompareFunction.NotEqual:
+						compareResult = propCurrentValue != showIfData.value;
+						break;
+					case CompareFunction.GreaterEqual:
+						compareResult = propCurrentValue >= showIfData.value;
+						break;
+					default:
+						compareResult = propCurrentValue == showIfData.value;
+						break;
+				}
+
+				switch (showIfData.logicalOperator)
+				{
+					case LogicalOperator.And:
+						propDynamicData.isShowing &= compareResult;
+						break;
+					case LogicalOperator.Or:
+						propDynamicData.isShowing |= compareResult;
+						break;
+				}
+			}
+		}
 	}
 } //namespace LWGUI

@@ -669,7 +669,6 @@ namespace LWGUI
 							if (propDynamicDataKVPair.Value.hasModified || propDynamicDataKVPair.Value.hasChildrenModified)
 							{
 								displayModeDynamicData.cachedModifiedProperties.Add(propDynamicDataKVPair.Key, true);
-								Debug.Log(propDynamicDataKVPair.Key);
 							}
 						}
 					}
