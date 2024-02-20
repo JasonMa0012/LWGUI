@@ -29,9 +29,7 @@ namespace LWGUI
 			 && prop1.vectorValue == prop2.vectorValue
 			 && prop1.colorValue == prop2.colorValue
 			 && prop1.floatValue == prop2.floatValue
-#if UNITY_2021_1_OR_NEWER
 			 && prop1.intValue == prop2.intValue
-#endif
 			   )
 				return true;
 			else
@@ -182,13 +180,7 @@ namespace LWGUI
 			{
 				if (_guiStyles_IconButton == null)
 				{
-					_guiStyles_IconButton = new GUIStyle(
-#if UNITY_2021_2_OR_NEWER
-														 EditorStyles.iconButton
-#else
-														 "iconButton"
-#endif
-														) { fixedHeight = 0, fixedWidth = 0 };
+					_guiStyles_IconButton = new GUIStyle(EditorStyles.iconButton) { fixedHeight = 0, fixedWidth = 0 };
 				}
 				return _guiStyles_IconButton;
 			}
@@ -238,21 +230,11 @@ namespace LWGUI
 			{
 				if (_guiStyles_ToolbarSearchTextFieldPopup == null)
 				{
-					string toolbarSeachTextFieldPopupStr = "ToolbarSeachTextFieldPopup";
-					{
-						// ToolbarSeachTextFieldPopup has renamed at Unity 2021.3.28+
-#if !UNITY_2022_3_OR_NEWER
-						string[] versionParts = Application.unityVersion.Split('.');
-						int majorVersion = int.Parse(versionParts[0]);
-						int minorVersion = int.Parse(versionParts[1]);
-						Match patchVersionMatch = Regex.Match(versionParts[2], @"\d+");
-						int patchVersion = int.Parse(patchVersionMatch.Value);
-						if (majorVersion >= 2021 && minorVersion >= 3 && patchVersion >= 28)
+					string toolbarSeachTextFieldPopupStr =
+#if UNITY_2022_3_OR_NEWER
+						"ToolbarSeachTextFieldPopup";
 #endif
-						{
-							toolbarSeachTextFieldPopupStr = "ToolbarSearchTextFieldPopup";
-						}
-					}
+						"ToolbarSearchTextFieldPopup";
 					_guiStyles_ToolbarSearchTextFieldPopup = new GUIStyle(toolbarSeachTextFieldPopupStr);
 				}
 				return _guiStyles_ToolbarSearchTextFieldPopup;

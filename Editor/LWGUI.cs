@@ -188,7 +188,9 @@ namespace LWGUI
 		public override void ValidateMaterial(Material material)
 		{
 			base.ValidateMaterial(material);
-			MetaDataHelper.ForceUpdateMaterialMetadataCache(material);
+			// refresh keywords and caches
+			MaterialEditor.ApplyMaterialPropertyDrawers(metaDatas?.GetMaterialEditor()?.targets);
+			MetaDataHelper.ForceUpdateMaterialMetadataCache(metaDatas?.perMaterialData?.material);
 		}
 	}
 } //namespace LWGUI

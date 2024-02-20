@@ -142,13 +142,12 @@ namespace LWGUI
 
 		public bool EndChangeCheck(string propName = null)
 		{
-			var result = EditorGUI.EndChangeCheck();
 			if (!string.IsNullOrEmpty(propName))
 			{
-				result |= propDynamicDatas[propName].hasRevertChanged;
+				GUI.changed |= propDynamicDatas[propName].hasRevertChanged;
 				propDynamicDatas[propName].hasRevertChanged = false;
 			}
-			return result;
+			return EditorGUI.EndChangeCheck();
 		}
 
 		public PropertyDynamicData GetPropDynamicData(string propName)

@@ -82,9 +82,7 @@ namespace LWGUI
 			prop.colorValue = defaultProp.colorValue;
 			prop.floatValue = defaultProp.floatValue;
 			prop.textureValue = defaultProp.textureValue;
-#if UNITY_2021_1_OR_NEWER
 			prop.intValue = defaultProp.intValue;
-#endif
 		}
 
 		public static string GetPropertyDefaultValueText(MaterialProperty defaultProp)
@@ -99,11 +97,9 @@ namespace LWGUI
 				case MaterialProperty.PropType.Range:
 					defaultText = defaultProp.floatValue.ToString();
 					break;
-#if UNITY_2021_1_OR_NEWER
 				case MaterialProperty.PropType.Int:
 					defaultText = defaultProp.intValue.ToString();
 					break;
-#endif
 				case MaterialProperty.PropType.Texture:
 					defaultText = defaultProp.textureValue != null ? defaultProp.textureValue.name : "None";
 					break;
@@ -133,6 +129,7 @@ namespace LWGUI
 			Rect rect = position;
 			if (DrawRevertButton(rect))
 			{
+				GUI.changed = true;
 				DoRevertProperty(prop, metaDatas);
 
 				foreach (var childStaticData in propStaticData.children)
@@ -142,9 +139,6 @@ namespace LWGUI
 						DoRevertProperty(metaDatas.GetProperty(childChildStaticData.name), metaDatas);
 				}
 
-				// refresh keywords and caches
-				MaterialEditor.ApplyMaterialPropertyDrawers(metaDatas.GetMaterialEditor().targets);
-				MetaDataHelper.ForceUpdateMaterialMetadataCache(metaDatas.perMaterialData.material);
 				return true;
 			}
 			return false;

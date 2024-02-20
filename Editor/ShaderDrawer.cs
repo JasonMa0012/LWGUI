@@ -105,9 +105,7 @@ namespace LWGUI
 			base.Apply(prop);
 			if (!prop.hasMixedValue
 			 && (prop.type == MaterialProperty.PropType.Float
-#if UNITY_2021_1_OR_NEWER
 			  || prop.type == MaterialProperty.PropType.Int
-#endif
 				))
 				Helper.SetShaderKeyWord(prop.targets, Helper.GetKeyWord(_keyword, prop.name), prop.floatValue > 0f);
 		}
@@ -1273,10 +1271,7 @@ namespace LWGUI
 		protected override bool IsMatchPropType(MaterialProperty property)
 		{
 			return property.type == MaterialProperty.PropType.Float
-#if UNITY_2021_1_OR_NEWER
-				|| property.type == MaterialProperty.PropType.Int
-#endif
-				;
+				|| property.type == MaterialProperty.PropType.Int;
 		}
 
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData) { }

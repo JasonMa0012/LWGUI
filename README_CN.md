@@ -69,7 +69,7 @@
 
 1. 确保你的Unity版本兼容LWGUI
    - LWGUI 1.x: **Unity 2017.4+**
-   - LWGUI 2.x: **Unity 2019.4+**
+   - LWGUI 2.x: **Unity 2021.3.28+**
    
 2. 打开已有工程
 3. （可能需要全局代理）`Window > Package Manager > Add > Add package from git URL` 输入`https://github.com/JasonMa0012/LWGUI.git`
@@ -317,7 +317,7 @@ Example:
 [Tex(Group3, _textureChannelMask1)] _tex_channel ("Tex with Channel", 2D) = "white" { }
 [HideInInspector] _textureChannelMask1(" ", Vector) = (0,0,0,1)
 
-// Display up to 4 colors in a single line (Unity 2019.2+)
+// Display up to 4 colors in a single line
 [Color(Group3, _mColor1, _mColor2, _mColor3)]
 _mColor ("Multi Color", Color) = (1, 1, 1, 1)
 [HideInInspector] _mColor1 (" ", Color) = (1, 0, 0, 1)

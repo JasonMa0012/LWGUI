@@ -2,14 +2,19 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: LWGUI_SampleDrawer 2
   m_Shader: {fileID: 4800000, guid: 7ee048c9536c0344bb8b4860595a4d9b, type: 3}
-  m_ShaderKeywords: _KEY3 _KEYWORD
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _KEY1
+  - _KEY2
+  - _KEY3
+  - _KEYWORD
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -67,14 +72,15 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AdvancedRange0: 0.62
     - _Advancedfloat0: 0.54
     - _Advancedfloat1: 0.45
-    - _Advancedfloat3: 1
+    - _Advancedfloat3: 1.56
     - _Advancedfloat4: 0
     - _Advancedfloat7: 3.21
-    - _enum: 2
+    - _enum: 1
     - _float: 0.53
     - _float1: 1
     - _float2: -0.57
@@ -82,7 +88,7 @@ Material:
     - _float4: 0
     - _floatN: 0
     - _float_helpbox: 1
-    - _float_tooltip: 1.45
+    - _float_tooltip: 1.91
     - _group: 0
     - _group1: 1
     - _group2: 0
@@ -98,8 +104,8 @@ Material:
     - _preset: 1
     - _preset1: 0
     - _range: 0
-    - _rangeEnd: 0.6
-    - _rangeStart: 0.166
+    - _rangeEnd: 0.87684953
+    - _rangeStart: 0.1898573
     - _rangeStart1: 0
     - _rangeStart2: 0
     - _toggle: 0
@@ -116,3 +122,4 @@ Material:
     - _textureChannelMask: {r: 0, g: 1, b: 0, a: 0}
     - _textureChannelMask1: {r: 0, g: 0, b: 0, a: 1}
     - _vector1: {r: 0.34, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []

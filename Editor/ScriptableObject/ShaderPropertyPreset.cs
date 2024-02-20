@@ -120,10 +120,8 @@ namespace LWGUI
 						propertyType = PropertyType.Vector;
 						vectorValue = prop.vectorValue;
 						break;
-#if UNITY_2021_1_OR_NEWER
-					case MaterialProperty.PropType.Int:   
-#endif
-					case MaterialProperty.PropType.Float:   
+					case MaterialProperty.PropType.Int:
+					case MaterialProperty.PropType.Float:
 						propertyType = PropertyType.Float;
 						floatValue = prop.floatValue;
 						break;
