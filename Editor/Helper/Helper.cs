@@ -232,9 +232,10 @@ namespace LWGUI
 				{
 					string toolbarSeachTextFieldPopupStr =
 #if UNITY_2022_3_OR_NEWER
+						"ToolbarSearchTextFieldPopup";
+#else
 						"ToolbarSeachTextFieldPopup";
 #endif
-						"ToolbarSearchTextFieldPopup";
 					_guiStyles_ToolbarSearchTextFieldPopup = new GUIStyle(toolbarSeachTextFieldPopupStr);
 				}
 				return _guiStyles_ToolbarSearchTextFieldPopup;
