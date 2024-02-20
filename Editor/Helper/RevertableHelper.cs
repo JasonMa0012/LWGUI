@@ -1,4 +1,5 @@
 ﻿// Copyright (c) Jason Ma
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace LWGUI
 		public static readonly float revertButtonWidth = 15f;
 		public static          float fieldWidth;
 		public static          float labelWidth;
+
 
 		#region GUI Setting
 
@@ -119,19 +121,11 @@ namespace LWGUI
 
 		public static bool DrawRevertableProperty(Rect position, MaterialProperty prop, LWGUIMetaDatas metaDatas, bool isHeader = false)
 		{
-			var (propStaticData, propDynamicData, propInspectorData) = metaDatas.GetPropDatas(prop);
+			var (propStaticData, propDynamicData, _) = metaDatas.GetPropDatas(prop);
 
-			bool hasModified = prop.hasMixedValue;
-
-			if (!hasModified)
-				hasModified = propDynamicData.hasModified;
-
-			if (!hasModified && isHeader)
-				hasModified = propDynamicData.hasChildrenModified;
-
-			var extraPropNames = propStaticData.extraPropNames;
-			if (!hasModified && extraPropNames.Count > 0)
-				hasModified = extraPropNames.Any((extraPropName => metaDatas.GetPropDynamicData(extraPropName).hasModified));
+			bool hasModified = prop.hasMixedValue
+							|| propDynamicData.hasModified
+							|| propDynamicData.hasChildrenModified;
 
 			if (!hasModified)
 				return false;
@@ -148,8 +142,9 @@ namespace LWGUI
 						DoRevertProperty(metaDatas.GetProperty(childChildStaticData.name), metaDatas);
 				}
 
-				// refresh keywords
+				// refresh keywords and caches
 				MaterialEditor.ApplyMaterialPropertyDrawers(metaDatas.GetMaterialEditor().targets);
+				MetaDataHelper.ForceUpdateMaterialMetadataCache(metaDatas.perMaterialData.material);
 				return true;
 			}
 			return false;
