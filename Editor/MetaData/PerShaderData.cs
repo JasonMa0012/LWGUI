@@ -62,12 +62,22 @@ namespace LWGUI
 		public Shader                                 shader                = null;
 		public DisplayModeStaticData                  displayModeStaticData = new DisplayModeStaticData();
 		public List<string>                           favoriteproperties    = new List<string>();
-		public Material                               defaultMaterial       = null;
+
+		// UnityEngine.Object may be destroyed when loading new scene, so must manually check null reference
+		private Material _defaultMaterial = null;
+
+		public Material defaultMaterial
+		{
+			get
+			{
+				if (!_defaultMaterial && shader) _defaultMaterial = new Material(shader);
+				return _defaultMaterial;
+			}
+		}
 
 		public PerShaderData(Shader shader, MaterialProperty[] props)
 		{
 			this.shader = shader;
-			defaultMaterial = new Material(shader);
 
 			// Get Property Static Data
 			foreach (var prop in props)

@@ -39,7 +39,7 @@ namespace LWGUI
 	/// </summary>
 	public class PerInspectorData
 	{
-		public Dictionary<string /*propName*/, PropertyInspectorData> propInspectorDatas     = new Dictionary<string, PropertyInspectorData>();
+		public Dictionary<string, PropertyInspectorData> propInspectorDatas     = new Dictionary<string, PropertyInspectorData>();
 		public MaterialEditor                                         materialEditor         = null;
 		public DisplayModeDynamicData                                 displayModeDynamicData = new DisplayModeDynamicData();
 		public SearchMode                                             searchMode             = SearchMode.Auto;
