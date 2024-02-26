@@ -340,10 +340,9 @@ namespace LWGUI
 				var textWidth = EditorGUIUtility.currentViewWidth
 							  - ReflectionHelper.EditorGUI_Indent
 							  - RevertableHelper.revertButtonWidth
-							  - _helpboxIcon.width
-							  - guiStyle_Helpbox.margin.horizontal
-							  + 0.5f;
-				var textHeight = guiStyle_Helpbox.CalcHeight(new GUIContent(helpboxStr), textWidth);
+							  - _helpboxIcon.width * 0.5f
+							  - guiStyle_Helpbox.margin.horizontal;
+				var textHeight = guiStyle_Helpbox.CalcHeight(content, textWidth);
 				var helpboxRect = EditorGUI.IndentedRect(EditorGUILayout.GetControlRect(true, textHeight));
 				helpboxRect.xMax -= RevertableHelper.revertButtonWidth;
 				GUI.Label(helpboxRect, content, guiStyle_Helpbox);
