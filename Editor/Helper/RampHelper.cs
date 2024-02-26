@@ -224,7 +224,7 @@ namespace LWGUI
 			textureImporter.mipmapEnabled = false;
 			
 			var platformTextureSettings = textureImporter.GetDefaultPlatformTextureSettings();
-			platformTextureSettings.format = TextureImporterFormat.ARGB32;
+			platformTextureSettings.format = TextureImporterFormat.RGBA32;
 			platformTextureSettings.textureCompression = TextureImporterCompression.Uncompressed;
 			textureImporter.SetPlatformTextureSettings(platformTextureSettings);
 
