@@ -794,6 +794,7 @@ namespace LWGUI
 					break;
 			}
 			EditorUtility.SetDirty(presetAsset);
+			MetaDataHelper.ForceUpdateMaterialMetadataCache(metaDatas.GetMaterial());
 		}
 
 		public static void DoPropertyContextMenus(Rect rect, MaterialProperty prop, LWGUIMetaDatas metaDatas)
@@ -886,6 +887,7 @@ namespace LWGUI
 							}
 						}
 					}
+					MetaDataHelper.ForceUpdateMaterialMetadataCache(material);
 				}
 			};
 
