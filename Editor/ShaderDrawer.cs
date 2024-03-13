@@ -864,6 +864,7 @@ namespace LWGUI
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// defaultFileName: default Ramp Map file name when create a new one (Default: RampMap)
 	/// rootPath: the path where ramp is stored, replace '/' with '.' (for example: Assets.Art.Ramps). when selecting ramp, it will also be filtered according to the path (Default: Assets)
+	/// colorSpace: sRGB / Linear (Default: sRGB)
 	/// defaultWidth: default Ramp Width (Default: 512)
 	/// Target Property Type: Texture2D
 	/// </summary>
@@ -875,6 +876,7 @@ namespace LWGUI
 		protected string _defaultFileName;
 		protected float  _defaultWidth;
 		protected float  _defaultHeight = 2;
+		protected bool   _isLinear      = false;
 
 		private static readonly GUIContent _iconMixImage = EditorGUIUtility.IconContent("darkviewbackground");
 
@@ -888,7 +890,9 @@ namespace LWGUI
 
 		public RampDrawer(string group, string defaultFileName, float defaultWidth) : this(group, defaultFileName, DefaultRootPath, defaultWidth) { }
 
-		public RampDrawer(string group, string defaultFileName, string rootPath, float defaultWidth)
+		public RampDrawer(string group, string defaultFileName, string rootPath, float defaultWidth) : this(group, defaultFileName, rootPath, "sRGB", defaultWidth) { }
+
+		public RampDrawer(string group, string defaultFileName, string rootPath, string colorSpace, float defaultWidth)
 		{
 			if (!rootPath.StartsWith(DefaultRootPath))
 			{
@@ -898,6 +902,7 @@ namespace LWGUI
 			this.group = group;
 			this._defaultFileName = defaultFileName;
 			this._rootPath = rootPath.Replace('.', '/');
+			this._isLinear = colorSpace.ToLower() == "linear";
 			this._defaultWidth = Mathf.Max(2.0f, defaultWidth);
 		}
 
@@ -932,12 +937,13 @@ namespace LWGUI
 			bool isDirty;
 			// used to read/write Gradient value in code
 			GradientObject gradientObject = ScriptableObject.CreateInstance<GradientObject>();
+			gradientObject.gradient.colorSpace = _isLinear ? ColorSpace.Linear : ColorSpace.Gamma;
 			// used to modify Gradient value for users
 			SerializedObject serializedObject = new SerializedObject(gradientObject);
 			SerializedProperty serializedProperty = serializedObject.FindProperty("gradient");
 
 			// Tex > GradientObject
-			gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, out isDirty);
+			gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, _isLinear, out isDirty);
 			// GradientObject > SerializedObject
 			serializedObject.Update();
 
@@ -963,7 +969,7 @@ namespace LWGUI
 			// Draw Ramp Editor
 			bool hasGradientChanges, doSaveGradient, doDiscardGradient;
 			Texture2D newCreatedTexture;
-			hasGradientChanges = RampHelper.RampEditor(buttonRect, prop, serializedProperty, isDirty,
+			hasGradientChanges = RampHelper.RampEditor(buttonRect, prop, serializedProperty, _isLinear, isDirty,
 													   _defaultFileName, _rootPath, (int)_defaultWidth, (int)_defaultHeight,
 													   out newCreatedTexture, out doSaveGradient, out doDiscardGradient);
 			if (newCreatedTexture != null)
@@ -983,7 +989,7 @@ namespace LWGUI
 			if (doDiscardGradient)
 			{
 				// Tex > GradientObject
-				gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, out isDirty, true);
+				gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, _isLinear, out isDirty, true);
 				// GradientObject > SerializedObject
 				serializedObject.Update();
 				RampHelper.SetGradientToTexture(prop.textureValue, gradientObject, true);

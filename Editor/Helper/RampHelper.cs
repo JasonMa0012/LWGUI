@@ -33,6 +33,7 @@ namespace LWGUI
 			Rect               buttonRect,
 			MaterialProperty   prop,
 			SerializedProperty serializedProperty,
+			bool               isLinear,
 			bool               isDirty,
 			string             defaultFileName,
 			string             rootPath,
@@ -97,7 +98,7 @@ namespace LWGUI
 					{
 						//Create texture and save PNG
 						var saveUnityPath = absPath.Replace(projectPath, String.Empty);
-						CreateAndSaveNewGradientTexture(defaultWidth, defaultHeight, saveUnityPath);
+						CreateAndSaveNewGradientTexture(defaultWidth, defaultHeight, saveUnityPath, isLinear);
 						// VersionControlHelper.Add(saveUnityPath);
 						//Load created texture
 						newTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(saveUnityPath);
@@ -129,7 +130,7 @@ namespace LWGUI
 
 		public static bool HasGradient(AssetImporter assetImporter) { return assetImporter.userData.Contains("#");}
 		
-		public static Gradient GetGradientFromTexture(Texture texture, out bool isDirty, bool doReimport = false)
+		public static Gradient GetGradientFromTexture(Texture texture, bool isLinear, out bool isDirty, bool doReimport = false)
 		{
 			isDirty = false;
 			if (texture == null) return null;
@@ -139,7 +140,9 @@ namespace LWGUI
 			{
 				GradientObject savedGradientObject, editingGradientObject;
 				isDirty = DecodeGradientFromJSON(assetImporter.userData, out savedGradientObject, out editingGradientObject);
-				return doReimport ? savedGradientObject.gradient : editingGradientObject.gradient;
+				var outGradient = doReimport ? savedGradientObject.gradient : editingGradientObject.gradient;
+				outGradient.colorSpace = isLinear ? ColorSpace.Linear : ColorSpace.Gamma;
+				return outGradient;
 			}
 			else
 			{
@@ -201,12 +204,13 @@ namespace LWGUI
 			return subJSONs[0] != subJSONs[1];
 		}
 
-		public static bool CreateAndSaveNewGradientTexture(int width, int height, string unityPath)
+		public static bool CreateAndSaveNewGradientTexture(int width, int height, string unityPath, bool isLinear)
 		{
 			var gradientObject = ScriptableObject.CreateInstance<GradientObject>();
 			gradientObject.gradient = new Gradient();
 			gradientObject.gradient.colorKeys = new[] { new GradientColorKey(Color.black, 0.0f), new GradientColorKey(Color.white, 1.0f) };
 			gradientObject.gradient.alphaKeys = new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 1f) };
+			gradientObject.gradient.colorSpace = isLinear ? ColorSpace.Linear : ColorSpace.Gamma;
 
 			var ramp = CreateGradientTexture(gradientObject.gradient, width, height);
 			var png = ramp.EncodeToPNG();
@@ -222,7 +226,8 @@ namespace LWGUI
 			textureImporter.textureCompression = TextureImporterCompression.Uncompressed;
 			textureImporter.alphaSource = TextureImporterAlphaSource.FromInput;
 			textureImporter.mipmapEnabled = false;
-			
+			textureImporter.sRGBTexture = !isLinear;
+
 			var platformTextureSettings = textureImporter.GetDefaultPlatformTextureSettings();
 			platformTextureSettings.format = TextureImporterFormat.RGBA32;
 			platformTextureSettings.textureCompression = TextureImporterCompression.Uncompressed;

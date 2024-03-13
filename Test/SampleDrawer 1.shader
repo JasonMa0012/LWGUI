@@ -66,7 +66,8 @@
 
 
 		[Title(Ramp Samples)]
-		[Ramp(_, RampMap, Assets.Art, 512)] _Ramp ("Ramp Map", 2D) = "white" { }
+		[Ramp(_, RampMap_sRGB, Assets, sRGB, 256)] _sRGBRamp ("sRGB Ramp Map", 2D) = "white" { }
+		[Ramp(_, RampMap_Linear, Assets, Linear, 256)] _LinearRamp ("Linear Ramp Map", 2D) = "white" { }
 
 
 		[Title(MinMaxSlider Samples)]
