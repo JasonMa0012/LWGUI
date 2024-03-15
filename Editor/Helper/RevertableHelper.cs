@@ -117,7 +117,7 @@ namespace LWGUI
 
 		public static bool DrawRevertableProperty(Rect position, MaterialProperty prop, LWGUIMetaDatas metaDatas, bool isHeader = false)
 		{
-			var (propStaticData, propDynamicData, _) = metaDatas.GetPropDatas(prop);
+			var (propStaticData, propDynamicData) = metaDatas.GetPropDatas(prop);
 
 			bool hasModified = prop.hasMixedValue
 							|| propDynamicData.hasModified

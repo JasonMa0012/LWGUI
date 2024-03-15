@@ -64,7 +64,7 @@ namespace LWGUI
 				// start drawing properties
 				foreach (var prop in props)
 				{
-					var (propStaticData, propDynamicData, propInspectorData) = metaDatas.GetPropDatas(prop);
+					var (propStaticData, propDynamicData) = metaDatas.GetPropDatas(prop);
 
 					// Visibility
 					{
@@ -91,9 +91,9 @@ namespace LWGUI
 					// Advanced Header
 					if (propStaticData.isAdvancedHeader && !propStaticData.isAdvancedHeaderProperty)
 					{
-						DrawAdvancedHeader(propStaticData, propInspectorData, prop);
+						DrawAdvancedHeader(propStaticData, prop);
 
-						if (!propInspectorData.isExpanding)
+						if (!propStaticData.isExpanding)
 						{
 							RevertableHelper.SetRevertableGUIWidths();
 							EditorGUI.indentLevel = indentLevel;
@@ -133,21 +133,21 @@ namespace LWGUI
 			Helper.DrawLogo();
 		}
 
-		private void DrawAdvancedHeader(PropertyStaticData propStaticData, PropertyInspectorData propInspectorData, MaterialProperty prop)
+		private void DrawAdvancedHeader(PropertyStaticData propStaticData, MaterialProperty prop)
 		{
 			var rect = EditorGUILayout.GetControlRect();
 			var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
 			var label = string.IsNullOrEmpty(propStaticData.advancedHeaderString) ? "Advanced" : propStaticData.advancedHeaderString;
-			propInspectorData.isExpanding = EditorGUI.Foldout(rect, propInspectorData.isExpanding, label);
+			propStaticData.isExpanding = EditorGUI.Foldout(rect, propStaticData.isExpanding, label);
 			if (Event.current.type == EventType.MouseDown && Event.current.button == 0 && rect.Contains(Event.current.mousePosition))
-				propInspectorData.isExpanding = !propInspectorData.isExpanding;
+				propStaticData.isExpanding = !propStaticData.isExpanding;
 			RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, metaDatas, true);
 			Helper.DoPropertyContextMenus(rect, prop, metaDatas);
 		}
 
 		private void DrawProperty(MaterialProperty prop)
 		{
-			var (propStaticData, propDynamicData, propInspectorData) = metaDatas.GetPropDatas(prop);
+			var (propStaticData, propDynamicData) = metaDatas.GetPropDatas(prop);
 			var materialEditor = metaDatas.GetMaterialEditor();
 
 			Helper.DrawHelpbox(propStaticData, propDynamicData);
@@ -164,7 +164,7 @@ namespace LWGUI
 			Helper.DoPropertyContextMenus(rect, prop, metaDatas);
 			RevertableHelper.FixGUIWidthMismatch(prop.type, materialEditor);
 			if (propStaticData.isAdvancedHeaderProperty)
-				propInspectorData.isExpanding = EditorGUI.Foldout(rect, propInspectorData.isExpanding, string.Empty);
+				propStaticData.isExpanding = EditorGUI.Foldout(rect, propStaticData.isExpanding, string.Empty);
 			RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, metaDatas, propStaticData.isMain || propStaticData.isAdvancedHeaderProperty);
 			materialEditor.ShaderProperty(rect, prop, label);
 			Helper.EndProperty(metaDatas, prop);

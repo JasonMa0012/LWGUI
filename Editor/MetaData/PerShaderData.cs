@@ -10,10 +10,26 @@ using UnityEngine.Rendering;
 
 namespace LWGUI
 {
-	public class DisplayModeStaticData
+
+	public enum SearchMode
 	{
+		Auto     = 0, // Search by group first, and search by property when there are no results
+		Property = 1, // Search by property
+		Group    = 2, // Search by group
+		Num      = 3
+	}
+
+	public class DisplayModeData
+	{
+		public bool showAllAdvancedProperties;
+		public bool showAllHiddenProperties;
+		public bool showOnlyModifiedProperties;
+		public bool showOnlyModifiedGroups;
+
 		public int advancedCount;
 		public int hiddenCount;
+
+		public bool IsDefaultDisplayMode() { return !(showAllAdvancedProperties || showAllHiddenProperties || showOnlyModifiedProperties || showOnlyModifiedGroups); }
 	}
 
 	public class PropertyStaticData
@@ -32,10 +48,12 @@ namespace LWGUI
 		public List<PropertyStaticData> children                 = new List<PropertyStaticData>();
 
 		// Visibility
-		public string                           conditionalDisplayKeyword = string.Empty;                           // [Group(groupName_conditionalDisplayKeyword)]
-		public bool                             isHidden                  = false;                                  // [Hidden]
+		public bool                             isSearchMatched           = true;                                   // Search filter result
+		public bool                             isExpanding               = false;                                  // Children are displayed only when expanded
 		public bool                             isReadOnly                = false;                                  // [ReadOnly]
+		public bool                             isHidden                  = false;                                  // [Hidden]
 		public List<ShowIfDecorator.ShowIfData> showIfDatas               = new List<ShowIfDecorator.ShowIfData>(); // [ShowIf()]
+		public string                           conditionalDisplayKeyword = string.Empty;                           // [Group(groupName_conditionalDisplayKeyword)]
 
 		// Drawers
 		public IBasePresetDrawer presetDrawer = null;
@@ -60,8 +78,10 @@ namespace LWGUI
 	{
 		public Dictionary<string, PropertyStaticData> propStaticDatas       = new Dictionary<string, PropertyStaticData>();
 		public Shader                                 shader                = null;
-		public DisplayModeStaticData                  displayModeStaticData = new DisplayModeStaticData();
-		public List<string>                           favoriteproperties    = new List<string>();
+		public DisplayModeData                  displayModeData = new DisplayModeData();
+		public SearchMode                             searchMode            = SearchMode.Auto;
+		public string                                 searchString          = string.Empty;
+		// public List<string>                           favoriteproperties    = new List<string>();
 
 		// UnityEngine.Object may be destroyed when loading new scene, so must manually check null reference
 		private Material _defaultMaterial = null;
@@ -183,12 +203,12 @@ namespace LWGUI
 					 || (propStaticData.parent != null
 					  && (propStaticData.parent.isHidden
 					   || (propStaticData.parent.parent != null && propStaticData.parent.parent.isHidden))))
-						displayModeStaticData.hiddenCount++;
+						displayModeData.hiddenCount++;
 					if (propStaticData.isAdvanced
 					 || (propStaticData.parent != null
 					  && (propStaticData.parent.isAdvanced
 					   || (propStaticData.parent.parent != null && propStaticData.parent.parent.isAdvanced))))
-						displayModeStaticData.advancedCount++;
+						displayModeData.advancedCount++;
 
 					// Build Advanced Structure
 					if (propStaticData.isAdvanced)
@@ -216,7 +236,14 @@ namespace LWGUI
 			}
 		}
 
+		public PropertyStaticData GetPropStaticData(string propName)
+		{
+			propStaticDatas.TryGetValue(propName, out var propStaticData);
+			return propStaticData;
+		}
+
 		private static readonly string _tooltipSplitter = "#";
+
 		private static readonly string _helpboxSplitter = "%";
 
 		public void DecodeMetaDataFromDisplayName(MaterialProperty prop, PropertyStaticData propStaticData)
@@ -253,10 +280,85 @@ namespace LWGUI
 			propStaticData.displayName = prop.displayName.Split(new String[] { _tooltipSplitter, _helpboxSplitter }, StringSplitOptions.None)[0];
 		}
 
-		public PropertyStaticData GetPropStaticData(string propName)
+		public void UpdateSearchFilter()
 		{
-			propStaticDatas.TryGetValue(propName, out var propStaticData);
-			return propStaticData;
+			var isSearchStringEmpty = string.IsNullOrEmpty(searchString);
+			var searchStringLower = searchString.ToLower();
+			var searchKeywords = searchStringLower.Split(' ', ',', ';', '|', '，', '；'); // Some possible separators
+
+			// The First Search
+			foreach (var propStaticDataKWPair in propStaticDatas)
+			{
+				propStaticDataKWPair.Value.isSearchMatched = isSearchStringEmpty
+					? true
+					: IsWholeWordMatch(propStaticDataKWPair.Value.displayName, propStaticDataKWPair.Value.name, searchKeywords);
+			}
+
+			// Further adjust visibility
+			if (!isSearchStringEmpty)
+			{
+				var searchModeTemp = searchMode;
+				// Auto: search by group first, and search by property when there are no results
+				if (searchModeTemp == SearchMode.Auto)
+				{
+					// if has no group
+					if (!propStaticDatas.Any((propStaticDataKWPair => propStaticDataKWPair.Value.isSearchMatched && propStaticDataKWPair.Value.isMain)))
+						searchModeTemp = SearchMode.Property;
+					else
+						searchModeTemp = SearchMode.Group;
+				}
+
+				// search by property
+				if (searchModeTemp == SearchMode.Property)
+				{
+					// when a SubProp is displayed, the MainProp is also displayed
+					foreach (var propStaticDataKWPair in propStaticDatas)
+					{
+						var propStaticData = propStaticDataKWPair.Value;
+						if (propStaticData.isMain
+						 && propStaticData.children.Any((childPropStaticData => propStaticDatas[childPropStaticData.name].isSearchMatched)))
+							propStaticDataKWPair.Value.isSearchMatched = true;
+					}
+				}
+				// search by group
+				else if (searchModeTemp == SearchMode.Group)
+				{
+					// when search by group, all SubProps should display with MainProp
+					foreach (var propStaticDataKWPair in propStaticDatas)
+					{
+						var propStaticData = propStaticDataKWPair.Value;
+						if (propStaticData.isMain)
+							foreach (var childPropStaticData in propStaticData.children)
+								propStaticDatas[childPropStaticData.name].isSearchMatched = propStaticData.isSearchMatched;
+					}
+				}
+			}
 		}
+
+		private static bool IsWholeWordMatch(string displayName, string propertyName, string[] searchingKeywords)
+		{
+			bool contains = true;
+			displayName = displayName.ToLower();
+			var name = propertyName.ToLower();
+
+			foreach (var keyword in searchingKeywords)
+			{
+				var isMatch = false;
+				isMatch |= displayName.Contains(keyword);
+				isMatch |= name.Contains(keyword);
+				contains &= isMatch;
+			}
+			return contains;
+		}
+
+		public void ToggleShowAllAdvancedProperties()
+		{
+			foreach (var propStaticDataKWPair in propStaticDatas)
+			{
+				if (propStaticDataKWPair.Value.isAdvancedHeader)
+					propStaticDataKWPair.Value.isExpanding = displayModeData.showAllAdvancedProperties;
+			}
+		}
+
 	}
 }

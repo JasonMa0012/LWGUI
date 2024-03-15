@@ -597,7 +597,7 @@ namespace LWGUI
 				foreach (var propStaticDataKVPair in perShaderData.propStaticDatas)
 				{
 					if (propStaticDataKVPair.Value.isMain || propStaticDataKVPair.Value.isAdvancedHeader)
-						metaDatas.GetPropInspectorData(propStaticDataKVPair.Key).isExpanding = true;
+						propStaticDataKVPair.Value.isExpanding = true;
 				}
 			}
 
@@ -609,7 +609,7 @@ namespace LWGUI
 				foreach (var propStaticDataKVPair in perShaderData.propStaticDatas)
 				{
 					if (propStaticDataKVPair.Value.isMain || propStaticDataKVPair.Value.isAdvancedHeader)
-						metaDatas.GetPropInspectorData(propStaticDataKVPair.Key).isExpanding = false;
+						propStaticDataKVPair.Value.isExpanding = false;
 				}
 			}
 
@@ -617,46 +617,29 @@ namespace LWGUI
 			buttonRect.x += buttonRectOffset;
 			toolBarRect.xMin += buttonRectOffset;
 			var color = GUI.color;
-			var displayModeDynamicData = perInspectorData.displayModeDynamicData;
-			if (!displayModeDynamicData.IsDefaultDisplayMode())
+			var displayModeData = perShaderData.displayModeData;
+			if (!displayModeData.IsDefaultDisplayMode())
 				GUI.color = Color.yellow;
 			if (GUI.Button(buttonRect, _guiContentVisibility, Helper.guiStyles_IconButton))
 			{
 				// Build Display Mode Menu Items
 				string[] displayModeMenus = new[]
 				{
-					"Show All Advanced Properties			(" + perShaderData.displayModeStaticData.advancedCount + " of " + perShaderData.propStaticDatas.Count + ")",
-					"Show All Hidden Properties				(" + perShaderData.displayModeStaticData.hiddenCount + " of " + perShaderData.propStaticDatas.Count + ")",
-					"Show Only Modified Properties			(" + perMaterialData.modifiedCount + " of " + perShaderData.propStaticDatas.Count + ")",
-					"Show Only Modified Properties by Group	(" + perMaterialData.modifiedCount + " of " + perShaderData.propStaticDatas.Count + ")",
+					"Show All Advanced Properties			(" + displayModeData.advancedCount	+ " of " + perShaderData.propStaticDatas.Count + ")",
+					"Show All Hidden Properties				(" + displayModeData.hiddenCount	+ " of " + perShaderData.propStaticDatas.Count + ")",
+					"Show Only Modified Properties			(" + perMaterialData.modifiedCount	+ " of " + perShaderData.propStaticDatas.Count + ")",
+					"Show Only Modified Properties by Group	(" + perMaterialData.modifiedCount	+ " of " + perShaderData.propStaticDatas.Count + ")",
 				};
 				bool[] enabled = new[] { true, true, true, true };
 				bool[] separator = new bool[4];
 				int[] selected = new[]
 				{
-					displayModeDynamicData.showAllAdvancedProperties ? 0 : -1,
-					displayModeDynamicData.showAllHiddenProperties ? 1 : -1,
-					displayModeDynamicData.showOnlyModifiedProperties ? 2 : -1,
-					displayModeDynamicData.showOnlyModifiedGroups ? 3 : -1,
+					displayModeData.showAllAdvancedProperties ? 0 : -1,
+					displayModeData.showAllHiddenProperties ? 1 : -1,
+					displayModeData.showOnlyModifiedProperties ? 2 : -1,
+					displayModeData.showOnlyModifiedGroups ? 3 : -1,
 				};
 
-				void CacheModifiedProps(bool doCacheOrClear)
-				{
-					if (doCacheOrClear)
-					{
-						// Store Modified Props
-						displayModeDynamicData.cachedModifiedProperties = new Dictionary<string, bool>();
-						foreach (var propDynamicDataKVPair in perMaterialData.propDynamicDatas)
-						{
-							if (propDynamicDataKVPair.Value.hasModified || propDynamicDataKVPair.Value.hasChildrenModified)
-							{
-								displayModeDynamicData.cachedModifiedProperties.Add(propDynamicDataKVPair.Key, true);
-							}
-						}
-					}
-					else
-						displayModeDynamicData.cachedModifiedProperties = null;
-				}
 
 				// Click Event
 				void OnSwitchDisplayMode(object data, string[] options, int selectedIndex)
@@ -664,21 +647,21 @@ namespace LWGUI
 					switch (selectedIndex)
 					{
 						case 0: // Show All Advanced Properties
-							displayModeDynamicData.showAllAdvancedProperties = !displayModeDynamicData.showAllAdvancedProperties;
-							perInspectorData.ToggleShowAllAdvancedProperties(perShaderData);
+							displayModeData.showAllAdvancedProperties = !displayModeData.showAllAdvancedProperties;
+							perShaderData.ToggleShowAllAdvancedProperties();
 							break;
 						case 1: // Show All Hidden Properties
-							displayModeDynamicData.showAllHiddenProperties = !displayModeDynamicData.showAllHiddenProperties;
+							displayModeData.showAllHiddenProperties = !displayModeData.showAllHiddenProperties;
 							break;
 						case 2: // Show Only Modified Properties
-							displayModeDynamicData.showOnlyModifiedProperties = !displayModeDynamicData.showOnlyModifiedProperties;
-							if (displayModeDynamicData.showOnlyModifiedProperties) displayModeDynamicData.showOnlyModifiedGroups = false;
-							CacheModifiedProps(displayModeDynamicData.showOnlyModifiedProperties);
+							displayModeData.showOnlyModifiedProperties = !displayModeData.showOnlyModifiedProperties;
+							if (displayModeData.showOnlyModifiedProperties) displayModeData.showOnlyModifiedGroups = false;
+							MetaDataHelper.ForceUpdateAllMaterialsMetadataCache(metaDatas.GetShader());
 							break;
 						case 3: // Show Only Modified Groups
-							displayModeDynamicData.showOnlyModifiedGroups = !displayModeDynamicData.showOnlyModifiedGroups;
-							if (displayModeDynamicData.showOnlyModifiedGroups) displayModeDynamicData.showOnlyModifiedProperties = false;
-							CacheModifiedProps(displayModeDynamicData.showOnlyModifiedGroups);
+							displayModeData.showOnlyModifiedGroups = !displayModeData.showOnlyModifiedGroups;
+							if (displayModeData.showOnlyModifiedGroups) displayModeData.showOnlyModifiedProperties = false;
+							MetaDataHelper.ForceUpdateAllMaterialsMetadataCache(metaDatas.GetShader());
 							break;
 					}
 				}
@@ -724,32 +707,32 @@ namespace LWGUI
 			modeRect.width = 20f;
 			if (Event.current.type == UnityEngine.EventType.MouseDown && modeRect.Contains(Event.current.mousePosition))
 			{
-				EditorUtility.DisplayCustomMenu(rect, _searchModeMenus, (int)perInspectorData.searchMode,
+				EditorUtility.DisplayCustomMenu(rect, _searchModeMenus, (int)perShaderData.searchMode,
 												(data, options, selected) =>
 												{
-													perInspectorData.searchMode = (SearchMode)selected;
+													perShaderData.searchMode = (SearchMode)selected;
 													hasChanged = true;
 												}, null);
 				Event.current.Use();
 			}
 
-			perInspectorData.searchString = EditorGUI.TextField(rect, String.Empty, perInspectorData.searchString, guiStyles_ToolbarSearchTextFieldPopup);
+			perShaderData.searchString = EditorGUI.TextField(rect, String.Empty, perShaderData.searchString, guiStyles_ToolbarSearchTextFieldPopup);
 
 			if (EditorGUI.EndChangeCheck())
 				hasChanged = true;
 
 			// revert button
-			if (!string.IsNullOrEmpty(perInspectorData.searchString)
+			if (!string.IsNullOrEmpty(perShaderData.searchString)
 			 && RevertableHelper.DrawRevertButton(revertButtonRect))
 			{
-				perInspectorData.searchString = string.Empty;
+				perShaderData.searchString = string.Empty;
 				hasChanged = true;
 				GUIUtility.keyboardControl = 0;
 			}
 
 			// display search mode
 			if (GUIUtility.keyboardControl != controlId
-			 && string.IsNullOrEmpty(perInspectorData.searchString)
+			 && string.IsNullOrEmpty(perShaderData.searchString)
 			 && Event.current.type == UnityEngine.EventType.Repaint)
 			{
 				using (new EditorGUI.DisabledScope(true))
@@ -761,12 +744,12 @@ namespace LWGUI
 					disableTextRect = guiStyles_ToolbarSearchTextFieldPopup.padding.Remove(disableTextRect);
 					int fontSize = EditorStyles.label.fontSize;
 					EditorStyles.label.fontSize = guiStyles_ToolbarSearchTextFieldPopup.fontSize;
-					EditorStyles.label.Draw(disableTextRect, new GUIContent(perInspectorData.searchMode.ToString()), false, false, false, false);
+					EditorStyles.label.Draw(disableTextRect, new GUIContent(perShaderData.searchMode.ToString()), false, false, false, false);
 					EditorStyles.label.fontSize = fontSize;
 				}
 			}
 
-			if (hasChanged) perInspectorData.UpdateSearchFilter(perShaderData);
+			if (hasChanged) perShaderData.UpdateSearchFilter();
 
 			return hasChanged;
 		}
@@ -807,7 +790,7 @@ namespace LWGUI
 			Event.current.Use();
 
 			var (perShaderData, perMaterialData, perInspectorData) = metaDatas.GetDatas();
-			var (propStaticData, propDynamicData, propInspectorData) = metaDatas.GetPropDatas(prop);
+			var (propStaticData, propDynamicData) = metaDatas.GetPropDatas(prop);
 			var menus = new GenericMenu();
 
 			// 2022+ Material Varant Menus

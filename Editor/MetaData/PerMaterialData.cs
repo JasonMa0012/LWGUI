@@ -39,12 +39,13 @@ namespace LWGUI
 	/// </summary>
 	public class PerMaterialData
 	{
-		public Dictionary<string, PropertyDynamicData> propDynamicDatas  = new Dictionary<string, PropertyDynamicData>();
-		public MaterialProperty[]                      props             = null;
-		public Material                                material          = null;
-		public List<PersetDynamicData>                 activePresetDatas = new List<PersetDynamicData>();
-		public int                                     modifiedCount     = 0;
-		public bool                                    forceUpdate       = true;
+		public Dictionary<string, PropertyDynamicData> propDynamicDatas         = new Dictionary<string, PropertyDynamicData>();
+		public MaterialProperty[]                      props                    = null;
+		public Material                                material                 = null;
+		public List<PersetDynamicData>                 activePresetDatas        = new List<PersetDynamicData>();
+		public int                                     modifiedCount            = 0;
+		public Dictionary<string, bool>                cachedModifiedProperties = null;
+		public bool                                    forceUpdate              = true;
 
 		public PerMaterialData(Shader shader, Material material, MaterialProperty[] props, PerShaderData perShaderData)
 		{
@@ -74,9 +75,11 @@ namespace LWGUI
 				// Apply presets to default material
 				var defaultMaterial = UnityEngine.Object.Instantiate(
 #if UNITY_2022_1_OR_NEWER
-																	 material.parent ? material.parent :
+																	 material.parent
+																		 ? material.parent
+																		 :
 #endif
-																	 perShaderData.defaultMaterial
+																		 perShaderData.defaultMaterial
 																	);
 
 				foreach (var activePresetData in activePresetDatas)
@@ -101,6 +104,7 @@ namespace LWGUI
 					});
 				}
 
+				// Collect modification
 				foreach (var prop in props)
 				{
 					var propStaticData = perShaderData.propStaticDatas[prop.name];
@@ -110,7 +114,7 @@ namespace LWGUI
 					foreach (var extraPropName in propStaticData.extraPropNames)
 						propDynamicData.hasModified |= propDynamicDatas[extraPropName].hasModified;
 
-					// Override parent hasModified
+					// Override parent hasChildrenModified
 					if (propDynamicData.hasModified)
 					{
 						var parentPropData = propStaticData.parent;
@@ -122,6 +126,24 @@ namespace LWGUI
 						}
 					}
 				}
+			}
+
+			// Store Show Modified Props Only Cache
+			{
+				if (perShaderData.displayModeData.showOnlyModifiedGroups || perShaderData.displayModeData.showOnlyModifiedProperties)
+				{
+					if (cachedModifiedProperties == null)
+					{
+						cachedModifiedProperties = new Dictionary<string, bool>();
+						foreach (var propDynamicDataKWPair in propDynamicDatas)
+						{
+							if (propDynamicDataKWPair.Value.hasModified || propDynamicDataKWPair.Value.hasChildrenModified)
+								cachedModifiedProperties.Add(propDynamicDataKWPair.Key, true);
+						}
+					}
+				}
+				else
+					cachedModifiedProperties = null;
 			}
 
 			foreach (var prop in props)
@@ -138,7 +160,6 @@ namespace LWGUI
 				ShowIfDecorator.GetShowIfResult(propStaticData, propDynamicData, this);
 			}
 		}
-
 
 		public bool EndChangeCheck(string propName = null)
 		{

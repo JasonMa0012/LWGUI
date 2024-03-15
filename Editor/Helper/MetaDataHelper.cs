@@ -25,10 +25,6 @@ namespace LWGUI
 
 		public PropertyDynamicData GetPropDynamicData(MaterialProperty prop) => GetPropDynamicData(prop.name);
 
-		public PropertyInspectorData GetPropInspectorData(string propName) => perInspectorData?.GetPropInspectorData(propName);
-
-		public PropertyInspectorData GetPropInspectorData(MaterialProperty prop) => GetPropInspectorData(prop.name);
-
 		public MaterialProperty GetProperty(string propName) => GetPropDynamicData(propName)?.property;
 
 		public MaterialProperty GetDefaultProperty(string propName) => GetPropDynamicData(propName)?.defualtProperty;
@@ -38,14 +34,16 @@ namespace LWGUI
 		// var (perShaderData, perMaterialData, perInspectorData) =
 		public (PerShaderData, PerMaterialData, PerInspectorData) GetDatas() => (perShaderData, perMaterialData, perInspectorData);
 
-		// var (propStaticData, propDynamicData, propInspectorData) =
-		public (PropertyStaticData, PropertyDynamicData, PropertyInspectorData) GetPropDatas(MaterialProperty prop) =>
-			(GetPropStaticData(prop), GetPropDynamicData(prop), GetPropInspectorData(prop));
+		// var (propStaticData, propDynamicData) =
+		public (PropertyStaticData, PropertyDynamicData) GetPropDatas(MaterialProperty prop) =>
+			(GetPropStaticData(prop), GetPropDynamicData(prop));
 		#endregion
 
 		public MaterialProperty[] GetProps() => perMaterialData.props;
 
 		public Material GetMaterial() => perMaterialData.material;
+
+		public Shader GetShader() => perShaderData.shader;
 
 		public MaterialEditor GetMaterialEditor() => perInspectorData.materialEditor;
 
@@ -103,7 +101,7 @@ namespace LWGUI
 
 			// perInspectorData
 			if (!perMaterialCache.perInspectorDataCachesDic.ContainsKey(lwgui))
-				perMaterialCache.perInspectorDataCachesDic.Add(lwgui, new PerInspectorData(props, outDatas.perShaderData, outDatas.perMaterialData));
+				perMaterialCache.perInspectorDataCachesDic.Add(lwgui, new PerInspectorData());
 
 			outDatas.perInspectorData = perMaterialCache.perInspectorDataCachesDic[lwgui];
 			outDatas.perInspectorData.Update(materialEditor);
@@ -122,6 +120,13 @@ namespace LWGUI
 				_perShaderCachesDic.Remove(shader);
 		}
 
+		public static void ReleaseAllMaterialsMetadataCache(Shader shader)
+		{
+			if (shader && _perShaderCachesDic.ContainsKey(shader))
+				_perShaderCachesDic[shader].perMaterialDataCachesDic.Clear();
+
+		}
+
 		public static void ReleaseMaterialMetadataCache(Material material)
 		{
 			if (material
@@ -129,6 +134,15 @@ namespace LWGUI
 			 && _perShaderCachesDic.ContainsKey(material.shader)
 			 && _perShaderCachesDic[material.shader].perMaterialDataCachesDic.ContainsKey(material))
 				_perShaderCachesDic[material.shader].perMaterialDataCachesDic.Remove(material);
+		}
+
+		public static void ForceUpdateAllMaterialsMetadataCache(Shader shader)
+		{
+			if (shader && _perShaderCachesDic.ContainsKey(shader))
+			{
+				foreach (var perMaterialCachKWPair in _perShaderCachesDic[shader].perMaterialDataCachesDic)
+					perMaterialCachKWPair.Value.perMaterialData.forceUpdate = true;
+			}
 		}
 
 		public static void ForceUpdateMaterialMetadataCache(Material material)
@@ -170,23 +184,23 @@ namespace LWGUI
 		{
 			bool result = true;
 
-			var (propStaticData, propDynamicData, propInspectorData) = metaDatas.GetPropDatas(prop);
-			var displayModeDynamicData = metaDatas.perInspectorData.displayModeDynamicData;
-			var cachedModifiedProperties = metaDatas.perInspectorData.displayModeDynamicData.cachedModifiedProperties;
+			var (propStaticData, propDynamicData) = metaDatas.GetPropDatas(prop);
+			var displayModeData = metaDatas.perShaderData.displayModeData;
+			var cachedModifiedProperties = metaDatas.perMaterialData.cachedModifiedProperties;
 
 			if ( // if HideInInspector
 				Helper.IsPropertyHideInInspector(prop)
 				// if Search Filtered
-			 || !propInspectorData.isSearchMatched
+			 || !propStaticData.isSearchMatched
 				// if the Conditional Display Keyword is not active
 			 || (!string.IsNullOrEmpty(propStaticData.conditionalDisplayKeyword)
 			  && !material.shaderKeywords.Any((str => str == propStaticData.conditionalDisplayKeyword)))
-			 || (!displayModeDynamicData.showAllHiddenProperties && propStaticData.isHidden)
+			 || (!displayModeData.showAllHiddenProperties && propStaticData.isHidden)
 				// if show modified only
 			 || (cachedModifiedProperties != null && !(
-					(displayModeDynamicData.showOnlyModifiedProperties && cachedModifiedProperties.ContainsKey(prop.name))
+					(displayModeData.showOnlyModifiedProperties && cachedModifiedProperties.ContainsKey(prop.name))
 					// if show modified group only
-					|| (displayModeDynamicData.showOnlyModifiedGroups && cachedModifiedProperties.ContainsKey(propStaticData.parent != null ? propStaticData.parent.name : prop.name))))
+					|| (displayModeData.showOnlyModifiedGroups && cachedModifiedProperties.ContainsKey(propStaticData.parent != null ? propStaticData.parent.name : prop.name))))
 				// ShowIf() == false
 			 || !propDynamicData.isShowing
 			   )
@@ -202,7 +216,7 @@ namespace LWGUI
 			bool result = true;
 
 			if (parentPropStaticData != null
-			 && (!metaDatas.GetPropInspectorData(parentPropStaticData.name).isExpanding
+			 && (!metaDatas.GetPropStaticData(parentPropStaticData.name).isExpanding
 			  || !MetaDataHelper.GetPropertyVisibility(metaDatas.GetProperty(parentPropStaticData.name), material, metaDatas)))
 			{
 				result = false;

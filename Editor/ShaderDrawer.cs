@@ -14,8 +14,6 @@ namespace LWGUI
 	{
 		void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData);
 
-		void InitInspectorData(PropertyInspectorData inoutPropInspectorData);
-
 		void GetDefaultValueDescription(Shader inShader, MaterialProperty inProp, MaterialProperty inDefaultProp, PerShaderData inPerShaderData, PerMaterialData inoutPerMaterialData);
 	}
 
@@ -63,11 +61,7 @@ namespace LWGUI
 		{
 			inoutPropertyStaticData.groupName = _group;
 			inoutPropertyStaticData.isMain = true;
-		}
-
-		public void InitInspectorData(PropertyInspectorData inoutPropInspectorData)
-		{
-			inoutPropInspectorData.isExpanding = _defaultFoldingState;
+			inoutPropertyStaticData.isExpanding = _defaultFoldingState;
 		}
 
 		public virtual void GetDefaultValueDescription(Shader inShader, MaterialProperty inProp, MaterialProperty inDefaultProp, PerShaderData inPerShaderData, PerMaterialData inoutPerMaterialData)
@@ -83,7 +77,7 @@ namespace LWGUI
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			EditorGUI.BeginChangeCheck();
 
-			bool toggleResult = Helper.DrawFoldout(position, ref metaDatas.GetPropInspectorData(prop).isExpanding, prop.floatValue > 0, _defaultToggleDisplayed, label);
+			bool toggleResult = Helper.DrawFoldout(position, ref metaDatas.GetPropStaticData(prop).isExpanding, prop.floatValue > 0, _defaultToggleDisplayed, label);
 
 			if (Helper.EndChangeCheck(metaDatas, prop))
 			{
@@ -140,8 +134,6 @@ namespace LWGUI
 		{
 			inoutPropertyStaticData.groupName = group;
 		}
-
-		public void InitInspectorData(PropertyInspectorData inoutPropInspectorData) { }
 
 		public virtual void GetDefaultValueDescription(Shader inShader, MaterialProperty inProp, MaterialProperty inDefaultProp, PerShaderData inPerShaderData, PerMaterialData inoutPerMaterialData) { }
 
