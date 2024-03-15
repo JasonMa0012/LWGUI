@@ -856,7 +856,7 @@ namespace LWGUI
 	/// group：father group name, support suffix keyword for conditional display (Default: none)
 	/// defaultFileName: default Ramp Map file name when create a new one (Default: RampMap)
 	/// rootPath: the path where ramp is stored, replace '/' with '.' (for example: Assets.Art.Ramps). when selecting ramp, it will also be filtered according to the path (Default: Assets)
-	/// colorSpace: sRGB / Linear (Default: sRGB)
+	/// colorSpace: switch sRGB / Linear in ramp texture import setting (Default: sRGB)
 	/// defaultWidth: default Ramp Width (Default: 512)
 	/// Target Property Type: Texture2D
 	/// </summary>
@@ -931,13 +931,12 @@ namespace LWGUI
 			bool isDirty;
 			// used to read/write Gradient value in code
 			GradientObject gradientObject = ScriptableObject.CreateInstance<GradientObject>();
-			gradientObject.gradient.colorSpace = _isLinear ? ColorSpace.Linear : ColorSpace.Gamma;
 			// used to modify Gradient value for users
 			SerializedObject serializedObject = new SerializedObject(gradientObject);
 			SerializedProperty serializedProperty = serializedObject.FindProperty("gradient");
 
 			// Tex > GradientObject
-			gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, _isLinear, out isDirty);
+			gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, out isDirty);
 			// GradientObject > SerializedObject
 			serializedObject.Update();
 
@@ -983,7 +982,7 @@ namespace LWGUI
 			if (doDiscardGradient)
 			{
 				// Tex > GradientObject
-				gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, _isLinear, out isDirty, true);
+				gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, out isDirty, true);
 				// GradientObject > SerializedObject
 				serializedObject.Update();
 				RampHelper.SetGradientToTexture(prop.textureValue, gradientObject, true);

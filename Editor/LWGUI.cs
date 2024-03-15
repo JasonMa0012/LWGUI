@@ -1,7 +1,4 @@
 ﻿// Copyright (c) Jason Ma
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;

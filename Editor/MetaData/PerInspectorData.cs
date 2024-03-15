@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Jason Ma
 // Per Shader > Per Material > Per Inspector
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 

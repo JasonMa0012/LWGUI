@@ -369,7 +369,7 @@ float selectedChannelValue = dot(tex2D(_Tex, uv), _textureChannelMask);
 /// group：father group name, support suffix keyword for conditional display (Default: none)
 /// defaultFileName: default Ramp Map file name when create a new one (Default: RampMap)
 /// rootPath: the path where ramp is stored, replace '/' with '.' (for example: Assets.Art.Ramps). when selecting ramp, it will also be filtered according to the path (Default: Assets)
-/// colorSpace: sRGB / Linear (Default: sRGB)
+/// colorSpace: switch sRGB / Linear in ramp texture import setting (Default: sRGB)
 /// defaultWidth: default Ramp Width (Default: 512)
 /// Target Property Type: Texture2D
 public RampDrawer() : this(String.Empty) { }

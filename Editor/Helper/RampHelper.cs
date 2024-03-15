@@ -133,7 +133,7 @@ namespace LWGUI
 
 		public static bool HasGradient(AssetImporter assetImporter) { return assetImporter.userData.Contains("#");}
 		
-		public static Gradient GetGradientFromTexture(Texture texture, bool isLinear, out bool isDirty, bool doReimport = false)
+		public static Gradient GetGradientFromTexture(Texture texture, out bool isDirty, bool doReimport = false)
 		{
 			isDirty = false;
 			if (texture == null) return null;
@@ -144,7 +144,6 @@ namespace LWGUI
 				GradientObject savedGradientObject, editingGradientObject;
 				isDirty = DecodeGradientFromJSON(assetImporter.userData, out savedGradientObject, out editingGradientObject);
 				var outGradient = doReimport ? savedGradientObject.gradient : editingGradientObject.gradient;
-				outGradient.colorSpace = isLinear ? ColorSpace.Linear : ColorSpace.Gamma;
 				return outGradient;
 			}
 			else
@@ -213,7 +212,6 @@ namespace LWGUI
 			gradientObject.gradient = new Gradient();
 			gradientObject.gradient.colorKeys = new[] { new GradientColorKey(Color.black, 0.0f), new GradientColorKey(Color.white, 1.0f) };
 			gradientObject.gradient.alphaKeys = new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 1f) };
-			gradientObject.gradient.colorSpace = isLinear ? ColorSpace.Linear : ColorSpace.Gamma;
 
 			var ramp = CreateGradientTexture(gradientObject.gradient, width, height);
 			var png = ramp.EncodeToPNG();
