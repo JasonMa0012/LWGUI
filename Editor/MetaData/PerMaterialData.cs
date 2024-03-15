@@ -39,12 +39,12 @@ namespace LWGUI
 	/// </summary>
 	public class PerMaterialData
 	{
-		public Dictionary<string, PropertyDynamicData> propDynamicDatas = new Dictionary<string, PropertyDynamicData>();
-		public MaterialProperty[]                      props            = null;
-		public Material                                material         = null;
-		public List<PersetDynamicData>                 activePresets    = new List<PersetDynamicData>();
-		public int                                     modifiedCount    = 0;
-		public bool                                    forceUpdate      = true;
+		public Dictionary<string, PropertyDynamicData> propDynamicDatas  = new Dictionary<string, PropertyDynamicData>();
+		public MaterialProperty[]                      props             = null;
+		public Material                                material          = null;
+		public List<PersetDynamicData>                 activePresetDatas = new List<PersetDynamicData>();
+		public int                                     modifiedCount     = 0;
+		public bool                                    forceUpdate       = true;
 
 		public PerMaterialData(Shader shader, Material material, MaterialProperty[] props, PerShaderData perShaderData)
 		{
@@ -58,7 +58,7 @@ namespace LWGUI
 			// Reset Datas
 			this.props = props;
 			this.material = material;
-			activePresets.Clear();
+			activePresetDatas.Clear();
 			propDynamicDatas.Clear();
 			modifiedCount = 0;
 			forceUpdate = false;
@@ -67,7 +67,7 @@ namespace LWGUI
 			foreach (var prop in props)
 			{
 				var activePreset = perShaderData.propStaticDatas[prop.name].presetDrawer?.GetActivePreset(prop, perShaderData.propStaticDatas[prop.name].propertyPresetAsset);
-				if (activePreset != null) activePresets.Add(new PersetDynamicData(activePreset, prop));
+				if (activePreset != null) activePresetDatas.Add(new PersetDynamicData(activePreset, prop));
 			}
 
 			{
@@ -79,8 +79,8 @@ namespace LWGUI
 																	 perShaderData.defaultMaterial
 																	);
 
-				foreach (var activePreset in activePresets)
-					activePreset.preset.ApplyToDefaultMaterial(defaultMaterial);
+				foreach (var activePresetData in activePresetDatas)
+					activePresetData.preset.ApplyToDefaultMaterial(defaultMaterial);
 
 				var defaultProperties = MaterialEditor.GetMaterialProperties(new[] { defaultMaterial });
 				Debug.Assert(defaultProperties.Length == props.Length);

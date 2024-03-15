@@ -776,22 +776,25 @@ namespace LWGUI
 
 		#region Context Menu
 
-		private static void EditPresetEvent(string mode, ShaderPropertyPreset presetAsset, ShaderPropertyPreset.Preset activePreset, MaterialProperty prop, LWGUIMetaDatas metaDatas)
+		private static void EditPresetEvent(string mode, ShaderPropertyPreset presetAsset, List<ShaderPropertyPreset.Preset> targetPresets, MaterialProperty prop, LWGUIMetaDatas metaDatas)
 		{
 			if (!VersionControlHelper.Checkout(presetAsset))
 			{
 				Debug.LogError("Can not edit the preset: " + presetAsset);
 				return;
 			}
-			switch (mode)
+			foreach (var targetPreset in targetPresets)
 			{
-				case "Add":
-				case "Update":
-					activePreset.AddOrUpdateIncludeExtraProperties(metaDatas, prop);
-					break;
-				case "Remove":
-					activePreset.RemoveIncludeExtraProperties(metaDatas, prop.name);
-					break;
+				switch (mode)
+				{
+					case "Add":
+					case "Update":
+						targetPreset.AddOrUpdateIncludeExtraProperties(metaDatas, prop);
+						break;
+					case "Remove":
+						targetPreset.RemoveIncludeExtraProperties(metaDatas, prop.name);
+						break;
+				}
 			}
 			EditorUtility.SetDirty(presetAsset);
 			MetaDataHelper.ForceUpdateMaterialMetadataCache(metaDatas.GetMaterial());
@@ -930,7 +933,7 @@ namespace LWGUI
 			if (GUI.enabled)
 			{
 				menus.AddSeparator("");
-				foreach (var activePresetData in perMaterialData.activePresets)
+				foreach (var activePresetData in perMaterialData.activePresetDatas)
 				{
 					if (activePresetData.property == prop) continue;
 
@@ -940,12 +943,15 @@ namespace LWGUI
 
 					if (activePreset.GetPropertyValue(prop.name) != null)
 					{
-						menus.AddItem(new GUIContent("Update to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Update", presetAsset, activePreset, prop, metaDatas));
-						menus.AddItem(new GUIContent("Remove from Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Remove", presetAsset, activePreset, prop, metaDatas));
+						menus.AddItem(new GUIContent("Update to Preset/" + presetPropDisplayName + "/" + "All"), false, () => EditPresetEvent("Update", presetAsset, presetAsset.presets, prop, metaDatas));
+						menus.AddItem(new GUIContent("Update to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Update", presetAsset, new List<ShaderPropertyPreset.Preset>(){activePreset}, prop, metaDatas));
+						menus.AddItem(new GUIContent("Remove from Preset/" + presetPropDisplayName + "/" + "All"), false, () => EditPresetEvent("Remove", presetAsset, presetAsset.presets, prop, metaDatas));
+						menus.AddItem(new GUIContent("Remove from Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Remove", presetAsset, new List<ShaderPropertyPreset.Preset>(){activePreset}, prop, metaDatas));
 					}
 					else
 					{
-						menus.AddItem(new GUIContent("Add to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Add", presetAsset, activePreset, prop, metaDatas));
+						menus.AddItem(new GUIContent("Add to Preset/" + presetPropDisplayName + "/" + "All"), false, () => EditPresetEvent("Add", presetAsset, presetAsset.presets, prop, metaDatas));
+						menus.AddItem(new GUIContent("Add to Preset/" + presetPropDisplayName + "/" + activePreset.presetName), false, () => EditPresetEvent("Add", presetAsset, new List<ShaderPropertyPreset.Preset>(){activePreset}, prop, metaDatas));
 					}
 				}
 			}
