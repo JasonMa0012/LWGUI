@@ -48,6 +48,12 @@ namespace LWGUI
 		public Material GetMaterial() => perMaterialData.material;
 
 		public MaterialEditor GetMaterialEditor() => perInspectorData.materialEditor;
+
+		public void OnValidate()
+		{
+			MaterialEditor.ApplyMaterialPropertyDrawers(GetMaterialEditor()?.targets);
+			MetaDataHelper.ForceUpdateMaterialMetadataCache(perMaterialData?.material);
+		}
 	}
 
 	public class MetaDataHelper

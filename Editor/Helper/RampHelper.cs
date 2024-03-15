@@ -69,12 +69,15 @@ namespace LWGUI
 			}
 
 			// Gradient Editor
-			var gradientPropertyRect = new Rect(editRect.x + 2, editRect.y + 2, editRect.width - 2, editRect.height - 2);
-			EditorGUI.BeginChangeCheck();
-			EditorGUI.PropertyField(gradientPropertyRect, serializedProperty, GUIContent.none);
-			if (EditorGUI.EndChangeCheck())
+			if (GUI.enabled)
 			{
-				hasChange = true;
+				var gradientPropertyRect = new Rect(editRect.x + 2, editRect.y + 2, editRect.width - 2, editRect.height - 2);
+				EditorGUI.BeginChangeCheck();
+				EditorGUI.PropertyField(gradientPropertyRect, serializedProperty, GUIContent.none);
+				if (EditorGUI.EndChangeCheck())
+				{
+					hasChange = true;
+				}
 			}
 
 			// Edit button overlay

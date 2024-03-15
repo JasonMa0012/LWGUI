@@ -121,7 +121,7 @@ namespace LWGUI
 
 			bool hasModified = prop.hasMixedValue
 							|| propDynamicData.hasModified
-							|| propDynamicData.hasChildrenModified;
+							|| (isHeader && propDynamicData.hasChildrenModified);
 
 			if (!hasModified)
 				return false;
@@ -132,11 +132,14 @@ namespace LWGUI
 				GUI.changed = true;
 				DoRevertProperty(prop, metaDatas);
 
-				foreach (var childStaticData in propStaticData.children)
+				if (isHeader)
 				{
-					DoRevertProperty(metaDatas.GetProperty(childStaticData.name), metaDatas);
-					foreach (var childChildStaticData in childStaticData.children)
-						DoRevertProperty(metaDatas.GetProperty(childChildStaticData.name), metaDatas);
+					foreach (var childStaticData in propStaticData.children)
+					{
+						DoRevertProperty(metaDatas.GetProperty(childStaticData.name), metaDatas);
+						foreach (var childChildStaticData in childStaticData.children)
+							DoRevertProperty(metaDatas.GetProperty(childChildStaticData.name), metaDatas);
+					}
 				}
 
 				return true;

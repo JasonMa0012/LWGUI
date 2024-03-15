@@ -924,6 +924,7 @@ namespace LWGUI
 			{
 				prop.textureValue = newRampMap;
 				OnSwitchRampMap(prop.textureValue);
+				metaDatas.OnValidate();
 			};
 
 			// When create new ramp map
@@ -931,6 +932,7 @@ namespace LWGUI
 			{
 				prop.textureValue = newRampMap;
 				OnCreateNewRampMap(prop.textureValue);
+				metaDatas.OnValidate();
 			};
 
 			// per prop variables
