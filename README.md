@@ -72,7 +72,7 @@ Having been validated through numerous large-scale commercial projects, employin
 
    - LWGUI 1.x: **Unity 2017.4+**
 
-   - LWGUI 2.x: **Unity 2021.3.28+**
+   - LWGUI 2.x: **Unity 2021.3+**
 2. Open your project
 3. `Window > Package Manager > Add > Add package from git URL` , enter: `https://github.com/JasonMa0012/LWGUI.git`
 

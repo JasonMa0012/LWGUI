@@ -18,7 +18,7 @@ namespace LWGUI
 
 		public static void ObsoleteWarning(string obsoleteStr, string newStr)
 		{
-			Debug.LogWarning("'" + obsoleteStr + "' is Obsolete! Please use '" + newStr + "'!");
+			Debug.LogWarning("LWGUI: '" + obsoleteStr + "' is Obsolete! Please use '" + newStr + "'!");
 		}
 
 		public static bool PropertyValueEquals(MaterialProperty prop1, MaterialProperty prop2)
@@ -113,7 +113,7 @@ namespace LWGUI
 			}
 			else
 			{
-				Debug.LogWarning("Please add \"CustomEditor \"LWGUI.LWGUI\"\" to the end of your shader!");
+				Debug.LogWarning("LWGUI: Please add \"CustomEditor \"LWGUI.LWGUI\"\" to the end of your shader!");
 				return null;
 			}
 		}
@@ -227,15 +227,7 @@ namespace LWGUI
 			get
 			{
 				if (_guiStyles_ToolbarSearchTextFieldPopup == null)
-				{
-					string toolbarSeachTextFieldPopupStr =
-#if UNITY_2022_3_OR_NEWER
-						"ToolbarSearchTextFieldPopup";
-#else
-						"ToolbarSeachTextFieldPopup";
-#endif
-					_guiStyles_ToolbarSearchTextFieldPopup = new GUIStyle(toolbarSeachTextFieldPopupStr);
-				}
+					_guiStyles_ToolbarSearchTextFieldPopup = new GUIStyle("ToolbarSearchTextFieldPopup");
 				return _guiStyles_ToolbarSearchTextFieldPopup;
 			}
 		}
@@ -424,18 +416,20 @@ namespace LWGUI
 		{
 			if (!_copiedMaterial)
 			{
-				Debug.LogError("Please copy Material Properties first!");
+				Debug.LogError("LWGUI: Please copy Material Properties first!");
 				return;
 			}
-			foreach (Material material in metaDatas.GetMaterialEditor().targets)
-			{
-				if (!VersionControlHelper.Checkout(material))
-				{
-					Debug.LogError("Material: '" + metaDatas.GetMaterial().name + "' unable to write!");
-					return;
-				}
 
-				Undo.RecordObject(material, "Paste Material Properties");
+			var targetMaterials = metaDatas.GetMaterialEditor().targets;
+			if (!VersionControlHelper.Checkout(targetMaterials))
+			{
+				Debug.LogError("LWGUI: One or more materials unable to write!");
+				return;
+			}
+
+			Undo.RecordObjects(targetMaterials, "LWGUI: Paste Material Properties");
+			foreach (Material material in targetMaterials)
+			{
 				for (int i = 0; i < ShaderUtil.GetPropertyCount(_copiedMaterial.shader); i++)
 				{
 					var name = ShaderUtil.GetPropertyName(_copiedMaterial.shader, i);
@@ -557,7 +551,7 @@ namespace LWGUI
 					// Select Asset
 					if (paths.Length == 0)
 					{
-						Debug.LogError("Can not find Material Assets with name: " + name);
+						Debug.LogError("LWGUI: Can not find Material Assets with name: " + name);
 					}
 					else if (paths.Length > 1)
 					{
@@ -566,7 +560,7 @@ namespace LWGUI
 						{
 							str += "\n" + path;
 						}
-						Debug.LogWarning("Multiple Material Assets with the same name have been found, select only the first one:" + str);
+						Debug.LogWarning("LWGUI: Multiple Material Assets with the same name have been found, select only the first one:" + str);
 						Selection.activeObject = AssetDatabase.LoadAssetAtPath<Material>(paths[0]);
 					}
 					else
@@ -581,10 +575,7 @@ namespace LWGUI
 			toolBarRect.xMin += buttonRectOffset;
 			if (GUI.Button(buttonRect, _guiContentChechout, Helper.guiStyles_IconButton))
 			{
-				foreach (var material in metaDatas.GetMaterialEditor().targets)
-				{
-					VersionControlHelper.Checkout(material);
-				}
+				VersionControlHelper.Checkout(metaDatas.GetMaterialEditor().targets);
 			}
 
 			// Expand
@@ -761,7 +752,7 @@ namespace LWGUI
 		{
 			if (!VersionControlHelper.Checkout(presetAsset))
 			{
-				Debug.LogError("Can not edit the preset: " + presetAsset);
+				Debug.LogError("LWGUI: Can not edit the preset: " + presetAsset);
 				return;
 			}
 			foreach (var targetPreset in targetPresets)
@@ -830,16 +821,16 @@ namespace LWGUI
 			// Paste
 			GenericMenu.MenuFunction pasteAction = () =>
 			{
+				if (!VersionControlHelper.Checkout(prop.targets))
+				{
+					Debug.LogError("LWGUI: One or more materials unable to write!");
+					return;
+				}
+
+				Undo.RecordObjects(prop.targets, "LWGUI: Paste Material Properties");
+
 				foreach (Material material in prop.targets)
 				{
-					if (!VersionControlHelper.Checkout(material))
-					{
-						Debug.LogError("Material: '" + metaDatas.GetMaterial().name + "' unable to write!");
-						return;
-					}
-
-					Undo.RecordObject(material, "Paste Material Properties");
-
 					var index = 0;
 
 					PastePropertyValueToMaterial(material, _copiedProps[index++], prop.name);

@@ -147,7 +147,7 @@ namespace LWGUI
 			}
 			else
 			{
-				Debug.LogWarning("Property:'" + prop.name + "' Type:'" + prop.type + "' mismatch!");
+				Debug.LogWarning("LWGUI: Property:'" + prop.name + "' Type:'" + prop.type + "' mismatch!");
 				editor.DefaultShaderProperty(position, prop, label.text);
 			}
 		}
@@ -322,7 +322,7 @@ namespace LWGUI
 			 || !inoutPerMaterialData.propDynamicDatas.ContainsKey(_maxPropName)
 			   )
 			{
-				Debug.LogError(inProp.name + " has no available min/max properties!");
+				Debug.LogError("LWGUI: " + inProp.name + " has no available min/max properties!");
 				return;
 			}
 
@@ -339,7 +339,7 @@ namespace LWGUI
 			MaterialProperty maxProp = metaDatas.GetProperty(_maxPropName);
 			if (minProp == null || maxProp == null)
 			{
-				Debug.LogError("MinMaxSliderDrawer: minProp: " + (minProp == null ? "null" : minProp.name) + " or maxProp: " + (maxProp == null ? "null" : maxProp.name) + " not found!");
+				Debug.LogError("LWGUI: MinMaxSliderDrawer: minProp: " + (minProp == null ? "null" : minProp.name) + " or maxProp: " + (maxProp == null ? "null" : maxProp.name) + " not found!");
 				return;
 			}
 			float minf = minProp.floatValue;
@@ -505,7 +505,7 @@ namespace LWGUI
 			int index = Array.IndexOf(_values, prop.floatValue);
 			if (index < 0)
 			{
-				Debug.LogError("Property: " + prop.name + " has unknown Enum Value: '" + prop.floatValue + "' !\n");
+				Debug.LogError("LWGUI: Property: " + prop.name + " has unknown Enum Value: '" + prop.floatValue + "' !\n");
 				return;
 			}
 
@@ -547,7 +547,7 @@ namespace LWGUI
 			}
 			catch (Exception ex)
 			{
-				Debug.LogWarningFormat("Failed to create SubEnum, enum {0} not found, {1}.", (object)enumName, ex);
+				Debug.LogWarningFormat("LWGUI: Failed to create SubEnum, enum {0} not found, {1}.", (object)enumName, ex);
 				throw;
 			}
 		}
@@ -819,7 +819,7 @@ namespace LWGUI
 			}
 			if (index == -1)
 			{
-				Debug.LogError("Channel Property: " + prop.name + " invalid vector found, reset to A");
+				Debug.LogError("LWGUI: Channel Property: " + prop.name + " invalid vector found, reset to A");
 				prop.vectorValue = _vector4Values[3];
 				index = 3;
 			}
@@ -888,7 +888,7 @@ namespace LWGUI
 		{
 			if (!rootPath.StartsWith(DefaultRootPath))
 			{
-				Debug.LogError("Ramp Root Path: '" + rootPath + "' must start with 'Assets'!");
+				Debug.LogError("LWGUI: Ramp Root Path: '" + rootPath + "' must start with 'Assets'!");
 				rootPath = DefaultRootPath;
 			}
 			this.group = group;
@@ -1089,7 +1089,10 @@ namespace LWGUI
 			}
 
 			var presetNames = presetFile.presets.Select(((inPreset) => new GUIContent(inPreset.presetName))).ToArray();
-			Helper.AdaptiveFieldWidth(EditorStyles.popup, presetNames[index]);
+			if (EditorGUI.showMixedValue)
+				index = -1;
+			else
+				Helper.AdaptiveFieldWidth(EditorStyles.popup, presetNames[index]);
 			int newIndex = EditorGUI.Popup(rect, label, index, presetNames);
 			if (Helper.EndChangeCheck(metaDatas, prop))
 			{
@@ -1412,7 +1415,7 @@ namespace LWGUI
 			_showIfData.logicalOperator = logicalOperator.ToLower() == "or" ? LogicalOperator.Or : LogicalOperator.And;
 			_showIfData.targetPropertyName = propName;
 			if (!_compareFunctionLUT.ContainsKey(compareFunction) || !Enum.IsDefined(typeof(CompareFunction), _compareFunctionLUT[compareFunction]))
-				Debug.LogError("Invalid compareFunction: '"
+				Debug.LogError("LWGUI: Invalid compareFunction: '"
 							 + compareFunction
 							 + "', Must be one of the following: Less (L) | Equal (E) | LessEqual (LEqual / LE) | Greater (G) | NotEqual (NEqual / NE) | GreaterEqual (GEqual / GE).");
 			else

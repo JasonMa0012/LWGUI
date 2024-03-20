@@ -56,10 +56,7 @@ namespace LWGUI
 				}
 
 
-				// Must be modified MaterialProperty directly for the material editing in ShaderGUI.
-				// For the Material in background, just use Material.SetXXX().
-				var isPropertyOtherMaterials = !isDefaultMaterial && perMaterialData == null;
-				if (isPropertyOtherMaterials || isDefaultMaterial)
+				if (isDefaultMaterial)
 				{
 					switch (propertyType)
 					{
@@ -78,11 +75,10 @@ namespace LWGUI
 							break;
 					}
 
-					if (isPropertyOtherMaterials)
-						MaterialEditor.ApplyMaterialPropertyDrawers(material);
+					MaterialEditor.ApplyMaterialPropertyDrawers(material);
 				}
-				else
 				// is Property Primary Material
+				else if (perMaterialData != null)
 				{
 					var propDynamicData = perMaterialData.propDynamicDatas[propertyName];
 					var prop = propDynamicData.property;

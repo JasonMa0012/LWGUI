@@ -163,7 +163,6 @@ namespace LWGUI
 
 		public static bool DrawRevertButton(Rect rect)
 		{
-			if (_icon == null) Debug.LogError("RevertIcon.png + meta is missing!");
 			GUI.DrawTexture(rect, _icon);
 			var e = Event.current;
 			if (e.type == UnityEngine.EventType.MouseDown && rect.Contains(e.mousePosition))

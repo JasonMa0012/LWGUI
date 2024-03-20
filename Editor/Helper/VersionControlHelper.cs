@@ -1,4 +1,8 @@
 ﻿// Copyright (c) Jason Ma
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using UnityEditor;
 using UnityEditor.VersionControl;
 using UnityEngine;
@@ -11,48 +15,64 @@ namespace LWGUI
 
 		public static bool Checkout(UnityEngine.Object obj)
 		{
-			if (AssetDatabase.Contains(obj))
+			return Checkout(new[] { obj });
+		}
+
+		public static bool Checkout(UnityEngine.Object[] objs)
+		{
+			List<string> pathes = new List<string>();
+			foreach (var obj in objs)
 			{
-				var path = AssetDatabase.GetAssetPath(obj);
-				return Checkout(path);
+				if (AssetDatabase.Contains(obj))
+					pathes.Add(AssetDatabase.GetAssetPath(obj));
 			}
-			else
+			return Checkout(pathes);
+		}
+
+		public static bool Checkout(string path)
+		{
+			return Checkout(new List<string>() { path });
+		}
+
+		public static bool Checkout(List<string> pathes)
+		{
+			if (!isVCEnabled) return true;
+
+			AssetList assetList = new AssetList();
+			foreach (string path in pathes)
+			{
+				Asset asset = Provider.GetAssetByPath(path);
+				if (asset != null && !Provider.IsOpenForEdit(asset))
+				{
+					assetList.Add(asset);
+				}
+			}
+
+			if (assetList.Count == 0) return true;
+
+			StringBuilder sb = new StringBuilder();
+			assetList.ForEach((asset => sb.AppendLine(asset.path)));
+			Debug.Log($"LWGUI: {assetList.Count} assets to be checked out:\n{sb}");
+			sb.Clear();
+
+			var checkOutTask = Provider.Checkout(assetList, CheckoutMode.Both);
+			checkOutTask.Wait();
+			if (checkOutTask.success)
 			{
 				return true;
 			}
-		}
-
-		public static bool Checkout(string projectRelativedPath)
-		{
-			if (isVCEnabled)
+			else
 			{
-				var vcAsset = Provider.GetAssetByPath(projectRelativedPath);
-				if (vcAsset != null)
+				assetList.ForEach((asset =>
 				{
-					var statusTask = Provider.Status(vcAsset);
-					statusTask.Wait();
-					if (Provider.CheckoutIsValid(statusTask.assetList))
-					{
-						var checkOutTask = Provider.Checkout(vcAsset, CheckoutMode.Both);
-						checkOutTask.Wait();
-						if (checkOutTask.success)
-						{
-							return true;
-						}
-					}
-					else if (Provider.IsOpenForEdit(vcAsset))
-					{
-						return true;
-					}
-				}
-				
-				Debug.LogError("Checkout '" + projectRelativedPath + "' failure!");
+					if (!Provider.IsOpenForEdit(asset))
+						sb.AppendLine(asset.path);
+				}));
+				Debug.LogError($"LWGUI: {assetList.Count} asssets failed to be checked out!\n{sb}");
 				return false;
 			}
-
-			return true;
 		}
-		
+
 		public static bool Add(string projectRelativedPath)
 		{
 			if (isVCEnabled)
@@ -72,8 +92,8 @@ namespace LWGUI
 						}
 					}
 				}
-				
-				Debug.LogError("Add '" + projectRelativedPath + "' failure!");
+
+				Debug.LogError($"LWGUI: Failed to add {projectRelativedPath}!");
 				return false;
 			}
 

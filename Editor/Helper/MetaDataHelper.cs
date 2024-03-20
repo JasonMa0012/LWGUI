@@ -49,7 +49,7 @@ namespace LWGUI
 		public void OnValidate()
 		{
 			MaterialEditor.ApplyMaterialPropertyDrawers(GetMaterialEditor()?.targets);
-			MetaDataHelper.ForceUpdateMaterialMetadataCache(perMaterialData?.material);
+			MetaDataHelper.ForceUpdateMaterialsMetadataCache(GetMaterialEditor()?.targets);
 		}
 	}
 
@@ -140,7 +140,7 @@ namespace LWGUI
 			if (shader && _perShaderCachesDic.ContainsKey(shader))
 			{
 				foreach (var perMaterialCachKWPair in _perShaderCachesDic[shader].perMaterialDataCachesDic)
-					perMaterialCachKWPair.Value.perMaterialData.forceUpdate = true;
+					perMaterialCachKWPair.Value.perMaterialData.forceInit = true;
 			}
 		}
 
@@ -150,7 +150,13 @@ namespace LWGUI
 			 && material.shader
 			 && _perShaderCachesDic.ContainsKey(material.shader)
 			 && _perShaderCachesDic[material.shader].perMaterialDataCachesDic.ContainsKey(material))
-				_perShaderCachesDic[material.shader].perMaterialDataCachesDic[material].perMaterialData.forceUpdate = true;
+				_perShaderCachesDic[material.shader].perMaterialDataCachesDic[material].perMaterialData.forceInit = true;
+		}
+
+		public static void ForceUpdateMaterialsMetadataCache(UnityEngine.Object[] materials)
+		{
+			foreach (Material material in materials)
+				ForceUpdateMaterialMetadataCache(material);
 		}
 
 		public static string GetPropertyTooltip(PropertyStaticData propertyStaticData, PropertyDynamicData propertyDynamicData)

@@ -50,7 +50,7 @@ namespace LWGUI
 
 			if (!_loadedPresets.ContainsKey(presetFileName) || !_loadedPresets[presetFileName])
 			{
-				Debug.LogError("Invalid ShaderPropertyPreset: ‘" + presetFileName + "’ !");
+				Debug.LogError("LWGUI: Invalid ShaderPropertyPreset: ‘" + presetFileName + "’ !");
 				return null;
 			}
 

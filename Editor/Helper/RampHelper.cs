@@ -148,7 +148,7 @@ namespace LWGUI
 			}
 			else
 			{
-				Debug.LogError("Can not find texture: "
+				Debug.LogError("LWGUI: Can not find texture: "
 							 + texture.name
 							 + " or it's userData on disk! \n"
 							 + "If you are moving or copying the Ramp Map, make sure your .meta file is not lost!");

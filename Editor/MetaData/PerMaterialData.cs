@@ -43,24 +43,21 @@ namespace LWGUI
 		public List<PersetDynamicData>                 activePresetDatas        = new List<PersetDynamicData>();
 		public int                                     modifiedCount            = 0;
 		public Dictionary<string, bool>                cachedModifiedProperties = null;
-		public bool                                    forceUpdate              = true;
+		public bool                                    forceInit              = true;
 
 		public PerMaterialData(Shader shader, Material material, MaterialProperty[] props, PerShaderData perShaderData)
 		{
-			Update(shader, material, props, perShaderData);
+			Init(shader, material, props, perShaderData);
 		}
 
-		public void Update(Shader shader, Material material, MaterialProperty[] props, PerShaderData perShaderData)
+		public void Init(Shader shader, Material material, MaterialProperty[] props, PerShaderData perShaderData)
 		{
-			if (!forceUpdate) return;
-
 			// Reset Datas
 			this.props = props;
 			this.material = material;
 			activePresetDatas.Clear();
 			propDynamicDatas.Clear();
 			modifiedCount = 0;
-			forceUpdate = false;
 
 			// Get active presets
 			foreach (var prop in props)
@@ -156,6 +153,22 @@ namespace LWGUI
 
 				// Get ShowIf() results
 				ShowIfDecorator.GetShowIfResult(propStaticData, propDynamicData, this);
+			}
+
+			forceInit = false;
+		}
+
+		public void Update(Shader shader, Material material, MaterialProperty[] props, PerShaderData perShaderData)
+		{
+			if (forceInit)
+			{
+				Init(shader, material, props, perShaderData);
+				return;
+			}
+
+			foreach (var prop in props)
+			{
+				propDynamicDatas[prop.name].property = prop;
 			}
 		}
 
