@@ -985,6 +985,7 @@ namespace LWGUI
 				gradientObject.gradient = RampHelper.GetGradientFromTexture(prop.textureValue, out isDirty, true);
 				// GradientObject > SerializedObject
 				serializedObject.Update();
+				// GradientObject > Tex
 				RampHelper.SetGradientToTexture(prop.textureValue, gradientObject, true);
 				OnEditRampMap();
 			}

@@ -161,6 +161,9 @@ namespace LWGUI
 			if (texture == null || gradientObject.gradient == null) return;
 
 			var texture2D = (Texture2D)texture;
+			VersionControlHelper.Checkout(texture2D);
+			Undo.RecordObject(texture2D, "LWGUI: Set Gradient To Texture");
+
 			// Save to texture
 			var path = AssetDatabase.GetAssetPath(texture);
 			var pixels = GetPixelsFromGradient(gradientObject.gradient, texture.width, texture.height);
