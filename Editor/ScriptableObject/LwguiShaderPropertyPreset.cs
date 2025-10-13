@@ -22,6 +22,9 @@ namespace LWGUI
 			Integer,
 		}
 
+		[SerializeField]
+		public int order;
+
 		[Serializable]
 		public class PropertyValue
 		{
@@ -161,6 +164,7 @@ namespace LWGUI
 			public List<string>        enabledPasses  = new List<string>();
 			public List<string>        disabledPasses = new List<string>();
 			public int                 renderQueue      = -1;
+			public int				   order			= -1;
 
 
 			public void ApplyToDefaultMaterial(Material material)

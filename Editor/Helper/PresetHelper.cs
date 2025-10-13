@@ -67,6 +67,7 @@ namespace LWGUI
 		public static void ApplyPresetsInMaterial(Material material)
 		{
 			var props = MaterialEditor.GetMaterialProperties(new UnityEngine.Object[] { material });
+			var presets = new List<LwguiShaderPropertyPreset.Preset>();
 			foreach (var prop in props)
 			{
 				var drawer = ReflectionHelper.GetPropertyDrawer(material.shader, prop, out _);
@@ -75,10 +76,15 @@ namespace LWGUI
 				if (drawer is IPresetDrawer presetDrawer)
 				{
 					var activePreset = presetDrawer.GetActivePreset(prop, GetPresetAsset(presetDrawer.GetPresetFileName()));
-					activePreset?.ApplyToDefaultMaterial(material);
+					if (activePreset?.order > -1) presets.Add(activePreset);
 				}
 			}
-			UnityEditorExtension.ApplyMaterialPropertyAndDecoratorDrawers(material);
+			if (presets.Count > 0)
+			{
+				presets.Sort((x, y) => x.order.CompareTo(y.order));
+				foreach (var preset in presets) preset.ApplyToDefaultMaterial(material);
+				UnityEditorExtension.ApplyMaterialPropertyAndDecoratorDrawers(material);
+			}
 		}
 	}
 }
