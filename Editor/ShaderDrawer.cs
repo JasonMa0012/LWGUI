@@ -724,6 +724,7 @@ namespace LWGUI
 			if (lwguiShaderPropertyPreset && index >= 0 && index < lwguiShaderPropertyPreset.GetPresetCount())
 			{
 				preset = lwguiShaderPropertyPreset.GetPreset(index);
+				preset.order = index != 0 ? lwguiShaderPropertyPreset.order : -1;
 			}
 			return preset;
 		}
