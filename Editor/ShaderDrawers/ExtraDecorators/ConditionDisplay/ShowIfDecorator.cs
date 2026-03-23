@@ -17,6 +17,7 @@ namespace LWGUI
 	/// compareFunction: Less (L) | Equal (E) | LessEqual (LEqual / LE) | Greater (G) | NotEqual (NEqual / NE) | GreaterEqual (GEqual / GE).
 	/// value: Target Property Value used for comparison.
 	/// </summary>
+	[DrawerCategory("Condition")]
 	public class ShowIfDecorator : SubDrawer
 	{
 		public enum LogicalOperator

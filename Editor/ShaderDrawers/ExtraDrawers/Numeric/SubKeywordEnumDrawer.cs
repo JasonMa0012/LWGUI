@@ -2,6 +2,7 @@
 
 namespace LWGUI
 {
+	[DrawerCategory("Enum")]
 	public class SubKeywordEnumDrawer : KWEnumDrawer
 	{
 		public SubKeywordEnumDrawer(string group, string kw1, string kw2)

@@ -9,6 +9,7 @@ namespace LWGUI
 	/// header: string to display, "SpaceLine" or "_" = none (Default: none)
 	/// height: line height (Default: 22)
 	/// </summary>
+	[DrawerCategory("Appearance")]
 	public class SubTitleDecorator : TitleDecorator
 	{
 		public SubTitleDecorator(string group, string header) : base(group, header, DefaultHeight) { }

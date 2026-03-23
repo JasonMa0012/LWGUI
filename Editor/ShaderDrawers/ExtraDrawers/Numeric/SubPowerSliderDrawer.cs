@@ -17,6 +17,7 @@ namespace LWGUI
 	///		*any Preset in the entire project cannot have the same name*
 	/// Target Property Type: Range
 	/// </summary>
+	[DrawerCategory("Numeric")]
 	public class SubPowerSliderDrawer : SubDrawer, IPresetDrawer
 	{
 		public string presetFileName;
@@ -27,6 +28,9 @@ namespace LWGUI
 		
 		public SubPowerSliderDrawer(string group, float power) : this(group, power, string.Empty) { }
 
+		[ParameterDefault("group", "")]
+		[ParameterDefault("power", "1")]
+		[ParameterDefault("presetFileName", "")]
 		public SubPowerSliderDrawer(string group, float power, string presetFileName)
 		{
 			this.group = group;

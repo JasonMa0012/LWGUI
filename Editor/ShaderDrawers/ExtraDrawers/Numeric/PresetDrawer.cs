@@ -16,6 +16,7 @@ namespace LWGUI
 	///		*any Preset in the entire project cannot have the same name*
 	/// Target Property Type: Float, express current keyword index
 	/// </summary>
+	[DrawerCategory("Enum", 10)]
 	public class PresetDrawer : SubDrawer, IPresetDrawer
 	{
 		public string presetFileName;

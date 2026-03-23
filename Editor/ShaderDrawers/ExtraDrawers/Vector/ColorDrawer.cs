@@ -15,6 +15,7 @@ namespace LWGUI
 	/// color2-4: extra color property name
 	/// Target Property Type: Color
 	/// </summary>
+	[DrawerCategory("Vector")]
 	public class ColorDrawer : SubDrawer
 	{
 		private string[] _colorStrings = new string[3];

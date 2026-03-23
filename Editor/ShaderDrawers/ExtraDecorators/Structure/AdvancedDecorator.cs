@@ -12,6 +12,7 @@ namespace LWGUI
 	/// 
 	/// headerString: The title of the Advanced Block. Default: "Advanced"
 	/// </summary>
+	[DrawerCategory("Structure")]
 	public class AdvancedDecorator : SubDrawer
 	{
 		private string headerString;

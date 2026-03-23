@@ -16,6 +16,7 @@ namespace LWGUI
 	/// v(s): value
 	/// Target Property Type: Float, express current keyword index
 	/// </summary>
+	[DrawerCategory("Enum")]
 	public class KWEnumDrawer : SubDrawer
 	{
 		private GUIContent[] _names;

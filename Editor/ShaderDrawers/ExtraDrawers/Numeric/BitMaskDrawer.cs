@@ -33,6 +33,7 @@ namespace LWGUI
 	/// bitDescription 7-0: Description of each Bit. (Default: none)
 	/// Target Property Type: Int/Integer
 	/// </summary>
+	[DrawerCategory("Numeric", 10)]
 	public class BitMaskDrawer : SubDrawer
 	{
 		public int bitCount = 8;

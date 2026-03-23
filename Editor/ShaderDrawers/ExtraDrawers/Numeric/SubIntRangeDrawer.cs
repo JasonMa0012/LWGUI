@@ -12,6 +12,7 @@ namespace LWGUI
 	/// group: parent group name (Default: none)
 	/// Target Property Type: Range
 	/// </summary>
+	[DrawerCategory("Numeric")]
 	public class SubIntRangeDrawer : SubDrawer
 	{
 		public SubIntRangeDrawer(string group)

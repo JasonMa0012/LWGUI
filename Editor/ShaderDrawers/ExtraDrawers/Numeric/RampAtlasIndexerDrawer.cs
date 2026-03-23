@@ -20,6 +20,7 @@ namespace LWGUI
 	/// timeRange: the abscissa display range (1/24/2400), is used to optimize the editing experience when the abscissa is time of day. (Default: 1)
 	/// Target Property Type: Float
 	/// </summary>
+	[DrawerCategory("Ramp")]
 	public class RampAtlasIndexerDrawer : RampDrawer
 	{
 		public string rampAtlasPropName = string.Empty;
