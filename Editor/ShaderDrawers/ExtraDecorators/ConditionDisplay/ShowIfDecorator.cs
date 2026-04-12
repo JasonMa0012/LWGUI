@@ -17,7 +17,11 @@ namespace LWGUI
 	/// compareFunction: Less (L) | Equal (E) | LessEqual (LEqual / LE) | Greater (G) | NotEqual (NEqual / NE) | GreaterEqual (GEqual / GE).
 	/// value: Target Property Value used for comparison.
 	/// </summary>
-	[DrawerCategory("Condition")]
+	[LwguiDrawerCategory("Condition")]
+	[LwguiDrawerParameterEnum("logicalOperator", LogicalOperator.And)]
+	[LwguiDrawerParameterString("propNameOrKeyword")]
+	[LwguiDrawerParameterEnum("compareFunction", CompareFunction.Equal)]
+	[LwguiDrawerParameterFloat("value", 0f)]
 	public class ShowIfDecorator : SubDrawer
 	{
 		public enum LogicalOperator

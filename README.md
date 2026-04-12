@@ -341,8 +341,8 @@ Example:
 [Toggle(_)]_ZWrite("ZWrite ", Float) = 1
 [Enum(UnityEngine.Rendering.CompareFunction)]_ZTest("ZTest", Float) = 4 // 4 is LEqual
 [Enum(RGBA,15,RGB,14)]_ColorMask("ColorMask", Float) = 15 // 15 is RGBA (binary 1111)
-  
-``````
+
+......
   
 Cull [_Cull]
 ZWrite [_ZWrite]

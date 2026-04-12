@@ -23,7 +23,7 @@ namespace LWGUI
 	/// timeRange: the abscissa display range (1/24/2400), is used to optimize the editing experience when the abscissa is time of day. (Default: 1)
 	/// Target Property Type: Texture2D
 	/// </summary>
-	[DrawerCategory("Ramp", -10)]
+	[LwguiDrawerCategory("Ramp", -10)]
 	public class RampDrawer : SubDrawer
 	{
 		public static readonly string DefaultRootPath = "Assets";

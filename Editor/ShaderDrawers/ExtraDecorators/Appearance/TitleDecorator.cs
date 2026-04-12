@@ -11,9 +11,12 @@ namespace LWGUI
 	/// 
 	/// group: parent group name (Default: none)
 	/// header: string to display, "SpaceLine" or "_" = none (Default: none)
-	/// height: line height (Default: 22)
+	/// height: line height (Default: 24)
 	/// </summary>
-	[DrawerCategory("Appearance")]
+	[LwguiDrawerCategory("Appearance")]
+	[LwguiDrawerParameterString("group", "_", "Empty")]
+	[LwguiDrawerParameterString("header", "", "Empty")]
+	[LwguiDrawerParameterFloat("height", 24f, "24")]
 	public class TitleDecorator : SubDrawer
 	{
 		private string _header;
@@ -31,9 +34,6 @@ namespace LWGUI
 
 		public TitleDecorator(string group, string header) : this(group, header, DefaultHeight) { }
 
-		[ParameterDefault("group", "_", "Empty", true)]
-		[ParameterDefault("header", "", "Empty", true)]
-		[ParameterDefault("height", "22", "22", true)]
 		public TitleDecorator(string group, string header, float height)
 		{
 			this.group = group;

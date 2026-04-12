@@ -8,7 +8,7 @@ namespace LWGUI
 	/// <summary>
 	/// Similar to HideInInspector(), the difference is that Hidden() can be unhidden through the Display Mode button.
 	/// </summary>
-	[DrawerCategory("Condition")]
+	[LwguiDrawerCategory("Condition")]
 	public class HiddenDecorator : SubDrawer
 	{
 		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }

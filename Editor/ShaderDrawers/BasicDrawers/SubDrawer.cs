@@ -13,7 +13,8 @@ namespace LWGUI
 	/// group: parent group name (Default: none)
 	/// Target Property Type: Any
 	/// </summary>
-	[DrawerCategory("Base", -90)]
+	[LwguiDrawerCategory("Base", -90)]
+	[LwguiDrawerParameterString("group", "", "Empty")]
 	public class SubDrawer : MaterialPropertyDrawer, IBaseDrawer
 	{
 		public string         group = String.Empty;

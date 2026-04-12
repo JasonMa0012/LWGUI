@@ -11,7 +11,7 @@ namespace LWGUI
 	/// 
 	/// tooltip: a single-line string to display, support up to 4 ','. (Default: Newline)
 	/// </summary>
-	[DrawerCategory("Appearance")]
+	[LwguiDrawerCategory("Appearance")]
 	public class TooltipDecorator : SubDrawer
 	{
 		private string _tooltip;

@@ -16,7 +16,7 @@ namespace LWGUI
 	/// Extra Property Type: Color, Vector
 	/// Target Property Type: Texture2D
 	/// </summary>
-	[DrawerCategory("Texture")]
+	[LwguiDrawerCategory("Texture")]
 	public class TexDrawer : SubDrawer
 	{
 		private string        _extraPropName = String.Empty;

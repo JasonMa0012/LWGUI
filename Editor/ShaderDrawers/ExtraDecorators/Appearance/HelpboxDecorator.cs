@@ -11,7 +11,12 @@ namespace LWGUI
 	/// 
 	/// message: a single-line string to display, support up to 4 ','. (Default: Newline)
 	/// </summary>
-	[DrawerCategory("Appearance")]
+	[LwguiDrawerCategory("Appearance")]
+	[LwguiDrawerParameterString("s1", "", "Empty")]
+	[LwguiDrawerParameterString("s2", "", "Empty")]
+	[LwguiDrawerParameterString("s3", "", "Empty")]
+	[LwguiDrawerParameterString("s4", "", "Empty")]
+	[LwguiDrawerParameterString("s5", "", "Empty")]
 	public class HelpboxDecorator : TooltipDecorator
 	{
 		private string _message;
@@ -29,11 +34,6 @@ namespace LWGUI
 
 		public HelpboxDecorator(string s1, string s2, string s3, string s4) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4) { }
 
-		[ParameterDefault("s1", "", "Empty", true)]
-		[ParameterDefault("s2", "", "Empty", true)]
-		[ParameterDefault("s3", "", "Empty", true)]
-		[ParameterDefault("s4", "", "Empty", true)]
-		[ParameterDefault("s5", "", "Empty", true)]
 		public HelpboxDecorator(string s1, string s2, string s3, string s4, string s5) : this(s1 + ", " + s2 + ", " + s3 + ", " + s4 + ", " + s5) { }
 
 		#endregion

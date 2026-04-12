@@ -7,16 +7,20 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: LWGUI_SampleAmplifyShader
-  m_Shader: {fileID: 4800000, guid: 5ce5f51521204d14bbb88913f98c148a, type: 3}
+  m_Name: SampleKeyword2
+  m_Shader: {fileID: 4800000, guid: 98ad70357ecd6134dbac80aef9c63f6f, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _GROUP_TOGGLE_KEYWORD
+  - _KEYWORDENUM_KEY1
+  - _KWENUM_KEY1
+  - _SUBKEYWORDENUM_KEY1
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2450
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -25,7 +29,16 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - __dirty: 0
-    m_Colors:
-    - _Color: {r: 0, g: 0, b: 0, a: 0}
+    - _ZWrite: 1
+    - _enum: 1
+    - _group: 1
+    - _group_toggle1: 1
+    - _keywordEnum: 0
+    - _kwenum: 0
+    - _preset2: 1
+    - _subEnum: 1
+    - _subKeywordEnum: 0
+    - _toggle: 0
+    - _toggle1: 0
+    m_Colors: []
   m_BuildTextureStacks: []

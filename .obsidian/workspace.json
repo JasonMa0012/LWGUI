@@ -36,6 +36,7 @@
             }
           }
         ],
+        "currentTab": 1,
         "stacked": true
       }
     ],
@@ -60,7 +61,7 @@
                 "autoReveal": false
               },
               "icon": "lucide-folder-closed",
-              "title": "Files"
+              "title": "文件列表"
             }
           },
           {
@@ -103,13 +104,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "README_CN.md",
+                "file": "README.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of README_CN"
+              "title": "README 的大纲"
             }
           }
         ]
@@ -194,22 +195,22 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "bases:Create new base": false,
-      "switcher:Open quick switcher": false,
-      "graph:Open graph view": false,
-      "canvas:Create new canvas": false,
-      "daily-notes:Open today's daily note": false,
-      "templates:Insert template": false,
-      "command-palette:Open command palette": false,
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false,
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "d93ffc2d4e7b14bd",
+  "active": "9762a61535bfd3ff",
   "lastOpenFiles": [
+    "README_CN.md",
+    "README.md",
     "Editor/ShaderDrawers.meta",
     "Editor/ShaderDrawers",
-    "README.md",
-    "README_CN.md",
     "Editor/ShaderDrawer.cs~",
     "package.json~",
     "Editor/ScriptableObject.meta",
@@ -218,7 +219,6 @@
     "Editor/ScriptableObject/LwguiShaderPropertyPreset.cs",
     "Editor/ScriptableObject/GradientObject.cs.meta",
     "Editor/ScriptableObject/LwguiRampAtlas.cs",
-    "Editor/ScriptableObject/GradientObject.cs",
     "assets~/Pasted image 20250523120309.png",
     "assets~/Pasted image 20250522183200.png",
     "assets~/Pasted image 20250321174432.png",

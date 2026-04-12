@@ -13,7 +13,11 @@ namespace LWGUI
 	/// compareFunction: Less (L) | Equal (E) | LessEqual (LEqual / LE) | Greater (G) | NotEqual (NEqual / NE) | GreaterEqual (GEqual / GE).
 	/// value: Target Property Value used for comparison.
 	/// </summary>
-	[DrawerCategory("Condition")]
+	[LwguiDrawerCategory("Condition")]
+	[LwguiDrawerParameterEnum("logicalOperator", ShowIfDecorator.LogicalOperator.And)]
+	[LwguiDrawerParameterString("propNameOrKeyword")]
+	[LwguiDrawerParameterEnum("compareFunction", UnityEngine.Rendering.CompareFunction.Equal)]
+	[LwguiDrawerParameterFloat("value", 0f)]
 	public class ActiveIfDecorator : SubDrawer
 	{
 		public ShowIfDecorator.ShowIfData activeIfData = new();

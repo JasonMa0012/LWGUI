@@ -12,7 +12,13 @@ namespace LWGUI
 	/// 
 	/// lightModeName(s): Light Mode in Shader Pass (https://docs.unity3d.com/2017.4/Documentation/Manual/SL-PassTags.html)
 	/// </summary>
-	[DrawerCategory("Logic")]
+	[LwguiDrawerCategory("Logic")]
+	[LwguiDrawerParameterPassName("lightModeName1", "", "Empty")]
+	[LwguiDrawerParameterPassName("lightModeName2", "", "Empty")]
+	[LwguiDrawerParameterPassName("lightModeName3", "", "Empty")]
+	[LwguiDrawerParameterPassName("lightModeName4", "", "Empty")]
+	[LwguiDrawerParameterPassName("lightModeName5", "", "Empty")]
+	[LwguiDrawerParameterPassName("lightModeName6", "", "Empty")]
 	public class PassSwitchDecorator : SubDrawer
 	{
 		private string[] _lightModeNames;

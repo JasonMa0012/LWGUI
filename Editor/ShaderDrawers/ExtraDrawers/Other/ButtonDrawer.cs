@@ -28,7 +28,7 @@ namespace LWGUI
 	/// group: parent group name (Default: none)
 	/// Target Property Type: Any
 	/// </summary>
-	[DrawerCategory("Other")]
+	[LwguiDrawerCategory("Other")]
 	public class ButtonDrawer : SubDrawer
 	{
 		private const string _urlPrefix = "URL:";

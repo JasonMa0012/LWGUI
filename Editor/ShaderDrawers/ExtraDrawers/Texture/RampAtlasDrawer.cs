@@ -24,7 +24,7 @@ namespace LWGUI
 	/// rampAtlasTypeName: custom RampAtlas type name for user-defined RampAtlas classes (Default: LwguiRampAtlas)
 	/// Target Property Type: Texture2D
 	/// </summary>
-	[DrawerCategory("Ramp")]
+	[LwguiDrawerCategory("Ramp")]
 	public class RampAtlasDrawer : SubDrawer
 	{
 		public string rootPath = "Assets";

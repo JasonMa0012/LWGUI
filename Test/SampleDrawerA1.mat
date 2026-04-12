@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: LWGUI_SampleDrawerA1
+  m_Name: SampleDrawerA1
   m_Shader: {fileID: 4800000, guid: ded91f399f8343d4f9b0cf33eda0088d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -35,7 +35,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Ramp2:
-        m_Texture: {fileID: 2800000, guid: 7e050a45dc871a549a2530bd4acf96ba, type: 3}
+        m_Texture: {fileID: 2800000, guid: a5406a04c724bbc4296e1588506e80a2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RampAtlas:
@@ -51,7 +51,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints:
-    - _Stencil: 0
+    - _Stencil: 172
     - _StencilWithDescription: 0
     m_Floats:
     - _BlendMode: 1
@@ -62,7 +62,7 @@ Material:
     - _Queue: 2000
     - _RampAtlasIndex0: 0
     - _RampAtlasIndex1: 1
-    - _RampAtlasIndex2: 3
+    - _RampAtlasIndex2: 1
     - _RampAtlasIndexer: 0
     - _SrcBlend: 5
     - _Stencil: 0

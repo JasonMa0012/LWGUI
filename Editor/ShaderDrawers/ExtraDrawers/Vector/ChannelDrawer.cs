@@ -19,7 +19,7 @@ namespace LWGUI
 	/// group: parent group name (Default: none)
 	/// Target Property Type: Vector, used to dot() with Texture Sample Value
 	/// </summary>
-	[DrawerCategory("Vector")]
+	[LwguiDrawerCategory("Vector")]
 	public class ChannelDrawer : SubDrawer
 	{
 		private static GUIContent[] _names = new[]

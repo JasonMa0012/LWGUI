@@ -14,7 +14,7 @@ namespace LWGUI
 	/// group: parent group name (Default: none)
 	/// Target Property Type: Any
 	/// </summary>
-	[DrawerCategory("Texture")]
+	[LwguiDrawerCategory("Texture")]
 	public class ImageDrawer : SubDrawer
 	{
 		public ImageDrawer() { }

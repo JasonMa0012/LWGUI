@@ -15,7 +15,7 @@ namespace LWGUI
 	/// Target Property Type: Range, range limits express the MinMaxSlider value range
 	/// Output Min/Max Property Type: Range, it's value is limited by it's range
 	/// </summary>
-	[DrawerCategory("Numeric")]
+	[LwguiDrawerCategory("Numeric")]
 	public class MinMaxSliderDrawer : SubDrawer
 	{
 		private string _minPropName;

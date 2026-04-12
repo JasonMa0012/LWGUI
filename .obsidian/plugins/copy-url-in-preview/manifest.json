@@ -1,9 +1,9 @@
 {
   "id": "copy-url-in-preview",
   "name": "Image Context Menus",
-  "version": "1.11.2",
-  "minAppVersion": "1.6.6",
-  "description": "Copy to clipboard, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab, Rename context menus for images.",
+  "version": "1.12.1",
+  "minAppVersion": "1.12.3",
+  "description": "Copy to clipboard, Copy URL, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab, Rename context menus for images.",
   "author": "NomarCub",
   "authorUrl": "https://github.com/NomarCub",
   "fundingUrl": "https://ko-fi.com/nomarcub",

@@ -9,7 +9,7 @@ namespace LWGUI
 {
 	// UnityEditor.MaterialEnumDrawer(string enumName)
 	// enumName: like "UnityEngine.Rendering.BlendMode"
-	[DrawerCategory("Enum")]
+	[LwguiDrawerCategory("Enum")]
 	public class SubEnumDrawer : KWEnumDrawer
 	{
 		public SubEnumDrawer(string group, string n1, float v1, string n2, float v2)

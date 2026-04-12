@@ -17,7 +17,12 @@ namespace LWGUI
 	/// preset File Name: "Shader Property Preset" asset name, see Preset() for detail (Default: none)
 	/// Target Property Type: Float, express Toggle value
 	/// </summary>
-	[DrawerCategory("Base", -100)]
+	[LwguiDrawerCategory("Base", -100)]
+	[LwguiDrawerParameterString("group", "", "Empty")]
+	[LwguiDrawerParameterKeyword("keyword", "", "Empty")]
+	[LwguiDrawerParameterEnum("defaultFoldingState", 1, "on", "off")]
+	[LwguiDrawerParameterEnum("defaultToggleDisplayed", 0, "on", "off")]
+	[LwguiDrawerParameterString("presetFileName", "", "Empty")]
 	public class MainDrawer : MaterialPropertyDrawer, IBaseDrawer, IPresetDrawer
 	{
 		protected LWGUIMetaDatas metaDatas;
@@ -45,11 +50,6 @@ namespace LWGUI
 		
 		public MainDrawer(string group, string keyword, string defaultFoldingState, string defaultToggleDisplayed) : this(group, keyword, defaultFoldingState, defaultToggleDisplayed, String.Empty) { }
 
-		[ParameterDefault("group", "", "Empty", true)]
-		[ParameterDefault("keyword", "", "Empty", true)]
-		[ParameterDefault("defaultFoldingState", "off")]
-		[ParameterDefault("defaultToggleDisplayed", "on")]
-		[ParameterDefault("presetFileName", "", "Empty", true)]
 		public MainDrawer(string group, string keyword, string defaultFoldingState, string defaultToggleDisplayed, string presetFileName)
 		{
 			this._group = group;

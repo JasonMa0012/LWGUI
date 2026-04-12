@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SampleAmplifyShader1
+  m_Shader: {fileID: 4800000, guid: 5ce5f51521204d14bbb88913f98c148a, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ENABLE_RED
+  m_InvalidKeywords:
+  - _KEYWORD0_RED
+  - _SUBKEYWORDENUM__KEY_1
+  - _SUBKEYWORDENUM__KEY_2
+  - _SUBKEYWORDENUM__KEY_3
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Float: 0
+    - _FunctionEnumGroup: 0
+    - _KWEnum: 0
+    - _Keyword0: 0
+    - _Max: 1
+    - _Min: -1
+    - _MinMaxSlider: 0
+    - _NumericGroup: 0
+    - _Preset: 0
+    - _QueueControl: -1
+    - _QueueOffset: 0
+    - _Range: 0
+    - _ReceiveShadows: 1
+    - _SubEnum: 0
+    - _SubIntRange: 0
+    - _SubKeywordEnum: 0
+    - _SubPowerSlider: 50
+    - _float1: -0.05
+    m_Colors:
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []

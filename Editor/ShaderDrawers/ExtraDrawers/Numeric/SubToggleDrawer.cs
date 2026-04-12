@@ -16,7 +16,10 @@ namespace LWGUI
 	/// preset File Name: "Shader Property Preset" asset name, see Preset() for detail (Default: none)
 	/// Target Property Type: Float
 	/// </summary>
-	[DrawerCategory("Numeric")]
+	[LwguiDrawerCategory("Numeric")]
+	[LwguiDrawerParameterString("group", "", "Empty")]
+	[LwguiDrawerParameterKeyword("keyWord", "", "Empty")]
+	[LwguiDrawerParameterString("presetFileName", "", "Empty")]
 	public class SubToggleDrawer : SubDrawer, IPresetDrawer
 	{
 		private string _keyWord			= String.Empty;
@@ -28,9 +31,6 @@ namespace LWGUI
 		
 		public SubToggleDrawer(string group, string keyWord) : this(group, keyWord, String.Empty) { }
 
-		[ParameterDefault("group", "", "Empty", true)]
-		[ParameterDefault("keyWord", "", "Empty", true)]
-		[ParameterDefault("presetFileName", "", "Empty", true)]
 		public SubToggleDrawer(string group, string keyWord, string presetFileName)
 		{
 			this.group = group;
