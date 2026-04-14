@@ -65,14 +65,6 @@ namespace LWGUI
 		[SerializeField]
 		private bool _isDecorator;
 
-		// Legacy field for backward compatibility - do not use for new code
-		[SerializeField]
-		private int _constructorIndex;
-
-		// Legacy field for backward compatibility - migrated to _constructorSignature
-		[SerializeField]
-		private int _constructorSignatureHash;
-
 		/// <summary>
 		/// Full signature string of the selected constructor for stable identification
 		/// </summary>
@@ -87,8 +79,8 @@ namespace LWGUI
 
 		/// <summary>
 		/// Per-parameter validation error state: key = parameter index, value = true if error
+		/// Not serialized by Unity (Dictionary is not serializable), rebuilt on demand.
 		/// </summary>
-		[SerializeField]
 		private Dictionary<int, bool> _validationErrors = new Dictionary<int, bool>();
 
 		public string drawerTypeName
@@ -153,8 +145,8 @@ namespace LWGUI
 		}
 
 		/// <summary>
-		/// Validates and repairs the data after deserialization
-		/// Handles backward compatibility with old constructorIndex format
+		/// Validates and repairs the data after deserialization.
+		/// Ensures constructor signature resolves to a valid constructor.
 		/// </summary>
 		public void ValidateAndRepair()
 		{
@@ -165,44 +157,15 @@ namespace LWGUI
 			if (drawerInfo == null)
 				return;
 
-			// Backward compatibility: convert old constructorIndex or constructorSignatureHash
-			if (string.IsNullOrEmpty(_constructorSignature))
+			var constructor = drawerInfo.GetConstructorBySignature(_constructorSignature);
+			if (constructor == null)
+				constructor = drawerInfo.GetMainConstructor();
+
+			if (constructor != null)
 			{
-				if (_constructorSignatureHash != 0)
-				{
-					var match = drawerInfo.constructors.FirstOrDefault(c => c.GetFullSignature().GetHashCode() == _constructorSignatureHash);
-					if (match != null)
-						_constructorSignature = match.GetFullSignature();
-				}
-				if (string.IsNullOrEmpty(_constructorSignature) && _constructorIndex > 0 && drawerInfo.constructors.Count > _constructorIndex)
-				{
-					_constructorSignature = drawerInfo.constructors[_constructorIndex].GetFullSignature();
-				}
+				_constructorSignature = constructor.GetFullSignature();
+				SyncParameters(constructor);
 			}
-
-			var currentConstructor = drawerInfo.GetConstructorBySignature(_constructorSignature);
-			if (currentConstructor == null)
-			{
-				// Hash not found - try to find best match based on named parameters
-				if (_namedParameters.Count > 0)
-				{
-					var paramNames = _namedParameters.Where(np => !string.IsNullOrEmpty(np.value)).Select(np => np.name).ToList();
-					currentConstructor = drawerInfo.FindBestMatchingConstructor(paramNames);
-				}
-
-				// Fallback to main constructor
-				if (currentConstructor == null)
-				{
-					currentConstructor = drawerInfo.GetMainConstructor();
-				}
-
-				if (currentConstructor != null)
-				{
-					_constructorSignature = currentConstructor.GetFullSignature();
-				}
-			}
-
-			SyncParameters(currentConstructor);
 		}
 
 		public LwguiConstructorInfo GetCurrentConstructor()
@@ -217,18 +180,8 @@ namespace LWGUI
 			if (string.IsNullOrEmpty(_constructorSignature))
 				ValidateAndRepair();
 
-			var constructor = drawerInfo.GetConstructorBySignature(_constructorSignature);
-			if (constructor == null)
-			{
-				constructor = drawerInfo.GetMainConstructor();
-				if (constructor != null)
-				{
-					_constructorSignature = constructor.GetFullSignature();
-					SyncParameters(constructor);
-				}
-			}
-
-			return constructor;
+			return drawerInfo.GetConstructorBySignature(_constructorSignature)
+				?? drawerInfo.GetMainConstructor();
 		}
 
 		public void SwitchConstructor(string newSignature)
@@ -298,7 +251,7 @@ namespace LWGUI
 		}
 
 		/// <summary>
-		/// Syncs named parameters with indexed parameters for backward compatibility
+		/// Syncs named parameters with indexed parameters list
 		/// </summary>
 		private void SyncParameters(LwguiConstructorInfo constructor)
 		{
@@ -578,35 +531,6 @@ namespace LWGUI
 			return constructors.FirstOrDefault();
 		}
 
-		/// <summary>
-		/// Finds the best matching constructor based on provided parameter names
-		/// Returns the constructor that matches the most parameters
-		/// </summary>
-		public LwguiConstructorInfo FindBestMatchingConstructor(List<string> parameterNames)
-		{
-			if (constructors.Count == 0)
-				return null;
-
-			if (parameterNames == null || parameterNames.Count == 0)
-				return GetMainConstructor();
-
-			// Calculate match score for each constructor
-			var matches = constructors.Select(c => new
-			{
-				Constructor = c,
-				MatchCount = c.parameters.Count(p => parameterNames.Contains(p.name)),
-				TotalParams = c.parameters.Count
-			});
-
-			// Prioritize: 1) Most matches, 2) Most total parameters (for specificity)
-			var bestMatch = matches
-				.OrderByDescending(m => m.MatchCount)
-				.ThenByDescending(m => m.TotalParams)
-				.First();
-
-			return bestMatch.Constructor;
-		}
-
 		public string GetMenuPath()
 		{
 			if (string.IsNullOrEmpty(categoryPath))
@@ -778,6 +702,7 @@ namespace LWGUI
 	{
 		private static List<LwguiDrawerInfo> _drawerCache;
 		private static List<LwguiDrawerInfo> _decoratorCache;
+		private static Dictionary<string, LwguiDrawerInfo> _typeLookup;
 		private static bool _initialized;
 
 		public static void Initialize()
@@ -823,6 +748,12 @@ namespace LWGUI
 					.ThenBy(d => d.order)
 					.ThenBy(d => d.displayName)
 					.ToList();
+
+				_typeLookup = new Dictionary<string, LwguiDrawerInfo>();
+				foreach (var drawer in _drawerCache)
+					_typeLookup[drawer.typeName] = drawer;
+				foreach (var decorator in _decoratorCache)
+					_typeLookup[decorator.typeName] = decorator;
 
 				_initialized = true;
 			}
@@ -1016,19 +947,12 @@ namespace LWGUI
 			return _decoratorCache ?? new List<LwguiDrawerInfo>();
 		}
 
-		public static List<LwguiDrawerInfo> GetAllTypes()
-		{
-			Initialize();
-			var all = new List<LwguiDrawerInfo>();
-			if (_drawerCache != null) all.AddRange(_drawerCache);
-			if (_decoratorCache != null) all.AddRange(_decoratorCache);
-			return all;
-		}
-
 		public static LwguiDrawerInfo GetDrawerInfo(string typeName)
 		{
 			Initialize();
-			return GetAllTypes().FirstOrDefault(d => d.typeName == typeName);
+			if (_typeLookup != null && !string.IsNullOrEmpty(typeName) && _typeLookup.TryGetValue(typeName, out var info))
+				return info;
+			return null;
 		}
 
 		/// <summary>
