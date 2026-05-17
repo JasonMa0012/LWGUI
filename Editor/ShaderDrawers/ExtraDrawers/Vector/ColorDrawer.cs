@@ -32,7 +32,7 @@ namespace LWGUI
 			this._colorStrings[2] = color4;
 		}
 
-		protected override bool IsMatchPropType(MaterialProperty property) { return property.GetPropertyType() == ShaderPropertyType.Color; }
+		public override bool IsMatchPropType(ShaderPropertyType propType) { return propType == ShaderPropertyType.Color; }
 
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
 		{
@@ -55,7 +55,7 @@ namespace LWGUI
 				}
 
 				var p = metaDatas.GetProperty(_colorStrings[i - 1]);
-				if (p != null && IsMatchPropType(p))
+				if (p != null && IsMatchPropType(p.GetPropertyType()))
 					cProps.Push(p);
 			}
 

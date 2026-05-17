@@ -27,7 +27,7 @@ namespace LWGUI
 			this.group = group;
 		}
 
-		protected virtual bool IsMatchPropType(MaterialProperty property) { return true; }
+		public virtual bool IsMatchPropType(ShaderPropertyType propType) { return true; }
 
 		protected virtual float GetVisibleHeight(MaterialProperty prop)
 		{
@@ -49,7 +49,7 @@ namespace LWGUI
 		{
 			metaDatas = Helper.GetLWGUIMetadatas(editor);
 
-			if (IsMatchPropType(prop))
+			if (IsMatchPropType(prop.GetPropertyType()))
 			{
 				DrawProp(position, prop, label, editor);
 			}

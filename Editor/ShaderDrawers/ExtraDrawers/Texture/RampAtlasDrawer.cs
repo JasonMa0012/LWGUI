@@ -83,7 +83,7 @@ namespace LWGUI
 			}
 		}
 
-		protected override bool IsMatchPropType(MaterialProperty property) => property.GetPropertyType() == ShaderPropertyType.Texture;
+		public override bool IsMatchPropType(ShaderPropertyType propType) => propType == ShaderPropertyType.Texture;
 
 		protected override float GetVisibleHeight(MaterialProperty prop) => 
 			EditorGUIUtility.singleLineHeight + 

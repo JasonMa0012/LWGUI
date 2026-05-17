@@ -45,7 +45,7 @@ namespace LWGUI
 			}
 		}
 
-		protected override bool IsMatchPropType(MaterialProperty property) { return property.GetPropertyType() == ShaderPropertyType.Float; }
+		public override bool IsMatchPropType(ShaderPropertyType propType) { return propType == ShaderPropertyType.Float; }
 
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
 		{

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace LWGUI
 {
@@ -536,6 +537,19 @@ namespace LWGUI
 			if (string.IsNullOrEmpty(categoryPath))
 				return displayName;
 			return $"{categoryPath}/{displayName}";
+		}
+
+		public bool IsSupportedPropertyType(ShaderPropertyType propType)
+		{
+			try
+			{
+				var instance = (SubDrawer)Activator.CreateInstance(drawerType);
+				return instance.IsMatchPropType(propType);
+			}
+			catch
+			{
+				return true;
+			}
 		}
 	}
 

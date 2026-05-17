@@ -89,7 +89,7 @@ namespace LWGUI
 			this._values = values;
 		}
 
-		protected override bool IsMatchPropType(MaterialProperty property) { return property.GetPropertyType() is ShaderPropertyType.Float; }
+		public override bool IsMatchPropType(ShaderPropertyType propType) { return propType == ShaderPropertyType.Float; }
 
 		protected virtual string GetKeywordName(string propName, string name) { return (name).Replace(' ', '_').ToUpperInvariant(); }
 

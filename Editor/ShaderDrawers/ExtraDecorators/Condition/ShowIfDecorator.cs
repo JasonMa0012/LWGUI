@@ -73,7 +73,7 @@ namespace LWGUI
 			return (CompareFunction)Enum.Parse(typeof(CompareFunction), compareFunctionName);
 		}
 
-		public ShowIfDecorator(string propNameOrKeyword, string comparisonMethod, float value) : this("And", propNameOrKeyword, comparisonMethod, value) { }
+		public ShowIfDecorator(string propNameOrKeyword, string compareFunction, float value) : this("And", propNameOrKeyword, compareFunction, value) { }
 
 		public ShowIfDecorator(string logicalOperator, string propNameOrKeyword, string compareFunction, float value)
 		{

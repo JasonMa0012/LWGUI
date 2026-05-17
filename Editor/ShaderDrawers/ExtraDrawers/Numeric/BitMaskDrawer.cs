@@ -102,8 +102,8 @@ namespace LWGUI
 			totalButtonWidth = buttonWidths.Sum();
 		}
 		
-		protected override bool IsMatchPropType(MaterialProperty property) 
-			=> property.GetPropertyType() is ShaderPropertyType.Float or ShaderPropertyType.Int;
+		public override bool IsMatchPropType(ShaderPropertyType propType) 
+			=> propType is ShaderPropertyType.Float or ShaderPropertyType.Int;
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return maxHeight; }
 

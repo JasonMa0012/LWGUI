@@ -51,7 +51,7 @@ namespace LWGUI
 			this.group = group;
 		}
 
-		protected override bool IsMatchPropType(MaterialProperty property) { return property.GetPropertyType() == ShaderPropertyType.Vector; }
+		public override bool IsMatchPropType(ShaderPropertyType propType) { return propType == ShaderPropertyType.Vector; }
 
 		private static int GetChannelIndex(MaterialProperty prop)
 		{

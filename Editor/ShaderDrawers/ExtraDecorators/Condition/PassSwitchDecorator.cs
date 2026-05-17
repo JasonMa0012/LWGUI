@@ -12,7 +12,7 @@ namespace LWGUI
 	/// 
 	/// lightModeName(s): Light Mode in Shader Pass (https://docs.unity3d.com/2017.4/Documentation/Manual/SL-PassTags.html)
 	/// </summary>
-	[LwguiDrawerCategory("Logic")]
+	[LwguiDrawerCategory("Condition")]
 	[LwguiDrawerParameterPassName("lightModeName1", "", "Empty")]
 	[LwguiDrawerParameterPassName("lightModeName2", "", "Empty")]
 	[LwguiDrawerParameterPassName("lightModeName3", "", "Empty")]
@@ -51,10 +51,10 @@ namespace LWGUI
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
 
-		protected override bool IsMatchPropType(MaterialProperty property)
+		public override bool IsMatchPropType(ShaderPropertyType propType)
 		{
-			return property.GetPropertyType() == ShaderPropertyType.Float
-				|| property.GetPropertyType() == ShaderPropertyType.Int;
+			return propType == ShaderPropertyType.Float
+				|| propType == ShaderPropertyType.Int;
 		}
 
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData) { }

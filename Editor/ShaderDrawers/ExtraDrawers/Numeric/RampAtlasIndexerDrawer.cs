@@ -92,7 +92,7 @@ namespace LWGUI
 			}
 		}
 
-		protected override bool IsMatchPropType(MaterialProperty property) => property.GetPropertyType() is ShaderPropertyType.Float or ShaderPropertyType.Int;
+		public override bool IsMatchPropType(ShaderPropertyType propType) => propType is ShaderPropertyType.Float or ShaderPropertyType.Int;
 
 		protected override void OnRampPropUpdate(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{

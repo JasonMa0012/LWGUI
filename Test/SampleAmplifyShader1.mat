@@ -8,26 +8,39 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: SampleAmplifyShader1
-  m_Shader: {fileID: 4800000, guid: 5ce5f51521204d14bbb88913f98c148a, type: 3}
+  m_Shader: {fileID: 4800000, guid: e4ffed5a49febe44989ba38158c5b490, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ENABLE_RED
   m_InvalidKeywords:
-  - _KEYWORD0_RED
+  - _PASSSWITCH_ON
   - _SUBKEYWORDENUM__KEY_1
   - _SUBKEYWORDENUM__KEY_2
-  - _SUBKEYWORDENUM__KEY_3
+  - _TOGGLE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
-  disabledShaderPasses: []
+  disabledShaderPasses:
+  - _
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _Ramp:
+        m_Texture: {fileID: 2800000, guid: 1522a7c4f7317044ab912724c1594427, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampAtlas:
+        m_Texture: {fileID: 2800000, guid: cfbe5a628e96c0d4bae3645ad922a368, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTexture:
+        m_Texture: {fileID: 2800000, guid: 1522a7c4f7317044ab912724c1594427, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -42,24 +55,59 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _ActiveIfTrue1: 0
+    - _AppearanceDecoratorsGroup: 0
+    - _ConditionDecoratorsGroup: 0
+    - _ConditionDisplayDecoratorsGroup: 0
+    - _EnumGroup: 0
     - _Float: 0
-    - _FunctionEnumGroup: 0
+    - _Float0: 0
+    - _Float1: 0
+    - _Float2: 0
+    - _HelpboxSample: 0
+    - _Hidden: 0
     - _KWEnum: 0
-    - _Keyword0: 0
     - _Max: 1
     - _Min: -1
     - _MinMaxSlider: 0
     - _NumericGroup: 0
+    - _PassSwitch: 1
     - _Preset: 0
     - _QueueControl: -1
     - _QueueOffset: 0
+    - _RampAtlasIndexer: 0
+    - _RampGroup: 0
     - _Range: 0
+    - _ReadOnly: 0
     - _ReceiveShadows: 1
+    - _Show: 0
+    - _ShowIfFalse: 0
+    - _ShowIfFalse0: 0
+    - _ShowIfTrue: 0
+    - _ShowIfTrue1: 0
     - _SubEnum: 0
     - _SubIntRange: 0
     - _SubKeywordEnum: 0
     - _SubPowerSlider: 50
+    - _Title: 0
+    - _TitleSample: 0
+    - _Toggle: 0
+    - _TooltipSample: 0
+    - _TooltipandHelpboxSample: 0
+    - _VectorGroup: 0
+    - __dirty: 1
     - _float1: -0.05
     m_Colors:
+    - _Channel: {r: 0, g: 1, b: 0, a: 0}
+    - _Color: {r: 1, g: 0, b: 0, a: 1}
+    - _Color0: {r: 0, g: 0, b: 0, a: 0}
+    - _Color1: {r: 0, g: 1, b: 0, a: 1}
+    - _Color2: {r: 0, g: 0, b: 1, a: 1}
+    - _Color3: {r: 1, g: 1, b: 1, a: 1}
+    - _Color4: {r: 0, g: 0, b: 1, a: 1}
+    - _Color5: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorA: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorB: {r: 0, g: 0, b: 1, a: 1}
+    - _ColorG: {r: 0, g: 1, b: 0, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

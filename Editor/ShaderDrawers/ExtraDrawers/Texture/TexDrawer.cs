@@ -34,7 +34,7 @@ namespace LWGUI
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight; }
 
-		protected override bool IsMatchPropType(MaterialProperty property) { return property.GetPropertyType() == ShaderPropertyType.Texture; }
+		public override bool IsMatchPropType(ShaderPropertyType propType) { return propType == ShaderPropertyType.Texture; }
 
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
 		{

@@ -38,9 +38,9 @@ namespace LWGUI
 			this._presetFileName = presetFileName;
 		}
 
-		protected override bool IsMatchPropType(MaterialProperty property)
+		public override bool IsMatchPropType(ShaderPropertyType propType)
 		{
-			return property.GetPropertyType() is ShaderPropertyType.Float;
+			return propType == ShaderPropertyType.Float;
 		}
 
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)

@@ -22,7 +22,7 @@ namespace LWGUI
 	{
 		public ShowIfDecorator.ShowIfData activeIfData = new();
 
-		public ActiveIfDecorator(string propNameOrKeyword, string comparisonMethod, float value) : this("And", propNameOrKeyword, comparisonMethod, value) { }
+		public ActiveIfDecorator(string propNameOrKeyword, string compareFunction, float value) : this("And", propNameOrKeyword, compareFunction, value) { }
 
 		public ActiveIfDecorator(string logicalOperator, string propNameOrKeyword, string compareFunction, float value)
 		{

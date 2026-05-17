@@ -1,11 +1,11 @@
-// Made with Amplify Shader Editor v1.9.10
+// Made with Amplify Shader Editor v2.0.0
 // Available at the Unity Asset Store - http://u3d.as/y3X 
-Shader "SampleAmplifyShader"
+Shader "New Amplify Shader"
 {
 	Properties
 	{
 		[HideInInspector] _EmissionColor("Emission Color", Color) = (1,1,1,1)
-		[Main(Numeric, _, on, off)][ActiveIf(And, _, Equal, 0)] _NumericGroup( "Numeric Group", Float ) = 0
+		[Main(Numeric, _, on, off)] _NumericGroup( "====== Numeric Group ======", Float ) = 0
 		[Sub(Numeric)] _Float( "Float", Float ) = 0
 		[Sub(Numeric)] _Range( "Range", Range( 0, 1 ) ) = 0
 		[SubPowerSlider(Numeric, 5)] _SubPowerSlider( "Sub Power Slider", Range( 0, 100 ) ) = 50
@@ -13,12 +13,34 @@ Shader "SampleAmplifyShader"
 		[MinMaxSlider(Numeric, _Min, _Max)] _MinMaxSlider( "Min Max Slider", Range( -1, 1 ) ) = 0
 		[Hidden] _Min( "_Min", Range( -1, 1 ) ) = -1
 		[Hidden] _Max( "_Max", Range( -1, 1 ) ) = 1
-		[Main(Enum, _, on, off)] _EnumGroup( "Enum Group - ASE Function", Float ) = 0
+		[Main(Enum, _, on, off)] _EnumGroup( "====== Enum Group - ASE Function ======", Float ) = 0
 		[SubEnum(Enum, R, 0, G, 1, B, 2)] _SubEnum( "Sub Enum", Float ) = 0
 		[KWEnum(Enum, Red, _ENABLE_RED, Green, _ENABLE_GREEN, Blue, _ENABLE_BLUE)] _KWEnum( "KW Enum", Float ) = 0
 		[SubKeywordEnum(Enum, _KEY_1, _KEY_2, _KEY_3)] _SubKeywordEnum( "Sub Keyword Enum", Float ) = 0
 		[Preset(Enum, LWGUI_ShaderPropertyPreset)] _Preset( "Preset", Float ) = 0
 		[Sub(Enum)] _float1( "Float in Preset", Range( -1, 1 ) ) = 0
+		[Main(Ramp, _, on, on)] _RampGroup( "====== Ramp Group ======", Float ) = 0
+		[Ramp(Ramp)] _Ramp( "Ramp", 2D ) = "white" {}
+		[RampAtlas(Ramp)] _RampAtlas( "Ramp Atlas", 2D ) = "white" {}
+		[RampAtlasIndexer(Ramp, _RampAtlas)] _RampAtlasIndexer( "Ramp Atlas Indexer", Float ) = 0
+		[Main(Vector, _, on, on)] _VectorGroup( "====== Vector Group ======", Float ) = 0
+		[Color(Vector, _ColorG, _ColorB, _ColorA)] _Color( "Color", Color ) = ( 1, 0, 0, 1 )
+		[HideInInspector] _ColorG( "Color G", Color ) = ( 0, 1, 0, 1 )
+		[HideInInspector] _ColorB( "Color B", Color ) = ( 0, 0, 1, 1 )
+		[HideInInspector] _ColorA( "Color A", Color ) = ( 1, 1, 1, 1 )
+		[Channel(Vector)] _Channel( "Channel", Vector ) = ( 0, 1, 0, 0 )
+		[Main(Appearance, _, on)][HelpURL(github.com, JasonMa0012, LWGUI)] _AppearanceDecoratorsGroup( "====== Appearance Decorators Group ======", Float ) = 0
+		[Sub(Appearance)][Title(Appearance, Title)] _Title( "Title", Float ) = 0
+		[Sub(Appearance)][Helpbox(Helpbox 1, Helpbox 2, Helpbox 3)] _HelpboxSample( "Multilingual Helpbox%English Helpbox%中文 Helpbox%", Float ) = 0
+		[Sub(Appearance)][Tooltip(Tooltip 1, Tooltip 2, Tooltip 3)] _TooltipSample( "Multilingual Tooltip#English Tooltip#中文 Tooltip", Float ) = 0
+		[Sub(Appearance)][ReadOnly] _ReadOnly( "Read Only", Float ) = 0
+		[Sub(Appearance)][Hidden] _Hidden( "Hidden", Float ) = 0
+		[Main(Condition, _, on)] _ConditionDecoratorsGroup( "====== Condition Decorators Group ======", Float ) = 0
+		[SubToggle(Condition)] _Toggle( "Toggle", Float ) = 0
+		[Sub(Condition)][ShowIf(_Toggle, Equal, 0)] _ShowIfFalse0( "Show If False (0)", Float ) = 0
+		[Sub(Condition)][ShowIf(_Toggle, Equal, 1)] _ShowIfTrue1( "Show If True (1)", Float ) = 0
+		[Sub(Condition)][ActiveIf(And, _Toggle, Equal, 1)] _ActiveIfTrue1( "Active If True (1)", Float ) = 0
+		[SubToggle(Condition)][PassSwitch(UniversalForwardOnly)] _PassSwitch( "Pass Switch", Float ) = 1
 
 
 		//_TessPhongStrength( "Tess Phong Strength", Range( 0, 1 ) ) = 0.5
@@ -35,7 +57,7 @@ Shader "SampleAmplifyShader"
         [HideInInspector][NoScaleOffset] unity_LightmapsInd("unity_LightmapsInd", 2DArray) = "" {}
         [HideInInspector][NoScaleOffset] unity_ShadowMasks("unity_ShadowMasks", 2DArray) = "" {}
 
-		//[HideInInspector][ToggleUI] _ReceiveShadows("Receive Shadows", Float) = 1.0
+		[HideInInspector][ToggleUI] _ReceiveShadows("Receive Shadows", Float) = 1.0
 
 		//[HideInInspector] _AlphaClip("__clip", Float) = 0.0
 	}
@@ -189,7 +211,13 @@ Shader "SampleAmplifyShader"
 
 			
 
-			#define _RECEIVE_SHADOWS_OFF
+			#pragma shader_feature_local_fragment _RECEIVE_SHADOWS_OFF
+			#pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+			#pragma multi_compile_instancing
+			#pragma instancing_options renderinglayer
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fog
+			#define ASE_FOG 1
 			#define ASE_VERSION 20000
 			#define ASE_SRP_VERSION 140012
 
@@ -280,20 +308,40 @@ Shader "SampleAmplifyShader"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float _Range;
+			float4 _ColorA;
+			float4 _ColorB;
+			float4 _Color;
+			float4 _ColorG;
+			float4 _Channel;
+			float _Max;
+			float _ShowIfTrue1;
+			float _Hidden;
+			float _ReadOnly;
+			float _Toggle;
+			float _ShowIfFalse0;
+			float _ConditionDecoratorsGroup;
+			float _AppearanceDecoratorsGroup;
+			float _Title;
+			float _HelpboxSample;
+			float _TooltipSample;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
+			float _Min;
 			float _Float;
+			float _Range;
 			float _SubPowerSlider;
 			float _SubIntRange;
 			float _MinMaxSlider;
-			float _Min;
-			float _Max;
+			float _ActiveIfTrue1;
 			float _NumericGroup;
 			float _KWEnum;
 			float _SubKeywordEnum;
 			float _Preset;
 			float _float1;
-			float _SubEnum;
 			float _EnumGroup;
+			float _RampGroup;
+			float _SubEnum;
+			float _PassSwitch;
 			float _AlphaClip;
 			float _Cutoff;
 			#ifdef ASE_TESSELLATION
@@ -306,7 +354,9 @@ Shader "SampleAmplifyShader"
 			#endif
 			CBUFFER_END
 
-			
+			sampler2D _Ramp;
+			sampler2D _RampAtlas;
+
 
 			
 			PackedVaryings VertexFunction( Attributes input  )
@@ -474,22 +524,22 @@ Shader "SampleAmplifyShader"
 				float3 BitangentWS = cross( input.normalWS, input.tangentWS.xyz ) * input.tangentWS.w * renormFactor;
 				float3 NormalWS = input.normalWS * renormFactor;
 
-				float4 color12_g1 = IsGammaSpace() ? float4( 1, 0, 0, 0 ) : float4( 1, 0, 0, 0 );
-				float4 color13_g1 = IsGammaSpace() ? float4( 0, 1, 0, 0 ) : float4( 0, 1, 0, 0 );
-				float4 color18_g1 = IsGammaSpace() ? float4( 0, 0, 1, 0 ) : float4( 0, 0, 1, 0 );
+				float4 color12_g4 = IsGammaSpace() ? float4( 1, 0, 0, 0 ) : float4( 1, 0, 0, 0 );
+				float4 color13_g4 = IsGammaSpace() ? float4( 0, 1, 0, 0 ) : float4( 0, 1, 0, 0 );
+				float4 color18_g4 = IsGammaSpace() ? float4( 0, 0, 1, 0 ) : float4( 0, 0, 1, 0 );
 				#if defined( _ENABLE_RED )
-				float3 staticSwitch8_g1 = color12_g1.rgb;
+				float3 staticSwitch8_g4 = color12_g4.rgb;
 				#elif defined( _ENABLE_GREEN )
-				float3 staticSwitch8_g1 = color13_g1.rgb;
+				float3 staticSwitch8_g4 = color13_g4.rgb;
 				#elif defined( _ENABLE_BLUE )
-				float3 staticSwitch8_g1 = color18_g1.rgb;
+				float3 staticSwitch8_g4 = color18_g4.rgb;
 				#else
-				float3 staticSwitch8_g1 = color12_g1.rgb;
+				float3 staticSwitch8_g4 = color12_g4.rgb;
 				#endif
 				
 				float3 BakedAlbedo = 0;
 				float3 BakedEmission = 0;
-				float3 Color = staticSwitch8_g1;
+				float3 Color = staticSwitch8_g4;
 				float Alpha = 1;
 				#if defined( _ALPHATEST_ON )
 					float AlphaClipThreshold = _Cutoff;
@@ -554,6 +604,306 @@ Shader "SampleAmplifyShader"
 		Pass
 		{
 			
+			Name "ShadowCaster"
+			Tags { "LightMode"="ShadowCaster" }
+
+			ZWrite On
+			ZTest LEqual
+			AlphaToMask Off
+			ColorMask 0
+
+			HLSLPROGRAM
+
+			
+
+			#pragma multi_compile_instancing
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+			#define ASE_FOG 1
+			#define ASE_VERSION 20000
+			#define ASE_SRP_VERSION 140012
+
+
+			
+
+			#pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#define SHADERPASS SHADERPASS_SHADOWCASTER
+
+			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
+
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
+
+			#if defined(LOD_FADE_CROSSFADE)
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #endif
+
+			
+
+			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
+				#define ASE_SV_DEPTH SV_DepthLessEqual
+				#define ASE_SV_POSITION_QUALIFIERS linear noperspective centroid
+			#else
+				#define ASE_SV_DEPTH SV_Depth
+				#define ASE_SV_POSITION_QUALIFIERS
+			#endif
+
+			struct Attributes
+			{
+				float4 positionOS : POSITION;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
+				
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+			};
+
+			struct PackedVaryings
+			{
+				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+				UNITY_VERTEX_OUTPUT_STEREO
+			};
+
+			CBUFFER_START(UnityPerMaterial)
+			float4 _ColorA;
+			float4 _ColorB;
+			float4 _Color;
+			float4 _ColorG;
+			float4 _Channel;
+			float _Max;
+			float _ShowIfTrue1;
+			float _Hidden;
+			float _ReadOnly;
+			float _Toggle;
+			float _ShowIfFalse0;
+			float _ConditionDecoratorsGroup;
+			float _AppearanceDecoratorsGroup;
+			float _Title;
+			float _HelpboxSample;
+			float _TooltipSample;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
+			float _Min;
+			float _Float;
+			float _Range;
+			float _SubPowerSlider;
+			float _SubIntRange;
+			float _MinMaxSlider;
+			float _ActiveIfTrue1;
+			float _NumericGroup;
+			float _KWEnum;
+			float _SubKeywordEnum;
+			float _Preset;
+			float _float1;
+			float _EnumGroup;
+			float _RampGroup;
+			float _SubEnum;
+			float _PassSwitch;
+			float _AlphaClip;
+			float _Cutoff;
+			#ifdef ASE_TESSELLATION
+				float _TessPhongStrength;
+				float _TessValue;
+				float _TessMin;
+				float _TessMax;
+				float _TessEdgeLength;
+				float _TessMaxDisp;
+			#endif
+			CBUFFER_END
+
+			sampler2D _Ramp;
+			sampler2D _RampAtlas;
+
+
+			
+			float3 _LightDirection;
+			float3 _LightPosition;
+
+			PackedVaryings VertexFunction( Attributes input )
+			{
+				PackedVaryings output;
+				UNITY_SETUP_INSTANCE_ID(input);
+				UNITY_TRANSFER_INSTANCE_ID(input, output);
+				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO( output );
+
+				
+
+				#ifdef ASE_ABSOLUTE_VERTEX_POS
+					float3 defaultVertexValue = input.positionOS.xyz;
+				#else
+					float3 defaultVertexValue = float3(0, 0, 0);
+				#endif
+
+				float3 vertexValue = defaultVertexValue;
+				#ifdef ASE_ABSOLUTE_VERTEX_POS
+					input.positionOS.xyz = vertexValue;
+				#else
+					input.positionOS.xyz += vertexValue;
+				#endif
+
+				input.normalOS = input.normalOS;
+				input.tangentOS = input.tangentOS;
+
+				float3 positionWS = TransformObjectToWorld( input.positionOS.xyz );
+				half3 normalWS = TransformObjectToWorldDir(input.normalOS);
+
+				#if _CASTING_PUNCTUAL_LIGHT_SHADOW
+					float3 lightDirectionWS = normalize(_LightPosition - positionWS);
+				#else
+					float3 lightDirectionWS = _LightDirection;
+				#endif
+
+				float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+
+				#if UNITY_REVERSED_Z
+					positionCS.z = min(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+				#else
+					positionCS.z = max(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+				#endif
+
+				output.positionCS = positionCS;
+				return output;
+			}
+
+			#if defined(ASE_TESSELLATION)
+			struct VertexControl
+			{
+				float4 positionOS : INTERNALTESSPOS;
+				half3 normalOS : NORMAL;
+				
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+			};
+
+			struct TessellationFactors
+			{
+				float edge[3] : SV_TessFactor;
+				float inside : SV_InsideTessFactor;
+			};
+
+			VertexControl vert ( Attributes input )
+			{
+				VertexControl output;
+				UNITY_SETUP_INSTANCE_ID(input);
+				UNITY_TRANSFER_INSTANCE_ID(input, output);
+				output.positionOS = input.positionOS;
+				output.normalOS = input.normalOS;
+				
+				return output;
+			}
+
+			TessellationFactors TessellationFunction (InputPatch<VertexControl,3> input)
+			{
+				TessellationFactors output;
+				float4 tf = 1;
+				float tessValue = _TessValue; float tessMin = _TessMin; float tessMax = _TessMax;
+				float edgeLength = _TessEdgeLength; float tessMaxDisp = _TessMaxDisp;
+				#if defined(ASE_FIXED_TESSELLATION)
+				tf = FixedTess( tessValue );
+				#elif defined(ASE_DISTANCE_TESSELLATION)
+				tf = DistanceBasedTess(input[0].positionOS, input[1].positionOS, input[2].positionOS, tessValue, tessMin, tessMax, GetObjectToWorldMatrix(), _WorldSpaceCameraPos );
+				#elif defined(ASE_LENGTH_TESSELLATION)
+				tf = EdgeLengthBasedTess(input[0].positionOS, input[1].positionOS, input[2].positionOS, edgeLength, GetObjectToWorldMatrix(), _WorldSpaceCameraPos, _ScreenParams );
+				#elif defined(ASE_LENGTH_CULL_TESSELLATION)
+				tf = EdgeLengthBasedTessCull(input[0].positionOS, input[1].positionOS, input[2].positionOS, edgeLength, tessMaxDisp, GetObjectToWorldMatrix(), _WorldSpaceCameraPos, _ScreenParams, unity_CameraWorldClipPlanes );
+				#endif
+				output.edge[0] = tf.x; output.edge[1] = tf.y; output.edge[2] = tf.z; output.inside = tf.w;
+				return output;
+			}
+
+			[domain("tri")]
+			[partitioning("fractional_odd")]
+			[outputtopology("triangle_cw")]
+			[patchconstantfunc("TessellationFunction")]
+			[outputcontrolpoints(3)]
+			VertexControl HullFunction(InputPatch<VertexControl, 3> patch, uint id : SV_OutputControlPointID)
+			{
+				return patch[id];
+			}
+
+			[domain("tri")]
+			PackedVaryings DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
+			{
+				Attributes output = (Attributes) 0;
+				output.positionOS = patch[0].positionOS * bary.x + patch[1].positionOS * bary.y + patch[2].positionOS * bary.z;
+				output.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				
+				#if defined(ASE_PHONG_TESSELLATION)
+				float3 pp[3];
+				for (int i = 0; i < 3; ++i)
+					pp[i] = output.positionOS.xyz - patch[i].normalOS * (dot(output.positionOS.xyz, patch[i].normalOS) - dot(patch[i].positionOS.xyz, patch[i].normalOS));
+				float phongStrength = _TessPhongStrength;
+				output.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * output.positionOS.xyz;
+				#endif
+				UNITY_TRANSFER_INSTANCE_ID(patch[0], output);
+				return VertexFunction(output);
+			}
+			#else
+			PackedVaryings vert ( Attributes input )
+			{
+				return VertexFunction( input );
+			}
+			#endif
+
+			half4 frag(PackedVaryings input
+						#if defined( ASE_DEPTH_WRITE_ON )
+						,out float outputDepth : ASE_SV_DEPTH
+						#endif
+						 ) : SV_Target
+			{
+				UNITY_SETUP_INSTANCE_ID( input );
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( input );
+
+				float4 ScreenPosNorm = float4( GetNormalizedScreenSpaceUV( input.positionCS ), input.positionCS.zw );
+				float4 ClipPos = ComputeClipSpacePosition( ScreenPosNorm.xy, input.positionCS.z ) * input.positionCS.w;
+				float4 ScreenPos = ComputeScreenPos( ClipPos );
+
+				
+
+				float Alpha = 1;
+				#if defined( _ALPHATEST_ON )
+					float AlphaClipThreshold = _Cutoff;
+					float AlphaClipThresholdShadow = 0.5;
+				#endif
+
+				#if defined( ASE_DEPTH_WRITE_ON )
+					input.positionCS.z = input.positionCS.z;
+				#endif
+
+				#if defined( _ALPHATEST_ON )
+					#if defined( _ALPHATEST_SHADOW_ON )
+						AlphaDiscard( Alpha, AlphaClipThresholdShadow );
+					#else
+						AlphaDiscard( Alpha, AlphaClipThreshold );
+					#endif
+				#endif
+
+				#if defined(LOD_FADE_CROSSFADE)
+					LODFadeCrossFade( input.positionCS );
+				#endif
+
+				#if defined( ASE_DEPTH_WRITE_ON )
+					outputDepth = input.positionCS.z;
+				#endif
+
+				return 0;
+			}
+			ENDHLSL
+		}
+
+		
+		Pass
+		{
+			
 			Name "DepthOnly"
 			Tags { "LightMode"="DepthOnly" }
 
@@ -565,7 +915,9 @@ Shader "SampleAmplifyShader"
 
 			
 
-			#define _RECEIVE_SHADOWS_OFF
+			#pragma multi_compile_instancing
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+			#define ASE_FOG 1
 			#define ASE_VERSION 20000
 			#define ASE_SRP_VERSION 140012
 
@@ -618,20 +970,40 @@ Shader "SampleAmplifyShader"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float _Range;
+			float4 _ColorA;
+			float4 _ColorB;
+			float4 _Color;
+			float4 _ColorG;
+			float4 _Channel;
+			float _Max;
+			float _ShowIfTrue1;
+			float _Hidden;
+			float _ReadOnly;
+			float _Toggle;
+			float _ShowIfFalse0;
+			float _ConditionDecoratorsGroup;
+			float _AppearanceDecoratorsGroup;
+			float _Title;
+			float _HelpboxSample;
+			float _TooltipSample;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
+			float _Min;
 			float _Float;
+			float _Range;
 			float _SubPowerSlider;
 			float _SubIntRange;
 			float _MinMaxSlider;
-			float _Min;
-			float _Max;
+			float _ActiveIfTrue1;
 			float _NumericGroup;
 			float _KWEnum;
 			float _SubKeywordEnum;
 			float _Preset;
 			float _float1;
-			float _SubEnum;
 			float _EnumGroup;
+			float _RampGroup;
+			float _SubEnum;
+			float _PassSwitch;
 			float _AlphaClip;
 			float _Cutoff;
 			#ifdef ASE_TESSELLATION
@@ -644,7 +1016,9 @@ Shader "SampleAmplifyShader"
 			#endif
 			CBUFFER_END
 
-			
+			sampler2D _Ramp;
+			sampler2D _RampAtlas;
+
 
 			
 			PackedVaryings VertexFunction( Attributes input  )
@@ -810,7 +1184,7 @@ Shader "SampleAmplifyShader"
 
 			
 
-			#define _RECEIVE_SHADOWS_OFF
+			#define ASE_FOG 1
 			#define ASE_VERSION 20000
 			#define ASE_SRP_VERSION 140012
 
@@ -873,20 +1247,40 @@ Shader "SampleAmplifyShader"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float _Range;
+			float4 _ColorA;
+			float4 _ColorB;
+			float4 _Color;
+			float4 _ColorG;
+			float4 _Channel;
+			float _Max;
+			float _ShowIfTrue1;
+			float _Hidden;
+			float _ReadOnly;
+			float _Toggle;
+			float _ShowIfFalse0;
+			float _ConditionDecoratorsGroup;
+			float _AppearanceDecoratorsGroup;
+			float _Title;
+			float _HelpboxSample;
+			float _TooltipSample;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
+			float _Min;
 			float _Float;
+			float _Range;
 			float _SubPowerSlider;
 			float _SubIntRange;
 			float _MinMaxSlider;
-			float _Min;
-			float _Max;
+			float _ActiveIfTrue1;
 			float _NumericGroup;
 			float _KWEnum;
 			float _SubKeywordEnum;
 			float _Preset;
 			float _float1;
-			float _SubEnum;
 			float _EnumGroup;
+			float _RampGroup;
+			float _SubEnum;
+			float _PassSwitch;
 			float _AlphaClip;
 			float _Cutoff;
 			#ifdef ASE_TESSELLATION
@@ -899,7 +1293,9 @@ Shader "SampleAmplifyShader"
 			#endif
 			CBUFFER_END
 
-			
+			sampler2D _Ramp;
+			sampler2D _RampAtlas;
+
 
 			
 			int _ObjectId;
@@ -1055,7 +1451,7 @@ Shader "SampleAmplifyShader"
 
 			
 
-			#define _RECEIVE_SHADOWS_OFF
+			#define ASE_FOG 1
 			#define ASE_VERSION 20000
 			#define ASE_SRP_VERSION 140012
 
@@ -1123,20 +1519,40 @@ Shader "SampleAmplifyShader"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float _Range;
+			float4 _ColorA;
+			float4 _ColorB;
+			float4 _Color;
+			float4 _ColorG;
+			float4 _Channel;
+			float _Max;
+			float _ShowIfTrue1;
+			float _Hidden;
+			float _ReadOnly;
+			float _Toggle;
+			float _ShowIfFalse0;
+			float _ConditionDecoratorsGroup;
+			float _AppearanceDecoratorsGroup;
+			float _Title;
+			float _HelpboxSample;
+			float _TooltipSample;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
+			float _Min;
 			float _Float;
+			float _Range;
 			float _SubPowerSlider;
 			float _SubIntRange;
 			float _MinMaxSlider;
-			float _Min;
-			float _Max;
+			float _ActiveIfTrue1;
 			float _NumericGroup;
 			float _KWEnum;
 			float _SubKeywordEnum;
 			float _Preset;
 			float _float1;
-			float _SubEnum;
 			float _EnumGroup;
+			float _RampGroup;
+			float _SubEnum;
+			float _PassSwitch;
 			float _AlphaClip;
 			float _Cutoff;
 			#ifdef ASE_TESSELLATION
@@ -1149,7 +1565,9 @@ Shader "SampleAmplifyShader"
 			#endif
 			CBUFFER_END
 
-			
+			sampler2D _Ramp;
+			sampler2D _RampAtlas;
+
 
 			
 			float4 _SelectionID;
@@ -1308,7 +1726,9 @@ Shader "SampleAmplifyShader"
 
 			
 
-        	#define _RECEIVE_SHADOWS_OFF
+        	#pragma multi_compile_instancing
+        	#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+        	#define ASE_FOG 1
         	#define ASE_VERSION 20000
         	#define ASE_SRP_VERSION 140012
 
@@ -1390,20 +1810,40 @@ Shader "SampleAmplifyShader"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float _Range;
+			float4 _ColorA;
+			float4 _ColorB;
+			float4 _Color;
+			float4 _ColorG;
+			float4 _Channel;
+			float _Max;
+			float _ShowIfTrue1;
+			float _Hidden;
+			float _ReadOnly;
+			float _Toggle;
+			float _ShowIfFalse0;
+			float _ConditionDecoratorsGroup;
+			float _AppearanceDecoratorsGroup;
+			float _Title;
+			float _HelpboxSample;
+			float _TooltipSample;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
+			float _Min;
 			float _Float;
+			float _Range;
 			float _SubPowerSlider;
 			float _SubIntRange;
 			float _MinMaxSlider;
-			float _Min;
-			float _Max;
+			float _ActiveIfTrue1;
 			float _NumericGroup;
 			float _KWEnum;
 			float _SubKeywordEnum;
 			float _Preset;
 			float _float1;
-			float _SubEnum;
 			float _EnumGroup;
+			float _RampGroup;
+			float _SubEnum;
+			float _PassSwitch;
 			float _AlphaClip;
 			float _Cutoff;
 			#ifdef ASE_TESSELLATION
@@ -1416,7 +1856,9 @@ Shader "SampleAmplifyShader"
 			#endif
 			CBUFFER_END
 
-			
+			sampler2D _Ramp;
+			sampler2D _RampAtlas;
+
 
 			
 			struct SurfaceDescription
@@ -1607,16 +2049,43 @@ Shader "SampleAmplifyShader"
 }
 /*ASEBEGIN
 Version=20000
-Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;16;-1408,-48;Inherit;False;663.2001;699.9999;Numeric Group;8;20;19;18;17;11;15;13;14;;1,1,1,1;0;0
-Node;AmplifyShaderEditor.FunctionNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;29;-1344,688;Inherit;False;SampleAmplifyFunction_Enum;8;;1;47c66267a97c66a4f950ad83bd0e4064;0;0;1;FLOAT3;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;20;-1072,480;Inherit;False;Property;_Max;_Max;7;0;Create;True;0;0;0;True;0;False;0;1;HiddenDecorator;;0;0;1;0;-1;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;19;-1072,416;Inherit;False;Property;_Min;_Min;6;0;Create;True;0;0;0;True;0;False;0;1;HiddenDecorator;;0;0;-1;0;-1;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;15;-1344,240;Inherit;False;Property;_SubPowerSlider;Sub Power Slider;3;0;Create;True;0;0;0;True;0;False;1;SubPowerSliderDrawer;string group,float power;2;Numeric;5;2;group;Numeric;power;5;0;50;0;0;100;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;17;-1344,320;Inherit;False;Property;_SubIntRange;Sub Int Range;4;0;Create;True;0;0;0;True;0;False;1;SubIntRangeDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;-10;10;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;13;-1248,80;Inherit;False;Property;_Float;Float;1;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;11;-1280,0;Inherit;False;Property;_NumericGroup;Numeric Group;0;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState,enum defaultToggleDisplayed;4;Numeric;;on;off;4;group;Numeric;keyword;;defaultFoldingState;on;defaultToggleDisplayed;off;1;ActiveIfDecorator;enum logicalOperator,string propNameOrKeyword,enum compareFunction,float value;4;;;;;4;logicalOperator;;propNameOrKeyword;;compareFunction;;value;;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;18;-1344,432;Inherit;False;Property;_MinMaxSlider;Min Max Slider;5;0;Create;True;0;0;0;True;0;False;1;MinMaxSliderDrawer;string group,string minPropName,string maxPropName;3;Numeric;_Min;_Max;3;group;Numeric;minPropName;_Min;maxPropName;_Max;0;0;0;-1;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;14;-1344,160;Inherit;False;Property;_Range;Range;2;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;11;-848,896;Inherit;False;1186.222;639.5089;Vector Group;3;32;31;39;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;41;-848,2320;Inherit;False;589.4493;699.1997;Condition Decorators Group;6;47;45;44;42;43;40;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;39;-800,1040;Inherit;False;1311.946;286.7615;Color and other Drawers will reference the names of other Properties. Currently, you must manually lock these Property names to prevent the auto-generated names from changing.;4;27;30;29;28;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;10;-848,1648;Inherit;False;668.1052;615.8208;Appearance Decorators Group;6;37;33;36;35;34;46;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;12;-848,144;Inherit;False;557.5201;697.4403;Ramp Group;4;26;25;22;21;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;13;-848,-720;Inherit;False;663.2001;699.9999;Numeric Group;8;23;20;19;18;17;16;15;14;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;14;-512,-192;Inherit;False;Property;_Max;_Max;7;0;Create;True;0;0;0;True;0;False;0;1;HiddenDecorator;;0;0;1;0;-1;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;15;-512,-256;Inherit;False;Property;_Min;_Min;6;0;Create;True;0;0;0;True;0;False;0;1;HiddenDecorator;;0;0;-1;0;-1;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;16;-688,-592;Inherit;False;Property;_Float;Float;1;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;17;-784,-512;Inherit;False;Property;_Range;Range;2;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;18;-784,-432;Inherit;False;Property;_SubPowerSlider;Sub Power Slider;3;0;Create;True;0;0;0;True;0;False;1;SubPowerSliderDrawer;string group,float power;2;Numeric;5;2;group;Numeric;power;5;0;50;0;0;100;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;19;-784,-352;Inherit;False;Property;_SubIntRange;Sub Int Range;4;0;Create;True;0;0;0;True;0;False;1;SubIntRangeDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;-10;10;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;20;-784,-240;Inherit;False;Property;_MinMaxSlider;Min Max Slider;5;0;Create;True;0;0;0;True;0;False;1;MinMaxSliderDrawer;string group,string minPropName,string maxPropName;3;Numeric;_Min;_Max;3;group;Numeric;minPropName;_Min;maxPropName;_Max;0;0;0;-1;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.TexturePropertyNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;21;-784,288;Inherit;True;Property;_Ramp;Ramp;16;0;Create;True;0;0;0;True;0;False;1;RampDrawer;string group;1;Ramp;1;group;Ramp;0;1522a7c4f7317044ab912724c1594427;1522a7c4f7317044ab912724c1594427;False;white;Auto;Texture2D;False;-1;0;2;SAMPLER2D;0;SAMPLERSTATE;1
+Node;AmplifyShaderEditor.TexturePropertyNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;22;-784,496;Inherit;True;Property;_RampAtlas;Ramp Atlas;17;0;Create;True;0;0;0;True;0;False;1;RampAtlasDrawer;string group;1;Ramp;1;group;Ramp;0;cfbe5a628e96c0d4bae3645ad922a368;cfbe5a628e96c0d4bae3645ad922a368;False;white;Auto;Texture2D;False;-1;0;2;SAMPLER2D;0;SAMPLERSTATE;1
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;23;-816,-672;Inherit;False;Property;_NumericGroup;====== Numeric Group ======;0;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState,enum defaultToggleDisplayed;4;Numeric;;on;off;4;group;Numeric;keyword;;defaultFoldingState;on;defaultToggleDisplayed;off;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;24;-784,16;Inherit;False;SampleAmplifyFunction_Enum;8;;4;47c66267a97c66a4f950ad83bd0e4064;0;0;1;FLOAT3;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;25;-784,192;Inherit;False;Property;_RampGroup;====== Ramp Group ======;15;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState,enum defaultToggleDisplayed;4;Ramp;;on;on;4;group;Ramp;keyword;;defaultFoldingState;on;defaultToggleDisplayed;on;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;26;-784,720;Inherit;False;Property;_RampAtlasIndexer;Ramp Atlas Indexer;18;0;Create;True;0;0;0;True;0;False;1;RampAtlasIndexerDrawer;string group,string rampAtlasPropName;2;Ramp;_RampAtlas;2;group;Ramp;rampAtlasPropName;_RampAtlas;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;32;-800,944;Inherit;False;Property;_VectorGroup;====== Vector Group ======;19;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState,enum defaultToggleDisplayed;4;Vector;;on;on;4;group;Vector;keyword;;defaultFoldingState;on;defaultToggleDisplayed;on;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;34;-800,1968;Inherit;False;Property;_TooltipSample;Multilingual Tooltip#English Tooltip#中文 Tooltip;28;0;Create;False;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;TooltipDecorator;string s1,string s2,string s3;3;Tooltip 1;Tooltip 2;Tooltip 3;3;s1;Tooltip 1;s2;Tooltip 2;s3;Tooltip 3;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;35;-800,1888;Inherit;False;Property;_HelpboxSample;Multilingual Helpbox%English Helpbox%中文 Helpbox%;27;0;Create;False;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;HelpboxDecorator;string s1,string s2,string s3;3;Helpbox 1;Helpbox 2;Helpbox 3;3;s1;Helpbox 1;s2;Helpbox 2;s3;Helpbox 3;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;36;-800,1808;Inherit;False;Property;_Title;Title;26;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;TitleDecorator;string group,string header;2;Appearance;Title;2;group;Appearance;header;Title;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.Vector4Node, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;31;-800,1360;Inherit;False;Property;_Channel;Channel;24;0;Create;True;0;0;0;True;0;False;1;ChannelDrawer;string group;1;Vector;1;group;Vector;0;0,1,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;27;-528,1104;Inherit;False;Property;_ColorG;Color G;21;1;[HideInInspector];Create;False;0;0;0;True;0;False;0;0;0,1,0,1;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;30;-736,1104;Inherit;False;Property;_Color;Color;20;0;Create;True;0;0;0;True;0;False;1;ColorDrawer;string group,string color2,string color3,string color4;4;Vector;_ColorG;_ColorB;_ColorA;4;group;Vector;color2;_ColorG;color3;_ColorB;color4;_ColorA;0;1,0,0,1;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;28;-320,1104;Inherit;False;Property;_ColorB;Color B;22;1;[HideInInspector];Create;False;0;0;0;True;0;False;0;0;0,0,1,1;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;29;-112,1104;Inherit;False;Property;_ColorA;Color A;23;1;[HideInInspector];Create;False;0;0;0;True;0;False;0;0;1,1,1,1;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;33;-800,1696;Inherit;False;Property;_AppearanceDecoratorsGroup;====== Appearance Decorators Group ======;25;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState;3;Appearance;;on;3;group;Appearance;keyword;;defaultFoldingState;on;1;HelpURLDecorator;string s1,string s2,string s3;3;github.com;JasonMa0012;LWGUI;3;s1;github.com;s2;JasonMa0012;s3;LWGUI;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;40;-816,2384;Inherit;False;Property;_ConditionDecoratorsGroup;====== Condition Decorators Group ======;31;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState;3;Condition;;on;3;group;Condition;keyword;;defaultFoldingState;on;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;43;-816,2576;Inherit;False;Property;_ShowIfFalse0;Show If False (0);33;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Condition;1;group;Condition;1;ShowIfDecorator;string propNameOrKeyword,enum compareFunction,float value;3;_Toggle;;;3;propNameOrKeyword;_Toggle;compareFunction;;value;;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;42;-816,2480;Inherit;False;Property;_Toggle;Toggle;32;0;Create;False;0;0;0;True;0;False;1;SubToggleDrawer;string group;1;Condition;1;group;Condition;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;37;-800,2080;Inherit;False;Property;_ReadOnly;Read Only;29;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;ReadOnlyDecorator;;0;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;46;-800,2176;Inherit;False;Property;_Hidden;Hidden;30;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;HiddenDecorator;;0;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;44;-816,2672;Inherit;False;Property;_ShowIfTrue1;Show If True (1);34;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Condition;1;group;Condition;1;ShowIfDecorator;string propNameOrKeyword,enum compareFunction,float value;3;_Toggle;;1;3;propNameOrKeyword;_Toggle;compareFunction;;value;1;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;45;-816,2784;Inherit;False;Property;_ActiveIfTrue1;Active If True (1);35;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Condition;1;group;Condition;1;ActiveIfDecorator;enum logicalOperator,string propNameOrKeyword,enum compareFunction,float value;4;;_Toggle;;1;3;propNameOrKeyword;_Toggle;comparisonMethod;;value;1;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;47;-816,2880;Inherit;False;Property;_PassSwitch;Pass Switch;36;0;Create;True;0;0;0;True;0;False;1;SubToggleDrawer;string group;1;Condition;1;group;Condition;1;PassSwitchDecorator;passname lightModeName1;1;UniversalForwardOnly;1;lightModeName1;UniversalForwardOnly;1;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;0;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ExtraPrePass;0;0;ExtraPrePass;6;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;0;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;2;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;3;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;True;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;False;True;1;LightMode=DepthOnly;False;False;0;;0;0;Standard;0;False;0
@@ -1626,7 +2095,7 @@ Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Versi
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;7;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ScenePickingPass;0;7;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;8;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;DepthNormals;0;8;DepthNormals;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;False;True;1;LightMode=DepthNormalsOnly;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;9;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;DepthNormalsOnly;0;9;DepthNormalsOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;False;True;1;LightMode=DepthNormalsOnly;False;True;9;d3d11;metal;vulkan;xboxone;xboxseries;playstation;ps4;ps5;switch;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;1;-64,688;Float;False;True;-1;3;LWGUI.LWGUI;0;19;SampleAmplifyShader;2992e84f91cbeb14eab234972e07ea9d;True;Forward;0;1;Forward;10;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;1;LightMode=UniversalForwardOnly;False;False;0;;0;0;Standard;27;Surface;0;0;  Keep Alpha;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;0;0;  Use Shadow Threshold;0;0;Forward Only;0;0;Cast Shadows;0;639116003191847102;Receive Shadows;0;639116003274273009;Receive SSAO;0;639116003146185134;GPU Instancing;0;639116003155339173;LOD CrossFade;0;639116003166572265;Built-in Fog;0;639116003173506051;Meta Pass;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position;1;0;0;10;False;True;False;True;False;False;True;True;True;False;False;;False;0
-WireConnection;1;2;29;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;1;16,16;Float;False;True;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;Forward;0;1;Forward;10;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;1;LightMode=UniversalForwardOnly;False;False;0;;0;0;Standard;27;Surface;0;0;  Keep Alpha;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;0;0;  Use Shadow Threshold;0;0;Forward Only;0;0;Cast Shadows;1;0;Receive Shadows;2;0;Receive SSAO;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;Meta Pass;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position;1;0;0;10;False;True;True;True;False;False;True;True;True;False;False;;False;0
+WireConnection;1;2;24;0
 ASEEND*/
-//CHKSM=117D7044700EF1FDFB1AE69317E4929BD6A90C80
+//CHKSM=6F0E7F8F0F911FAFAE7692B06CFE0E201FDB2E57
