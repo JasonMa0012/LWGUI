@@ -346,7 +346,7 @@ namespace LWGUI
 			LoadTexture();
 		}
 
-		private void OnValidate()
+		private void UserSaveTexture()
 		{
 			// It is only called when the user manually saves it, avoiding some strange bugs
 			if (!_saveTextureToggle)
@@ -361,6 +361,14 @@ namespace LWGUI
 			SaveTexture(checkoutAndForceWrite:_saveTextureToggle);
 			_saveTextureToggle = false;
 		}
+
+		private void OnValidate()
+ 		{
+ 			// Avoid calling when opening a material, otherwise it will cause P4 communication problems
+ 			EditorApplication.delayCall -= UserSaveTexture;
+ 			EditorApplication.delayCall += UserSaveTexture;
+ 		}
+
 
 		#region Static
 		

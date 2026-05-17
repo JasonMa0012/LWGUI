@@ -11,8 +11,12 @@ namespace LWGUI
 	/// 
 	/// group: parent group name (Default: none)
 	/// header: string to display, "SpaceLine" or "_" = none (Default: none)
-	/// height: line height (Default: 22)
+	/// height: line height (Default: 24)
 	/// </summary>
+	[LwguiDrawerCategory("Appearance")]
+	[LwguiDrawerParameterString("group", "_", "Empty")]
+	[LwguiDrawerParameterString("header", "", "Empty")]
+	[LwguiDrawerParameterFloat("height", 24f, "24")]
 	public class TitleDecorator : SubDrawer
 	{
 		private string _header;

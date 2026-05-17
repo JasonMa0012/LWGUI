@@ -14,6 +14,7 @@ namespace LWGUI
 	/// url: the document URL without "https://", each ',' = '/'. (Default: none)
 	/// e.g. [HelpURL(github.com, JasonMa0012, LWGUI)] => https://github.com/JasonMa0012/LWGUI
 	/// </summary>
+	[LwguiDrawerCategory("Appearance")]
 	public class HelpURLDecorator : SubDrawer
 	{
 		private string _url;

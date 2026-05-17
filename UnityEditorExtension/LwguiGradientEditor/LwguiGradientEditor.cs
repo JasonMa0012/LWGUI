@@ -1,4 +1,4 @@
-﻿// Copyright (c) Jason Ma
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿// Copyright (c) Jason Ma
 
 using System;
 using System.Collections.Generic;
@@ -271,6 +271,7 @@ namespace LWGUI.LwguiGradientEditor
                     && !_secondEditFieldRect.Contains(Event.current.mousePosition)))
                 return;
             
+            float addKeyButtonWidth         = 62;
             float space                     = 20;
             float vectorValueWidth          = 270;
             float locationWidth             = 70;
@@ -284,6 +285,15 @@ namespace LWGUI.LwguiGradientEditor
             float timeRangeMenuWidth        = 70;
             
             Rect rect = _editFieldRect;
+            
+            // Add Key button (left side)
+            {
+                var btnRect = new Rect(_editFieldRect.x, _editFieldRect.y, addKeyButtonWidth, _editFieldRect.height);
+                if (GUI.Button(btnRect, "Add Key"))
+                {
+                    PopupWindow.Show(btnRect, new AddKeyPopupContent(this, gradientTimeRange));
+                }
+            }
             
             // Color Space
             {
@@ -940,6 +950,30 @@ namespace LWGUI.LwguiGradientEditor
             }
         }
 
+        public void AddKeyAtTime(float normalizedTime, LwguiGradient.ChannelMask channelMask)
+        {
+            if (lwguiGradient == null || _curveEditor == null) return;
+
+            _curveEditor.SelectNone();
+            for (int c = 0; c < (int)LwguiGradient.Channel.Num; c++)
+            {
+                if (!LwguiGradient.IsChannelIndexInMask(c, channelMask)) continue;
+
+                var cw = _curveEditor.animationCurves[c];
+
+                bool keyExists = cw.curve.keys.Any(k => Equal(k.time, normalizedTime));
+                if (keyExists) continue;
+
+                var curveSelection = _curveEditor.AddKeyAtTime(cw, normalizedTime);
+                cw.changed = true;
+                _curveEditor.AddSelection(curveSelection);
+            }
+            _curveEditor.InvalidateSelectionBounds();
+            _changed = true;
+            InitGradientEditor(true);
+            SyncSelectionFromCurveToGradient(true);
+        }
+
         public void Clear()
         {
             lwguiGradient = null;
@@ -960,5 +994,79 @@ namespace LWGUI.LwguiGradientEditor
         }
         
         #endregion
+    }
+
+    public class AddKeyPopupContent : PopupWindowContent
+    {
+        private const string PrefKeyR = "LwguiGradientEditor.AddKey.R";
+        private const string PrefKeyG = "LwguiGradientEditor.AddKey.G";
+        private const string PrefKeyB = "LwguiGradientEditor.AddKey.B";
+        private const string PrefKeyA = "LwguiGradientEditor.AddKey.A";
+
+        private float _time;
+        private bool _r, _g, _b, _a;
+        private readonly LwguiGradientEditor _editor;
+        private readonly LwguiGradient.GradientTimeRange _timeRange;
+
+        public AddKeyPopupContent(LwguiGradientEditor editor, LwguiGradient.GradientTimeRange timeRange)
+        {
+            _editor = editor;
+            _timeRange = timeRange;
+            _r = EditorPrefs.GetBool(PrefKeyR, true);
+            _g = EditorPrefs.GetBool(PrefKeyG, true);
+            _b = EditorPrefs.GetBool(PrefKeyB, true);
+            _a = EditorPrefs.GetBool(PrefKeyA, false);
+        }
+
+        public override Vector2 GetWindowSize() => new Vector2(230, 68);
+
+        public override void OnGUI(Rect rect)
+        {
+            var labelWidth = EditorGUIUtility.labelWidth;
+            EditorGUIUtility.labelWidth = 80;
+
+            bool timeFieldEnterPressed = Event.current.type == EventType.KeyDown
+                && Event.current.keyCode is KeyCode.Return or KeyCode.KeypadEnter;
+            _time = EditorGUILayout.FloatField("Time", _time);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel("Channel");
+            _r = DrawChannelToggle("R", _r, PrefKeyR);
+            _g = DrawChannelToggle("G", _g, PrefKeyG);
+            _b = DrawChannelToggle("B", _b, PrefKeyB);
+            _a = DrawChannelToggle("A", _a, PrefKeyA);
+            EditorGUILayout.EndHorizontal();
+
+            if (GUILayout.Button("Add") || timeFieldEnterPressed)
+            {
+                TryAddKey();
+            }
+            EditorGUIUtility.labelWidth = labelWidth;
+        }
+
+        private void TryAddKey()
+        {
+            float normalizedTime = Mathf.Clamp01(_time / (int)_timeRange);
+
+            LwguiGradient.ChannelMask mask = 0;
+            if (_r) mask |= LwguiGradient.ChannelMask.Red;
+            if (_g) mask |= LwguiGradient.ChannelMask.Green;
+            if (_b) mask |= LwguiGradient.ChannelMask.Blue;
+            if (_a) mask |= LwguiGradient.ChannelMask.Alpha;
+
+            if (mask != 0)
+                _editor.AddKeyAtTime(normalizedTime, mask);
+
+            editorWindow.Close();
+        }
+
+        private static bool DrawChannelToggle(string label, bool value, string prefKey)
+        {
+            EditorGUI.BeginChangeCheck();
+            value = GUILayout.Toggle(value, label);
+            if (EditorGUI.EndChangeCheck())
+                EditorPrefs.SetBool(prefKey, value);
+            return value;
+        }
     }
 }

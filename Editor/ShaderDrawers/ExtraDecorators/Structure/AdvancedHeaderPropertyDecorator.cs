@@ -8,6 +8,7 @@ namespace LWGUI
 	/// <summary>
 	/// Create an Advanced Block using the current Property as the Header.
 	/// </summary>
+	[LwguiDrawerCategory("Structure")]
 	public class AdvancedHeaderPropertyDecorator : SubDrawer
 	{
 		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }

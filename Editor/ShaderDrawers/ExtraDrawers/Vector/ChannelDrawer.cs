@@ -19,6 +19,7 @@ namespace LWGUI
 	/// group: parent group name (Default: none)
 	/// Target Property Type: Vector, used to dot() with Texture Sample Value
 	/// </summary>
+	[LwguiDrawerCategory("Vector")]
 	public class ChannelDrawer : SubDrawer
 	{
 		private static GUIContent[] _names = new[]
@@ -50,7 +51,7 @@ namespace LWGUI
 			this.group = group;
 		}
 
-		protected override bool IsMatchPropType(MaterialProperty property) { return property.GetPropertyType() == ShaderPropertyType.Vector; }
+		public override bool IsMatchPropType(ShaderPropertyType propType) { return propType == ShaderPropertyType.Vector; }
 
 		private static int GetChannelIndex(MaterialProperty prop)
 		{

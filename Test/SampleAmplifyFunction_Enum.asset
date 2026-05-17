@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
+  m_Name: SampleAmplifyFunction_Enum
+  m_EditorClassIdentifier: 
+  m_functionInfo: "// Made with Amplify Shader Editor v2.0.0\n// Available at the
+    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=20000\nNode;AmplifyShaderEditor.CommentaryNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;21;-720,-80;Inherit;False;1447.371;686.4854;Keyword
+    Switch: Shader Feature Local;8;8;4;18;13;12;20;22;23;;1,1,1,1;0;0\nNode;AmplifyShaderEditor.StickyNoteNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;20;-64,224;Inherit;False;697.6001;100;Code:;;1,1,1,1;#pragma
+    shader_feature_local _ENABLE_RED _ENABLE_GREEN _ENABLE_BLUE;0;0\nNode;AmplifyShaderEditor.ColorNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;12;-336,-32;Inherit;False;Constant;_Color0;Color
+    0;3;0;Create;True;0;0;0;False;0;False;0;0;1,0,0,0;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5\nNode;AmplifyShaderEditor.ColorNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;13;-336,160;Inherit;False;Constant;_Color1;Color
+    0;3;0;Create;True;0;0;0;False;0;False;0;0;0,1,0,0;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5\nNode;AmplifyShaderEditor.ColorNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;18;-336,336;Inherit;False;Constant;_Color2;Color
+    0;3;0;Create;True;0;0;0;False;0;False;0;0;0,0,1,0;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5\nNode;AmplifyShaderEditor.StaticSwitch,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;22;176,0;Inherit;False;Property;_ENABLE_RED;_ENABLE_RED;3;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;False;_ENABLE_RED;Toggle;2;RED;GREEN;Reference;8;True;True;All;9;1;FLOAT3;0,0,0;False;0;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT3;0,0,0;False;4;FLOAT3;0,0,0;False;5;FLOAT3;0,0,0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT3;0,0,0;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.RangedFloatNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;2;-672,-208;Inherit;False;Property;_SubEnum;Sub
+    Enum;1;0;Create;True;0;0;0;True;0;False;1;SubEnumDrawer;string group,string n1,string
+    v1,string n2,string v2,string n3,string v3;7;Enum;R;0;G;1;B;2;7;group;Enum;n1;R;v1;0;n2;G;v2;1;n3;B;v3;2;0;0;0;0;0;0;1;FLOAT;0\nNode;AmplifyShaderEditor.StaticSwitch,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;8;-64,96;Inherit;False;Property;_ENABLE_;_ENABLE_;3;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;False;_ENABLE;KeywordEnum;3;RED;GREEN;BLUE;Create;True;True;All;9;1;FLOAT3;0,0,0;False;0;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT3;0,0,0;False;4;FLOAT3;0,0,0;False;5;FLOAT3;0,0,0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT3;0,0,0;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.RangedFloatNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;4;-672,-32;Inherit;False;Property;_KWEnum;KW
+    Enum;2;0;Create;True;0;0;0;True;0;False;1;KWEnumDrawer;string group,string n1,string
+    k1,string n2,string k2,string n3,string k3;7;Enum;Red;_ENABLE_RED;Green;_ENABLE_GREEN;Blue;_ENABLE_BLUE;7;group;Enum;n1;Red;k1;_ENABLE_RED;n2;Green;k2;_ENABLE_GREEN;n3;Blue;k3;_ENABLE_BLUE;0;0;0;0;0;0;1;FLOAT;0\nNode;AmplifyShaderEditor.StaticSwitch,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;23;416,0;Inherit;False;Property;_ENABLE_RED;_ENABLE_RED;3;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;False;_ENABLE_RED;Toggle;2;RED;GREEN;Fetch;True;True;All;9;1;FLOAT3;0,0,0;False;0;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT3;0,0,0;False;4;FLOAT3;0,0,0;False;5;FLOAT3;0,0,0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT3;0,0,0;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.RangedFloatNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;25;-672,640;Inherit;False;Property;_SubKeywordEnum;Sub
+    Keyword Enum;3;0;Create;True;0;0;0;True;0;False;1;SubKeywordEnumDrawer;string
+    group,string kw1,string kw2,string kw3;4;Enum;_KEY_1;_KEY_2;_KEY_3;4;group;Enum;kw1;_KEY_1;kw2;_KEY_2;kw3;_KEY_3;0;0;0;0;0;0;1;FLOAT;0\nNode;AmplifyShaderEditor.RangedFloatNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;26;-672,816;Inherit;False;Property;_Preset;Preset;4;0;Create;True;0;0;0;True;0;False;1;PresetDrawer;string
+    group,string presetFileName;2;Enum;LWGUI_ShaderPropertyPreset;2;group;Enum;presetFileName;LWGUI_ShaderPropertyPreset;0;0;0;0;0;0;1;FLOAT;0\nNode;AmplifyShaderEditor.RangedFloatNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;27;-672,880;Inherit;False;Property;_float1;Float
+    in Preset;5;0;Create;False;0;0;0;True;0;False;1;SubDrawer;string group;1;Enum;1;group;Enum;0;0;0;-1;1;0;1;FLOAT;0\nNode;AmplifyShaderEditor.RangedFloatNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;3;-672,-320;Inherit;False;Property;_EnumGroup;======
+    Enum Group - ASE Function ======;0;0;Create;False;0;0;0;True;0;False;1;MainDrawer;string
+    group,keyword keyword,enum defaultFoldingState,enum defaultToggleDisplayed;4;Enum;;on;off;4;group;Enum;keyword;;defaultFoldingState;on;defaultToggleDisplayed;off;0;0;0;0;0;0;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;0;1184,96;Inherit;False;True;-1;Output;0;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0\nWireConnection;8;1;12;5\nWireConnection;8;0;13;5\nWireConnection;8;2;18;5\nWireConnection;0;0;8;0\nASEEND*/\n//CHKSM=0DAAFEED58DA696B5972F6F535CFA60D762B0AA2"
+  m_functionName: 
+  m_description: 
+  m_additionalIncludes:
+    m_additionalIncludes: []
+    m_outsideIncludes: []
+  m_additionalPragmas:
+    m_additionalPragmas: []
+    m_outsidePragmas: []
+  m_additionalDirectives:
+    m_validData: 0
+    m_isDirty: 0
+    m_moduleName: ' Additional Directives'
+    m_independentModule: 1
+    m_customEdited: 0
+    m_additionalDirectives: []
+    m_shaderFunctionDirectives: []
+    m_nativeDirectives: []
+    m_nativeDirectivesIndex: -1
+    m_nativeDirectivesFoldout: 0
+    m_directivesSaveItems: []
+  m_nodeCategory: 3
+  m_headerStyle: 0
+  m_headerColor: {r: 1, g: 0.4, b: 0, a: 1}
+  m_customNodeCategory: 
+  m_previewPosition: 0
+  m_hidden: 0
+  m_url: 

@@ -1,8 +1,10 @@
 fileFormatVersion: 2
-guid: 5ce5f51521204d14bbb88913f98c148a
+guid: e4ffed5a49febe44989ba38158c5b490
 ShaderImporter:
   externalObjects: {}
-  defaultTextures: []
+  defaultTextures:
+  - _Ramp: {fileID: 2800000, guid: 1522a7c4f7317044ab912724c1594427, type: 3}
+  - _RampAtlas: {fileID: 2800000, guid: cfbe5a628e96c0d4bae3645ad922a368, type: 3}
   nonModifiableTextures: []
   userData: 
   assetBundleName: 

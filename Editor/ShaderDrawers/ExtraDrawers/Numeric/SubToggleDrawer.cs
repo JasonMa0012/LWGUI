@@ -16,6 +16,10 @@ namespace LWGUI
 	/// preset File Name: "Shader Property Preset" asset name, see Preset() for detail (Default: none)
 	/// Target Property Type: Float
 	/// </summary>
+	[LwguiDrawerCategory("Numeric")]
+	[LwguiDrawerParameterString("group", "", "Empty")]
+	[LwguiDrawerParameterKeyword("keyWord", "", "Empty")]
+	[LwguiDrawerParameterString("presetFileName", "", "Empty")]
 	public class SubToggleDrawer : SubDrawer, IPresetDrawer
 	{
 		private string _keyWord			= String.Empty;
@@ -34,9 +38,9 @@ namespace LWGUI
 			this._presetFileName = presetFileName;
 		}
 
-		protected override bool IsMatchPropType(MaterialProperty property)
+		public override bool IsMatchPropType(ShaderPropertyType propType)
 		{
-			return property.GetPropertyType() is ShaderPropertyType.Float;
+			return propType == ShaderPropertyType.Float;
 		}
 
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)

@@ -17,6 +17,10 @@ namespace LWGUI
 	///		*any Preset in the entire project cannot have the same name*
 	/// Target Property Type: Range
 	/// </summary>
+	[LwguiDrawerCategory("Numeric")]
+	[LwguiDrawerParameterString("group", "")]
+	[LwguiDrawerParameterFloat("power", 1f)]
+	[LwguiDrawerParameterString("presetFileName", "")]
 	public class SubPowerSliderDrawer : SubDrawer, IPresetDrawer
 	{
 		public string presetFileName;
@@ -34,7 +38,7 @@ namespace LWGUI
 			this.presetFileName = presetFileName;
 		}
 
-		protected override bool IsMatchPropType(MaterialProperty property) { return property.GetPropertyType() == ShaderPropertyType.Range; }
+		public override bool IsMatchPropType(ShaderPropertyType propType) { return propType == ShaderPropertyType.Range; }
 		
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
 		{

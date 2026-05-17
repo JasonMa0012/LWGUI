@@ -12,6 +12,7 @@ namespace LWGUI
 	/// group: parent group name (Default: none)
 	/// Target Property Type: Range
 	/// </summary>
+	[LwguiDrawerCategory("Numeric")]
 	public class SubIntRangeDrawer : SubDrawer
 	{
 		public SubIntRangeDrawer(string group)
@@ -19,7 +20,7 @@ namespace LWGUI
 			this.group = group;
 		}
 
-		protected override bool IsMatchPropType(MaterialProperty property) { return property.GetPropertyType() == ShaderPropertyType.Range; }
+		public override bool IsMatchPropType(ShaderPropertyType propType) { return propType == ShaderPropertyType.Range; }
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{

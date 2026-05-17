@@ -11,6 +11,12 @@ namespace LWGUI
 	/// 
 	/// message: a single-line string to display, support up to 4 ','. (Default: Newline)
 	/// </summary>
+	[LwguiDrawerCategory("Appearance")]
+	[LwguiDrawerParameterString("s1", "", "Empty")]
+	[LwguiDrawerParameterString("s2", "", "Empty")]
+	[LwguiDrawerParameterString("s3", "", "Empty")]
+	[LwguiDrawerParameterString("s4", "", "Empty")]
+	[LwguiDrawerParameterString("s5", "", "Empty")]
 	public class HelpboxDecorator : TooltipDecorator
 	{
 		private string _message;

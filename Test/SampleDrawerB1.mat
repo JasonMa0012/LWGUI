@@ -1,0 +1,142 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SampleDrawerB1
+  m_Shader: {fileID: 4800000, guid: 7ee048c9536c0344bb8b4860595a4d9b, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _GROUP_ON
+  - _KEY2
+  - _KEY3
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AdvancedImage:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _AdvancedTex0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _AdvancedTex1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LinearRamp:
+        m_Texture: {fileID: 2800000, guid: 6293a417776889843b0c6d20f25677be, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Ramp:
+        m_Texture: {fileID: 2800000, guid: 87addb69bcbcc9b4ea7336eff8d6a52b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Tex:
+        m_Texture: {fileID: 2800000, guid: 5366ba78a5c67fb498c8b4db71177ac2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _sRGBRamp:
+        m_Texture: {fileID: 2800000, guid: fad186cbfd0faf2488e2edb774c6d08f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex_channel:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex_color:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex_float:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex_range:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex_single_line:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex_toggle:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AdvancedFloat: 0
+    - _AdvancedImage: 0
+    - _AdvancedRange0: 0.252
+    - _Advancedfloat0: 0.12
+    - _Advancedfloat1: 0.13
+    - _Advancedfloat3: 0.21
+    - _Advancedfloat4: 0
+    - _Advancedfloat7: 0.24
+    - _button0: 0
+    - _enum: 1
+    - _float: -0.46
+    - _float1: -0.05
+    - _float2: -0.08
+    - _float3: 0
+    - _float4: 2
+    - _floatN: 0
+    - _float_helpbox: 1
+    - _float_tooltip: 1
+    - _group: 1
+    - _group1: 0
+    - _group2: 0
+    - _group3: 0
+    - _key13_PowerSlider: 0.199
+    - _key1_Float1: 0
+    - _key2_Float2: 0
+    - _key3_Float3: -0.34
+    - _key3_Float3_Range: 0.329
+    - _key3_Float4_PowerSlider: 0
+    - _key3_Int_Range: 1
+    - _minMaxSlider: 1
+    - _preset: 0
+    - _preset1: 0
+    - _preset_toggle: 0
+    - _range: 0.42
+    - _rangeEnd: 0.70471865
+    - _rangeStart: 0.20471871
+    - _textureFloat1: 1
+    - _toggle: 0
+    - _toggle1: 1
+    m_Colors:
+    - _AdvancedColor0: {r: 1, g: 1, b: 1, a: 1}
+    - _AdvancedColor7: {r: 1, g: 1, b: 1, a: 1}
+    - _color: {r: 1, g: 0.5886792, b: 0.5886792, a: 1}
+    - _color1: {r: 0, g: 1, b: 0.296113, a: 0}
+    - _mColor: {r: 0.6132076, g: 0.4014774, b: 0.4014774, a: 1}
+    - _mColor1: {r: 1, g: 0, b: 0, a: 1}
+    - _mColor2: {r: 0, g: 1, b: 0, a: 1}
+    - _mColor3: {r: 0, g: 0, b: 1, a: 1}
+    - _textureChannelMask: {r: 0, g: 1, b: 0, a: 0}
+    - _textureChannelMask1: {r: 0, g: 0, b: 0, a: 1}
+    - _vector1: {r: 1.32, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []

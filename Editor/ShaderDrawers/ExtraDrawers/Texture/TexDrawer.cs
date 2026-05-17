@@ -16,6 +16,7 @@ namespace LWGUI
 	/// Extra Property Type: Color, Vector
 	/// Target Property Type: Texture2D
 	/// </summary>
+	[LwguiDrawerCategory("Texture")]
 	public class TexDrawer : SubDrawer
 	{
 		private string        _extraPropName = String.Empty;
@@ -33,7 +34,7 @@ namespace LWGUI
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return EditorGUIUtility.singleLineHeight; }
 
-		protected override bool IsMatchPropType(MaterialProperty property) { return property.GetPropertyType() == ShaderPropertyType.Texture; }
+		public override bool IsMatchPropType(ShaderPropertyType propType) { return propType == ShaderPropertyType.Texture; }
 
 		public override void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)
 		{

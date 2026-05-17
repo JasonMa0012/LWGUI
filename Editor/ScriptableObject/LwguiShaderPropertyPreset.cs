@@ -72,7 +72,8 @@ namespace LWGUI
 				// is Property Primary Material
 				else if (perMaterialData != null)
 				{
-					var propDynamicData = perMaterialData.propDynamicDatas[propertyName];
+					if (!perMaterialData.propDynamicDatas.TryGetValue(propertyName, out var propDynamicData))
+						return;
 					var prop = propDynamicData.property;
 					switch (propertyType)
 					{

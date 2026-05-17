@@ -33,6 +33,16 @@ namespace LWGUI
 	/// bitDescription 7-0: Description of each Bit. (Default: none)
 	/// Target Property Type: Int/Integer
 	/// </summary>
+	[LwguiDrawerCategory("Numeric", 10)]
+	[LwguiDrawerParameterString("group", "", "Empty")]
+	[LwguiDrawerParameterString("bitDescription7", "", "Empty")]
+	[LwguiDrawerParameterString("bitDescription6", "", "Empty")]
+	[LwguiDrawerParameterString("bitDescription5", "", "Empty")]
+	[LwguiDrawerParameterString("bitDescription4", "", "Empty")]
+	[LwguiDrawerParameterString("bitDescription3", "", "Empty")]
+	[LwguiDrawerParameterString("bitDescription2", "", "Empty")]
+	[LwguiDrawerParameterString("bitDescription1", "", "Empty")]
+	[LwguiDrawerParameterString("bitDescription0", "", "Empty")]
 	public class BitMaskDrawer : SubDrawer
 	{
 		public int bitCount = 8;
@@ -92,8 +102,8 @@ namespace LWGUI
 			totalButtonWidth = buttonWidths.Sum();
 		}
 		
-		protected override bool IsMatchPropType(MaterialProperty property) 
-			=> property.GetPropertyType() is ShaderPropertyType.Float or ShaderPropertyType.Int;
+		public override bool IsMatchPropType(ShaderPropertyType propType) 
+			=> propType is ShaderPropertyType.Float or ShaderPropertyType.Int;
 
 		protected override float GetVisibleHeight(MaterialProperty prop) { return maxHeight; }
 

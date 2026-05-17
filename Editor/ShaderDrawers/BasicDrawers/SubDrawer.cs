@@ -13,6 +13,8 @@ namespace LWGUI
 	/// group: parent group name (Default: none)
 	/// Target Property Type: Any
 	/// </summary>
+	[LwguiDrawerCategory("Base", -90)]
+	[LwguiDrawerParameterString("group", "", "Empty")]
 	public class SubDrawer : MaterialPropertyDrawer, IBaseDrawer
 	{
 		public string         group = String.Empty;
@@ -25,7 +27,7 @@ namespace LWGUI
 			this.group = group;
 		}
 
-		protected virtual bool IsMatchPropType(MaterialProperty property) { return true; }
+		public virtual bool IsMatchPropType(ShaderPropertyType propType) { return true; }
 
 		protected virtual float GetVisibleHeight(MaterialProperty prop)
 		{
@@ -47,7 +49,7 @@ namespace LWGUI
 		{
 			metaDatas = Helper.GetLWGUIMetadatas(editor);
 
-			if (IsMatchPropType(prop))
+			if (IsMatchPropType(prop.GetPropertyType()))
 			{
 				DrawProp(position, prop, label, editor);
 			}

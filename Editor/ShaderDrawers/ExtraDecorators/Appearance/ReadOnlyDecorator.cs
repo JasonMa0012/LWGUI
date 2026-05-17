@@ -8,6 +8,7 @@ namespace LWGUI
 	/// <summary>
 	/// Set the property to read-only.
 	/// </summary>
+	[LwguiDrawerCategory("Appearance")]
 	public class ReadOnlyDecorator : SubDrawer
 	{
 		protected override float GetVisibleHeight(MaterialProperty prop) { return 0; }
