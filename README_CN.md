@@ -68,7 +68,7 @@ LWGUI 已在诸多大型商业项目中长期验证:
          * [PassSwitch](#passswitch)
       * [Structure](#structure)
          * [Advanced &amp; AdvancedHeaderProperty](#advanced--advancedheaderproperty)
-      * [Condition Display](#condition-display)
+      * [Condition](#condition)
          * [Hidden](#hidden)
          * [ShowIf](#showif)
          * [ActiveIf](#activeif)
