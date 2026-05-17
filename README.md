@@ -68,7 +68,7 @@ It significantly shortens iteration cycles while improving collaboration between
          * [PassSwitch](#passswitch)
       * [Structure](#structure)
          * [Advanced &amp; AdvancedHeaderProperty](#advanced--advancedheaderproperty)
-      * [Condition Display](#condition-display)
+      * [Condition](#condition)
          * [Hidden](#hidden)
          * [ShowIf](#showif)
          * [ActiveIf](#activeif)
