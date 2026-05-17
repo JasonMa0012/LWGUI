@@ -94,7 +94,7 @@ LWGUI 已在诸多大型商业项目中长期验证:
       * [生命周期](#生命周期)
 <!--te-->
 
-## Installation
+## 安装
 
 1. 确保你的Unity版本兼容LWGUI
 
@@ -107,7 +107,7 @@ LWGUI 已在诸多大型商业项目中长期验证:
    - 你也可以选择手动从Github下载Zip，然后从 `Package Manager > Add package from disk`添加Local Package
    - **对于Unity 2017, 请直接将Zip解压到Assets目录**
 
-## Getting Started
+## 入门
 
 1. 新建一个Shader或使用现有的Shader
 2. 在代码编辑器中打开Shader
@@ -194,79 +194,7 @@ Then change values:
 
 ## Extra Drawers
 
-### Numeric
-
-#### SubToggle
-
-```c#
-/// Similar to builtin Toggle()
-/// 
-/// group: parent group name (Default: none)
-/// keyword: keyword used for toggle, "_" = ignore, none or "__" = Property Name +  "_ON", always Upper (Default: none)
-/// preset File Name: "Shader Property Preset" asset name, see Preset() for detail (Default: none)
-/// Target Property Type: Float
-public SubToggleDrawer() { }
-public SubToggleDrawer(string group) : this(group, String.Empty, String.Empty) { }
-public SubToggleDrawer(string group, string keyWord) : this(group, keyWord, String.Empty) { }
-public SubToggleDrawer(string group, string keyWord, string presetFileName)
-```
-
-#### SubPowerSlider
-
-```c#
-/// Similar to builtin PowerSlider()
-/// 
-/// group: parent group name (Default: none)
-/// power: power of slider (Default: 1)
-/// presetFileName: "Shader Property Preset" asset name, it rounds up the float to choose which Preset to use.  
-///    You can create new Preset by  
-///    "Right Click > Create > LWGUI > Shader Property Preset" in Project window,  
-///    *any Preset in the entire project cannot have the same name*
-/// Target Property Type: Range
-public SubPowerSliderDrawer(float power) : this("_", power) { }  
-public SubPowerSliderDrawer(string group, float power) : this(group, power, string.Empty) { }  
-public SubPowerSliderDrawer(string group, float power, string presetFileName)
-```
-
-#### SubIntRange
-
-```c#
-/// Similar to builtin IntRange()
-/// 
-/// group: parent group name (Default: none)
-/// Target Property Type: Range
-public SubIntRangeDrawer(string group)
-
-```
-
-#### MinMaxSlider
-
-```c#
-/// Draw a min max slider
-/// 
-/// group: parent group name (Default: none)
-/// minPropName: Output Min Property Name
-/// maxPropName: Output Max Property Name
-/// Target Property Type: Range, range limits express the MinMaxSlider value range
-/// Output Min/Max Property Type: Range, it's value is limited by it's range
-public MinMaxSliderDrawer(string minPropName, string maxPropName) : this("_", minPropName, maxPropName) { }
-public MinMaxSliderDrawer(string group, string minPropName, string maxPropName)
-
-```
-
-Example:
-
-```c#
-[Title(MinMaxSlider Samples)]
-[MinMaxSlider(_rangeStart, _rangeEnd)] _minMaxSlider("Min Max Slider (0 - 1)", Range(0.0, 1.0)) = 1.0
-/*[HideInInspector]*/_rangeStart("Range Start", Range(0.0, 0.5)) = 0.0
-/*[HideInInspector]*/[PowerSlider(10)] _rangeEnd("Range End PowerSlider", Range(0.5, 1.0)) = 1.0
-
-```
-
-Result:
-
-![image-20220828003810353](assets~/image-20220828003810353.png)
+### Enum
 
 #### KWEnum
 
@@ -366,6 +294,8 @@ Result:
 
 ![image-20221122232354623](assets~/image-20221122232354623.png)![image-20221122232415972](assets~/image-20221122232415972.png)![image-20221122232425194](assets~/image-20221122232425194.png)
 
+
+### Numeric
 #### BitMask
 
 ```C#
@@ -408,79 +338,95 @@ Result:
 ![](assets~/Pasted%20image%2020250321174432.png)
 
 > [!CAUTION]
-> 警告: 如果用于设置Stencil, 则会与SRP Batcher冲突!
-> (在Unity 2022中复现)
+> If used to set Stencil, it will conflict with SRP Batcher!
+> (Reproduced in Unity 2022)
 >
-> SRP Batcher没有正确处理含有不同Stencil Ref的多个材质,
-> 错误地将它们合并为一个Batch, 并随机选择一个材质中的Stencil Ref值作为整个Batch的值.
-> 理论上如果不同材质有不同的Stencil Ref值, 由于Render State不同不应该被合并为一个Batch.
+> SRP Batcher does not correctly handle multiple materials with different Stencil Ref values,
+> mistakenly merging them into a single Batch and randomly selecting one material's Stencil Ref value for the entire Batch.
+> In theory, if different materials have different Stencil Ref values, they should not be merged into a single Batch due to differing Render States.
 >
-> 解决方法:
+> Solution:
 >
-> - 通过设置Material Property Block强制禁用SRP Batcher
-> - 使有相同Stencil Ref的材质在一个单独的Render Queue中, 以确保Batch的Render State是正确的
+> - Force disable SRP Batcher by setting the Material Property Block
+> - Place materials with the same Stencil Ref value in a separate Render Queue to ensure the Batch's Render State is correct
 
-#### RampAtlasIndexer
+#### MinMaxSlider
 
 ```c#
-/// 视觉上类似Ramp(), 但RampAtlasIndexer()必须和RampAtlas()一起使用.  
-/// 实际保存的值为当前Ramp在Ramp Atlas SO中的Index, 用于在Shader中采样Ramp Atlas Texture.  
-///  
-/// group: parent group name.  
-/// rampAtlasPropName: RampAtlas() property name.  
-/// defaultRampName: default ramp name. (Default: Ramp)  
-/// colorSpace: default ramp color space. (sRGB/Linear) (Default: sRGB)  
-/// viewChannelMask: editable channels. (Default: RGBA)  
-/// timeRange: the abscissa display range (1/24/2400), is used to optimize the editing experience when the abscissa is time of day. (Default: 1)  
-/// Target Property Type: Float
-public RampAtlasIndexerDrawer(string group, string rampAtlasPropName) : this(group, rampAtlasPropName, "Ramp") {}  
-public RampAtlasIndexerDrawer(string group, string rampAtlasPropName, string defaultRampName) : this(group, rampAtlasPropName, defaultRampName, "sRGB") {}  
-public RampAtlasIndexerDrawer(string group, string rampAtlasPropName, string defaultRampName, string colorSpace) : this(group, rampAtlasPropName, defaultRampName, colorSpace, "RGBA") {}  
-public RampAtlasIndexerDrawer(string group, string rampAtlasPropName, string defaultRampName, string colorSpace, string viewChannelMask) : this(group, rampAtlasPropName, defaultRampName, colorSpace, viewChannelMask, 1) {}  
-public RampAtlasIndexerDrawer(string group, string rampAtlasPropName, string defaultRampName, string colorSpace, string viewChannelMask, float timeRange)  
-```
-
-用法详见: RampAtlas()
-
-### Texture
-
-#### Tex
-
-```c#
-/// Draw a Texture property in single line with a extra property
+/// Draw a min max slider
 /// 
 /// group: parent group name (Default: none)
-/// extraPropName: extra property name (Default: none)
-/// Target Property Type: Texture
-/// Extra Property Type: Color, Vector
-/// Target Property Type: Texture2D
-public TexDrawer() { }
-public TexDrawer(string group) : this(group, String.Empty) { }
-public TexDrawer(string group, string extraPropName)
+/// minPropName: Output Min Property Name
+/// maxPropName: Output Max Property Name
+/// Target Property Type: Range, range limits express the MinMaxSlider value range
+/// Output Min/Max Property Type: Range, it's value is limited by it's range
+public MinMaxSliderDrawer(string minPropName, string maxPropName) : this("_", minPropName, maxPropName) { }
+public MinMaxSliderDrawer(string group, string minPropName, string maxPropName)
 
 ```
 
 Example:
 
 ```c#
-[Main(Group3, _, on)] _group3 ("Group - Tex and Color Samples", float) = 0
-[Tex(Group3, _color)] _tex_color ("Tex with Color", 2D) = "white" { }
-[HideInInspector] _color (" ", Color) = (1, 0, 0, 1)
-[Tex(Group3, _textureChannelMask1)] _tex_channel ("Tex with Channel", 2D) = "white" { }
-[HideInInspector] _textureChannelMask1(" ", Vector) = (0,0,0,1)
-
-// Display up to 4 colors in a single line
-[Color(Group3, _mColor1, _mColor2, _mColor3)]
-_mColor ("Multi Color", Color) = (1, 1, 1, 1)
-[HideInInspector] _mColor1 (" ", Color) = (1, 0, 0, 1)
-[HideInInspector] _mColor2 (" ", Color) = (0, 1, 0, 1)
-[HideInInspector] [HDR] _mColor3 (" ", Color) = (0, 0, 1, 1)
+[Title(MinMaxSlider Samples)]
+[MinMaxSlider(_rangeStart, _rangeEnd)] _minMaxSlider("Min Max Slider (0 - 1)", Range(0.0, 1.0)) = 1.0
+/*[HideInInspector]*/_rangeStart("Range Start", Range(0.0, 0.5)) = 0.0
+/*[HideInInspector]*/[PowerSlider(10)] _rangeEnd("Range End PowerSlider", Range(0.5, 1.0)) = 1.0
 
 ```
 
 Result:
 
-![image-20220828003507825](assets~/image-20220828003507825.png)
+![image-20220828003810353](assets~/image-20220828003810353.png)
+
+#### SubIntRange
+
+```c#
+/// Similar to builtin IntRange()
+/// 
+/// group: parent group name (Default: none)
+/// Target Property Type: Range
+public SubIntRangeDrawer(string group)
+
+```
+
+#### SubPowerSlider
+
+```c#
+/// Similar to builtin PowerSlider()
+/// 
+/// group: parent group name (Default: none)
+/// power: power of slider (Default: 1)
+/// presetFileName: "Shader Property Preset" asset name, it rounds up the float to choose which Preset to use.  
+///    You can create new Preset by  
+///    "Right Click > Create > LWGUI > Shader Property Preset" in Project window,  
+///    *any Preset in the entire project cannot have the same name*
+/// Target Property Type: Range
+public SubPowerSliderDrawer(float power) : this("_", power) { }  
+public SubPowerSliderDrawer(string group, float power) : this(group, power, string.Empty) { }  
+public SubPowerSliderDrawer(string group, float power, string presetFileName)
+```
+
+
+
+#### SubToggle
+
+```c#
+/// Similar to builtin Toggle()
+/// 
+/// group: parent group name (Default: none)
+/// keyword: keyword used for toggle, "_" = ignore, none or "__" = Property Name +  "_ON", always Upper (Default: none)
+/// preset File Name: "Shader Property Preset" asset name, see Preset() for detail (Default: none)
+/// Target Property Type: Float
+public SubToggleDrawer() { }
+public SubToggleDrawer(string group) : this(group, String.Empty, String.Empty) { }
+public SubToggleDrawer(string group, string keyWord) : this(group, keyWord, String.Empty) { }
+public SubToggleDrawer(string group, string keyWord, string presetFileName)
+```
+
+
+### Ramp
+
 
 #### Ramp
 
@@ -647,6 +593,29 @@ Ramp Atlas SO负责存储并生成Ramp Atlas Texture:
 > - 只添加Ramp
 > - 不要修改Ramp排序
 
+#### RampAtlasIndexer
+
+```c#
+/// 视觉上类似Ramp(), 但RampAtlasIndexer()必须和RampAtlas()一起使用.  
+/// 实际保存的值为当前Ramp在Ramp Atlas SO中的Index, 用于在Shader中采样Ramp Atlas Texture.  
+///  
+/// group: parent group name.  
+/// rampAtlasPropName: RampAtlas() property name.  
+/// defaultRampName: default ramp name. (Default: Ramp)  
+/// colorSpace: default ramp color space. (sRGB/Linear) (Default: sRGB)  
+/// viewChannelMask: editable channels. (Default: RGBA)  
+/// timeRange: the abscissa display range (1/24/2400), is used to optimize the editing experience when the abscissa is time of day. (Default: 1)  
+/// Target Property Type: Float
+public RampAtlasIndexerDrawer(string group, string rampAtlasPropName) : this(group, rampAtlasPropName, "Ramp") {}  
+public RampAtlasIndexerDrawer(string group, string rampAtlasPropName, string defaultRampName) : this(group, rampAtlasPropName, defaultRampName, "sRGB") {}  
+public RampAtlasIndexerDrawer(string group, string rampAtlasPropName, string defaultRampName, string colorSpace) : this(group, rampAtlasPropName, defaultRampName, colorSpace, "RGBA") {}  
+public RampAtlasIndexerDrawer(string group, string rampAtlasPropName, string defaultRampName, string colorSpace, string viewChannelMask) : this(group, rampAtlasPropName, defaultRampName, colorSpace, viewChannelMask, 1) {}  
+public RampAtlasIndexerDrawer(string group, string rampAtlasPropName, string defaultRampName, string colorSpace, string viewChannelMask, float timeRange)  
+```
+
+用法详见: RampAtlas()
+
+### Texture
 #### Image
 
 ```c#
@@ -663,7 +632,78 @@ Result:
 
 ![image-20240416142736663](./assets~/image-20240416142736663.png)
 
+
+#### Tex
+
+```c#
+/// Draw a Texture property in single line with a extra property
+/// 
+/// group: parent group name (Default: none)
+/// extraPropName: extra property name (Default: none)
+/// Target Property Type: Texture
+/// Extra Property Type: Color, Vector
+/// Target Property Type: Texture2D
+public TexDrawer() { }
+public TexDrawer(string group) : this(group, String.Empty) { }
+public TexDrawer(string group, string extraPropName)
+
+```
+
+Example:
+
+```c#
+[Main(Group3, _, on)] _group3 ("Group - Tex and Color Samples", float) = 0
+[Tex(Group3, _color)] _tex_color ("Tex with Color", 2D) = "white" { }
+[HideInInspector] _color (" ", Color) = (1, 0, 0, 1)
+[Tex(Group3, _textureChannelMask1)] _tex_channel ("Tex with Channel", 2D) = "white" { }
+[HideInInspector] _textureChannelMask1(" ", Vector) = (0,0,0,1)
+
+// Display up to 4 colors in a single line
+[Color(Group3, _mColor1, _mColor2, _mColor3)]
+_mColor ("Multi Color", Color) = (1, 1, 1, 1)
+[HideInInspector] _mColor1 (" ", Color) = (1, 0, 0, 1)
+[HideInInspector] _mColor2 (" ", Color) = (0, 1, 0, 1)
+[HideInInspector] [HDR] _mColor3 (" ", Color) = (0, 0, 1, 1)
+
+```
+
+Result:
+
+![image-20220828003507825](assets~/image-20220828003507825.png)
+
+
 ### Vector
+#### Channel
+
+```c#
+/// Draw a R/G/B/A drop menu:
+/// 	R = (1, 0, 0, 0)
+/// 	G = (0, 1, 0, 0)
+/// 	B = (0, 0, 1, 0)
+/// 	A = (0, 0, 0, 1)
+/// 	RGB Average = (1f / 3f, 1f / 3f, 1f / 3f, 0)
+/// 	RGB Luminance = (0.2126f, 0.7152f, 0.0722f, 0)
+///		None = (0, 0, 0, 0)
+/// 
+/// group: parent group name (Default: none)
+/// Target Property Type: Vector, used to dot() with Texture Sample Value
+public ChannelDrawer() { }
+public ChannelDrawer(string group)
+```
+
+Example:
+
+```c#
+[Title(_, Channel Samples)]
+[Channel(_)]_textureChannelMask("Texture Channel Mask (Default G)", Vector) = (0,1,0,0)
+
+......
+
+float selectedChannelValue = dot(tex2D(_Tex, uv), _textureChannelMask);
+```
+
+![image-20220822010511978](assets~/image-20220822010511978.png)
+
 
 #### Color
 
@@ -701,36 +741,6 @@ Result:
 
 ![image-20220828003507825](assets~/image-20220828003507825.png)
 
-#### Channel
-
-```c#
-/// Draw a R/G/B/A drop menu:
-/// 	R = (1, 0, 0, 0)
-/// 	G = (0, 1, 0, 0)
-/// 	B = (0, 0, 1, 0)
-/// 	A = (0, 0, 0, 1)
-/// 	RGB Average = (1f / 3f, 1f / 3f, 1f / 3f, 0)
-/// 	RGB Luminance = (0.2126f, 0.7152f, 0.0722f, 0)
-///		None = (0, 0, 0, 0)
-/// 
-/// group: parent group name (Default: none)
-/// Target Property Type: Vector, used to dot() with Texture Sample Value
-public ChannelDrawer() { }
-public ChannelDrawer(string group)
-```
-
-Example:
-
-```c#
-[Title(_, Channel Samples)]
-[Channel(_)]_textureChannelMask("Texture Channel Mask (Default G)", Vector) = (0,1,0,0)
-
-......
-
-float selectedChannelValue = dot(tex2D(_Tex, uv), _textureChannelMask);
-```
-
-![image-20220822010511978](assets~/image-20220822010511978.png)
 
 ### Other
 
@@ -773,7 +783,7 @@ Example:
 
 ### Appearance
 
-#### Title & SubTitle
+#### Title
 
 ```c#
 /// <summary>
@@ -854,11 +864,11 @@ Tips:
 
 - Tooltip可能在Editor运行时消失, 这是Unity本身的特性 (或者是bug)
 
-#### ReadOnly
+#### Hidden
 
 ```c#
-/// 将属性设为只读.
-public ReadOnlyDecorator()
+/// 类似于HideInInspector(), 区别在于Hidden()可以通过Display Mode按钮取消隐藏.
+public HiddenDecorator()
 ```
 
 #### HelpURL
@@ -887,7 +897,83 @@ public HelpURLDecorator(string s1, string s2, ..., string s16)
 [Main(GroupName2, _, on, off)] _group2 ("Group2", float) = 0
 ```
 
-### Logic
+
+#### ReadOnly
+
+```c#
+/// 将属性设为只读.
+public ReadOnlyDecorator()
+```
+
+### Condition
+
+#### ActiveIf
+
+```c#
+/// 基于多个条件控制单个属性或一组属性是否可编辑.
+/// 
+/// logicalOperator: And | Or (默认: And).
+/// propNameOrKeyword: 用于比较的目标属性名或Keyword. 若未找到匹配的属性, 则回退为检查材质Keyword (启用 = 1, 未启用 = 0).
+/// compareFunction: Less (L) | Equal (E) | LessEqual (LEqual / LE) | Greater (G) | NotEqual (NEqual / NE) | GreaterEqual (GEqual / GE).
+/// value: 用于比较的目标值.
+/// 
+/// 当条件为 false 时, 属性会变为只读.
+public ActiveIfDecorator(string propNameOrKeyword, string comparisonMethod, float value) : this("And", propNameOrKeyword, comparisonMethod, value) { }
+public ActiveIfDecorator(string logicalOperator, string propNameOrKeyword, string compareFunction, float value)
+```
+
+示例:
+
+```c#
+[Main(GroupName)] _group ("Group", float) = 0
+[Sub(GroupName)][KWEnum(Key 1, _KEY1, key 2, _KEY2)] _enum ("KWEnum", float) = 0
+[Sub(GroupName)][ActiveIf(_enum, Equal, 0)] _float0 ("Editable only when key 1", float) = 0
+[Sub(GroupName)][ActiveIf(_enum, E, 1)] _float1 ("Editable only when key 2", float) = 0
+[Sub(GroupName)][ActiveIf(Or, _enum, E, 0)][ActiveIf(Or, _enum, G, 0)] _float2 ("Editable when key >= 0", float) = 0
+```
+
+
+#### ShowIf
+
+```c#
+/// 基于多个条件控制单个或一组属性的显示/隐藏.
+///
+/// logicalOperator: And | Or (默认: And).
+/// propNameOrKeyword: 用于比较的目标属性名或Keyword. 若未找到匹配的属性, 则回退为检查材质Keyword (启用 = 1, 未启用 = 0).
+/// compareFunction: Less (L) | Equal (E) | LessEqual (LEqual / LE) | Greater (G) | NotEqual (NEqual / NE) | GreaterEqual (GEqual / GE).
+/// value: 用于比较的目标值.
+public ShowIfDecorator(string propNameOrKeyword, string comparisonMethod, float value) : this("And", propNameOrKeyword, comparisonMethod, value) { }
+public ShowIfDecorator(string logicalOperator, string propNameOrKeyword, string compareFunction, float value)
+```
+
+Example:
+
+```c#
+[ShowIf(_enum, Equal, 1)]
+[Title(ShowIf Main Samples)]
+[Main(GroupName)] _group ("Group", float) = 0
+[Sub(GroupName)] _float ("Float", float) = 0
+[Sub(GroupName)] _Tex ("Tex", 2D) = "white" { }
+
+...
+
+[SubTitle(Group1, Conditional Display Samples       Enum)]
+[KWEnum(Group1, Name 1, _KEY1, Name 2, _KEY2, Name 3, _KEY3)] _enum ("KWEnum", float) = 0
+[Sub(Group1)][ShowIf(_enum, Equal, 0)] _key1_Float1 ("Key1 Float", float) = 0
+[Sub(Group1)][ShowIf(_enum, Equal, 1)] _key2_Float2 ("Key2 Float", float) = 0
+[SubIntRange(Group1)][ShowIf(_enum, Equal, 2)] _key3_Int_Range ("Key3 Int Range", Range(0, 10)) = 0
+[ShowIf(_enum, Equal, 0)][ShowIf(Or, _enum, Equal, 2)]
+[SubPowerSlider(Group1, 3)] _key13_PowerSlider ("Key1 or Key3 Power Slider", Range(0, 1)) = 0
+
+```
+
+![image-20231023010137495](./assets~/image-20231023010137495.png)
+
+![image-20231023010153213](./assets~/image-20231023010153213.png)
+
+![image-20231023010204399](./assets~/image-20231023010204399.png)
+
+
 
 #### PassSwitch
 
@@ -945,80 +1031,6 @@ Tips:
 
 - LWGUI使用树状数据结构存储Group和Advanced Block及其子级的关系, 理论上可以存储无限多级父子关系, 但**目前LWGUI仅手动处理3层父子关系, 也就是说你可以将Advanced Block放在Group内, 而不能将Group放在Advanced Block内.**
 
-### Condition
-
-#### Hidden
-
-```c#
-/// 类似于HideInInspector(), 区别在于Hidden()可以通过Display Mode按钮取消隐藏.
-public HiddenDecorator()
-```
-
-#### ShowIf
-
-```c#
-/// 基于多个条件控制单个或一组属性的显示/隐藏.
-///
-/// logicalOperator: And | Or (默认: And).
-/// propNameOrKeyword: 用于比较的目标属性名或Keyword. 若未找到匹配的属性, 则回退为检查材质Keyword (启用 = 1, 未启用 = 0).
-/// compareFunction: Less (L) | Equal (E) | LessEqual (LEqual / LE) | Greater (G) | NotEqual (NEqual / NE) | GreaterEqual (GEqual / GE).
-/// value: 用于比较的目标值.
-public ShowIfDecorator(string propNameOrKeyword, string comparisonMethod, float value) : this("And", propNameOrKeyword, comparisonMethod, value) { }
-public ShowIfDecorator(string logicalOperator, string propNameOrKeyword, string compareFunction, float value)
-```
-
-Example:
-
-```c#
-[ShowIf(_enum, Equal, 1)]
-[Title(ShowIf Main Samples)]
-[Main(GroupName)] _group ("Group", float) = 0
-[Sub(GroupName)] _float ("Float", float) = 0
-[Sub(GroupName)] _Tex ("Tex", 2D) = "white" { }
-
-...
-
-[SubTitle(Group1, Conditional Display Samples       Enum)]
-[KWEnum(Group1, Name 1, _KEY1, Name 2, _KEY2, Name 3, _KEY3)] _enum ("KWEnum", float) = 0
-[Sub(Group1)][ShowIf(_enum, Equal, 0)] _key1_Float1 ("Key1 Float", float) = 0
-[Sub(Group1)][ShowIf(_enum, Equal, 1)] _key2_Float2 ("Key2 Float", float) = 0
-[SubIntRange(Group1)][ShowIf(_enum, Equal, 2)] _key3_Int_Range ("Key3 Int Range", Range(0, 10)) = 0
-[ShowIf(_enum, Equal, 0)][ShowIf(Or, _enum, Equal, 2)]
-[SubPowerSlider(Group1, 3)] _key13_PowerSlider ("Key1 or Key3 Power Slider", Range(0, 1)) = 0
-
-```
-
-![image-20231023010137495](./assets~/image-20231023010137495.png)
-
-![image-20231023010153213](./assets~/image-20231023010153213.png)
-
-![image-20231023010204399](./assets~/image-20231023010204399.png)
-
-#### ActiveIf
-
-```c#
-/// 基于多个条件控制单个属性或一组属性是否可编辑.
-/// 
-/// logicalOperator: And | Or (默认: And).
-/// propNameOrKeyword: 用于比较的目标属性名或Keyword. 若未找到匹配的属性, 则回退为检查材质Keyword (启用 = 1, 未启用 = 0).
-/// compareFunction: Less (L) | Equal (E) | LessEqual (LEqual / LE) | Greater (G) | NotEqual (NEqual / NE) | GreaterEqual (GEqual / GE).
-/// value: 用于比较的目标值.
-/// 
-/// 当条件为 false 时, 属性会变为只读.
-public ActiveIfDecorator(string propNameOrKeyword, string comparisonMethod, float value) : this("And", propNameOrKeyword, comparisonMethod, value) { }
-public ActiveIfDecorator(string logicalOperator, string propNameOrKeyword, string compareFunction, float value)
-```
-
-示例:
-
-```c#
-[Main(GroupName)] _group ("Group", float) = 0
-[Sub(GroupName)][KWEnum(Key 1, _KEY1, key 2, _KEY2)] _enum ("KWEnum", float) = 0
-[Sub(GroupName)][ActiveIf(_enum, Equal, 0)] _float0 ("Editable only when key 1", float) = 0
-[Sub(GroupName)][ActiveIf(_enum, E, 1)] _float1 ("Editable only when key 2", float) = 0
-[Sub(GroupName)][ActiveIf(Or, _enum, E, 0)][ActiveIf(Or, _enum, G, 0)] _float2 ("Editable when key >= 0", float) = 0
-```
-
 ## LWGUI Timeline Tracks
 
 ### MaterialKeywordToggleTrack
@@ -1027,7 +1039,7 @@ public ActiveIfDecorator(string logicalOperator, string propNameOrKeyword, strin
 
 支持带Keyword的Toggle类型的Drawer.
 
-## Unity Builtin Drawers
+## Unity 内置 Drawers
 
 ### Space
 
@@ -1071,7 +1083,7 @@ MaterialPowerSliderDrawer(float power)
 MaterialToggleUIDrawer(string keyword)
 ```
 
-## FAQs
+## 常见问题
 
 ### 在代码中修改材质后出现问题
 
@@ -1083,7 +1095,7 @@ MaterialToggleUIDrawer(string keyword)
 在代码中创建材质时部分Drawer逻辑不会运行, 默认值可能不符合预期.
 你需要手动调用 `LWGUI.PresetHelper.ApplyPresetsInMaterial()`以确保默认值正确.
 
-## Custom Shader GUI
+## 自定义 Shader GUI
 
 ### Custom Header and Footer
 

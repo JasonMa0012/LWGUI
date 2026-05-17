@@ -36,6 +36,7 @@
             }
           }
         ],
+        "currentTab": 1,
         "stacked": true
       }
     ],
@@ -103,13 +104,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "README_CN.md",
+                "file": "README.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "README_CN 的大纲"
+              "title": "README 的大纲"
             }
           }
         ]
@@ -204,8 +205,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b1edbf85e4d83fa5",
+  "active": "9762a61535bfd3ff",
   "lastOpenFiles": [
+    "README_CN.md",
+    "README.md",
+    "_diff.patch -Encoding ascii",
+    "lwgui_editor_diff.patch",
+    "diff.patch",
     "_diff_decorators.txt",
     "Editor/ShaderDrawers/ExtraDrawers/Enum/SubEnumDrawer.cs.meta",
     "Editor/ShaderDrawers/ExtraDrawers/Ramp/RampDrawer.cs.meta",
@@ -213,12 +219,6 @@
     "lwgui_diff_stat.txt.meta",
     "Editor/ShaderDrawers/ExtraDrawers/Enum/SubKeywordEnumDrawer.cs.meta",
     "lwgui_diff.txt.meta",
-    "Editor/ShaderDrawers/ExtraDrawers/Ramp/RampAtlasIndexerDrawer.cs.meta",
-    "Editor/ShaderDrawers/ExtraDrawers/Ramp.meta",
-    "Editor/ShaderDrawers/ExtraDrawers/Enum/PresetDrawer.cs.meta",
-    "lwgui_diff_names.txt.meta",
-    "README.md",
-    "README_CN.md",
     "assets~/Pasted image 20250523120309.png",
     "assets~/Pasted image 20250522183200.png",
     "assets~/Pasted image 20250321174432.png",
