@@ -947,7 +947,7 @@ Tips:
 
 - LWGUI uses a tree data structure to store the relationship between Group, Advanced Block and their children. In theory, it can store unlimited multi-level parent-child relationships, but **currently LWGUI only manually handles 3-level parent-child relationships, which means you can put an Advanced Block in a Group, but a Group cannot be placed in an Advanced Block.**
 
-### Condition Display
+### Condition
 
 #### Hidden
 

@@ -945,7 +945,7 @@ Tips:
 
 - LWGUI使用树状数据结构存储Group和Advanced Block及其子级的关系, 理论上可以存储无限多级父子关系, 但**目前LWGUI仅手动处理3层父子关系, 也就是说你可以将Advanced Block放在Group内, 而不能将Group放在Advanced Block内.**
 
-### Condition Display
+### Condition
 
 #### Hidden
 

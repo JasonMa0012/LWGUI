@@ -36,7 +36,6 @@
             }
           }
         ],
-        "currentTab": 1,
         "stacked": true
       }
     ],
@@ -104,13 +103,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "README.md",
+                "file": "README_CN.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "README 的大纲"
+              "title": "README_CN 的大纲"
             }
           }
         ]
@@ -205,10 +204,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "9762a61535bfd3ff",
+  "active": "d93ffc2d4e7b14bd",
   "lastOpenFiles": [
-    "README_CN.md",
     "README.md",
+    "README_CN.md",
     "Editor/ShaderDrawers.meta",
     "Editor/ShaderDrawers",
     "Editor/ShaderDrawer.cs~",
