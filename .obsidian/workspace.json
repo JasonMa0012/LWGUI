@@ -116,7 +116,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 306.49999618530273
   },
   "right": {
     "id": "8ffc43f3ce8e7b24",
@@ -204,20 +204,21 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "d93ffc2d4e7b14bd",
+  "active": "b1edbf85e4d83fa5",
   "lastOpenFiles": [
+    "_diff_decorators.txt",
+    "Editor/ShaderDrawers/ExtraDrawers/Enum/SubEnumDrawer.cs.meta",
+    "Editor/ShaderDrawers/ExtraDrawers/Ramp/RampDrawer.cs.meta",
+    "Editor/ShaderDrawers/ExtraDrawers/Enum.meta",
+    "lwgui_diff_stat.txt.meta",
+    "Editor/ShaderDrawers/ExtraDrawers/Enum/SubKeywordEnumDrawer.cs.meta",
+    "lwgui_diff.txt.meta",
+    "Editor/ShaderDrawers/ExtraDrawers/Ramp/RampAtlasIndexerDrawer.cs.meta",
+    "Editor/ShaderDrawers/ExtraDrawers/Ramp.meta",
+    "Editor/ShaderDrawers/ExtraDrawers/Enum/PresetDrawer.cs.meta",
+    "lwgui_diff_names.txt.meta",
     "README.md",
     "README_CN.md",
-    "Editor/ShaderDrawers.meta",
-    "Editor/ShaderDrawers",
-    "Editor/ShaderDrawer.cs~",
-    "package.json~",
-    "Editor/ScriptableObject.meta",
-    "Editor/ScriptableObject/LwguiShaderPropertyPreset.cs.meta",
-    "Editor/ScriptableObject/LwguiRampAtlas.cs.meta",
-    "Editor/ScriptableObject/LwguiShaderPropertyPreset.cs",
-    "Editor/ScriptableObject/GradientObject.cs.meta",
-    "Editor/ScriptableObject/LwguiRampAtlas.cs",
     "assets~/Pasted image 20250523120309.png",
     "assets~/Pasted image 20250522183200.png",
     "assets~/Pasted image 20250321174432.png",
