@@ -543,7 +543,7 @@ namespace LWGUI
 		{
 			try
 			{
-				var instance = (SubDrawer)Activator.CreateInstance(drawerType);
+				var instance = (SubDrawer)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(drawerType);
 				return instance.IsMatchPropType(propType);
 			}
 			catch
