@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -227,6 +228,8 @@ namespace LWGUI
 		/// </summary>
 		public void SetParameterValue(string paramName, string value)
 		{
+			value = SanitizeParameterValue(value);
+
 			var param = _namedParameters.FirstOrDefault(np => np.name == paramName);
 			if (param != null)
 			{
@@ -240,6 +243,21 @@ namespace LWGUI
 			// Sync to indexed parameters
 			var constructor = GetCurrentConstructor();
 			SyncParameters(constructor);
+		}
+
+		public static string SanitizeParameterValue(string value)
+		{
+			if (string.IsNullOrEmpty(value))
+				return value;
+
+			var sb = new System.Text.StringBuilder(value.Length);
+			foreach (char c in value)
+			{
+				if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
+				    c == '_' || c == '.' || c == ' ' || c == '(' || c == ')')
+					sb.Append(c);
+			}
+			return sb.ToString();
 		}
 
 		/// <summary>
