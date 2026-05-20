@@ -250,14 +250,36 @@ namespace LWGUI
 			if (string.IsNullOrEmpty(value))
 				return value;
 
-			var sb = new System.Text.StringBuilder(value.Length);
-			foreach (char c in value)
+			for (int i = 0; i < value.Length; i++)
 			{
-				if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
-				    c == '_' || c == '.' || c == ' ' || c == '(' || c == ')')
-					sb.Append(c);
+				if (!IsAllowedSanitizedChar(value[i]))
+				{
+					var sb = new StringBuilder(value.Length);
+					sb.Append(value, 0, i);
+					for (; i < value.Length; i++)
+					{
+						char c = value[i];
+						if (IsAllowedSanitizedChar(c))
+							sb.Append(c);
+					}
+					return sb.ToString();
+				}
 			}
-			return sb.ToString();
+
+			return value;
+		}
+
+		private static bool IsAllowedSanitizedChar(char c)
+		{
+			return c is >= 'A' and <= 'Z' 
+				or >= 'a' and <= 'z' 
+				or >= '0' and <= '9' 
+				or '_' 
+				or '.' 
+				or ' ' 
+				or '(' 
+				or ')' 
+				or '-';
 		}
 
 		/// <summary>
