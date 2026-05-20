@@ -60,6 +60,9 @@ namespace LWGUI.PerformanceMonitor.ShaderCompiler
             if (shaderPerfData == null || pass == null || keywords == null)
                 return false;
 
+            if (string.IsNullOrEmpty(_fxcAbsPath) || !File.Exists(_fxcAbsPath))
+                return false;
+
             var compileInfo = pass.CompileVariant(shaderType, keywords, api, target, tier, true);
             if (!compileInfo.Success)
                 return false;
@@ -109,7 +112,7 @@ namespace LWGUI.PerformanceMonitor.ShaderCompiler
             get
             {
                 if (string.IsNullOrEmpty(_cachedFxcPath))
-                    _cachedFxcPath = IOHelper.GetAbsPath(AssetDatabase.GUIDToAssetPath("994434336edc8a8469c9afcbb92c5936"));
+                    _cachedFxcPath = IOHelper.GetAssetAbsPathFromGUID("994434336edc8a8469c9afcbb92c5936");
                 if (string.IsNullOrEmpty(_cachedFxcPath) || !File.Exists(_cachedFxcPath))
                     Debug.LogError("LWGUI: Can not find fxc.exe!");
                 return _cachedFxcPath;

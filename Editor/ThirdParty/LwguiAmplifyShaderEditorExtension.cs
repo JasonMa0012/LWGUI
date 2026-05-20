@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -227,6 +228,8 @@ namespace LWGUI
 		/// </summary>
 		public void SetParameterValue(string paramName, string value)
 		{
+			value = SanitizeParameterValue(value);
+
 			var param = _namedParameters.FirstOrDefault(np => np.name == paramName);
 			if (param != null)
 			{
@@ -240,6 +243,43 @@ namespace LWGUI
 			// Sync to indexed parameters
 			var constructor = GetCurrentConstructor();
 			SyncParameters(constructor);
+		}
+
+		public static string SanitizeParameterValue(string value)
+		{
+			if (string.IsNullOrEmpty(value))
+				return value;
+
+			for (int i = 0; i < value.Length; i++)
+			{
+				if (!IsAllowedSanitizedChar(value[i]))
+				{
+					var sb = new StringBuilder(value.Length);
+					sb.Append(value, 0, i);
+					for (; i < value.Length; i++)
+					{
+						char c = value[i];
+						if (IsAllowedSanitizedChar(c))
+							sb.Append(c);
+					}
+					return sb.ToString();
+				}
+			}
+
+			return value;
+		}
+
+		private static bool IsAllowedSanitizedChar(char c)
+		{
+			return c is >= 'A' and <= 'Z' 
+				or >= 'a' and <= 'z' 
+				or >= '0' and <= '9' 
+				or '_' 
+				or '.' 
+				or ' ' 
+				or '(' 
+				or ')' 
+				or '-';
 		}
 
 		/// <summary>
@@ -543,7 +583,7 @@ namespace LWGUI
 		{
 			try
 			{
-				var instance = (SubDrawer)Activator.CreateInstance(drawerType);
+				var instance = (SubDrawer)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(drawerType);
 				return instance.IsMatchPropType(propType);
 			}
 			catch
