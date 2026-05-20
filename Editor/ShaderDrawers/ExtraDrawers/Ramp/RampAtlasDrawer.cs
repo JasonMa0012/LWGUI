@@ -55,9 +55,9 @@ namespace LWGUI
 
 		public RampAtlasDrawer(string group, string defaultFileName, string rootPath, string colorSpace, float defaultWidth, float defaultHeight, string showAtlasPreview, string rampAtlasTypeName)
 		{
-			if (!rootPath.StartsWith(this.rootPath))
+			if (!rootPath.StartsWith(this.rootPath) && !rootPath.StartsWith("Packages"))
 			{
-				Debug.LogError("LWGUI: Ramp Atlas Root Path: '" + rootPath + "' must start with 'Assets'!");
+				Debug.LogError("LWGUI: Ramp Atlas Root Path: '" + rootPath + "' must start with 'Assets' or 'Packages'!");
 				rootPath = this.rootPath;
 			}
 			this.group = group;

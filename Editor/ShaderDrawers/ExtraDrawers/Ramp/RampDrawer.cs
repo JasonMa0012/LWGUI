@@ -69,9 +69,9 @@ namespace LWGUI
 
 		public RampDrawer(string group, string defaultFileName, string rootPath, string colorSpace, float defaultWidth, string viewChannelMask, float timeRange)
 		{
-			if (!rootPath.StartsWith(DefaultRootPath))
+			if (!rootPath.StartsWith(DefaultRootPath) && !rootPath.StartsWith("Packages"))
 			{
-				Debug.LogError("LWGUI: Ramp Root Path: '" + rootPath + "' must start with 'Assets'!");
+				Debug.LogError("LWGUI: Ramp Root Path: '" + rootPath + "' must start with 'Assets' or 'Packages'!");
 				rootPath = DefaultRootPath;
 			}
 			this.group = group;
@@ -231,8 +231,9 @@ namespace LWGUI
 			var newManualSelectedTexture = (Texture2D)EditorGUI.ObjectField(rampFieldRect, prop.textureValue, typeof(Texture2D), false);
 			if (Helper.EndChangeCheck(metaDatas, prop))
 			{
-				if (newManualSelectedTexture && !AssetDatabase.GetAssetPath(newManualSelectedTexture).StartsWith(rootPath))
-					EditorUtility.DisplayDialog("Invalid Path", "Please select the subdirectory of '" + rootPath + "'", "OK");
+				var texturePath = AssetDatabase.GetAssetPath(newManualSelectedTexture);
+				if (newManualSelectedTexture && !texturePath.StartsWith(rootPath) && !texturePath.StartsWith("Packages/"))
+					EditorUtility.DisplayDialog("Invalid Path", "Please select the subdirectory of '" + rootPath + "' or a Package asset", "OK");
 				else
 					SwitchRampMap(prop, newManualSelectedTexture, 0);
 			}
