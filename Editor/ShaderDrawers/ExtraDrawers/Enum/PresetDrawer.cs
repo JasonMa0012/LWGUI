@@ -67,13 +67,11 @@ namespace LWGUI
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 
-			var rect = position;
-
 			int index = (int)Mathf.Max(0, prop.floatValue);
 			var presetFile = PresetHelper.GetPresetAsset(presetFileName);
 			if (!presetFile || presetFile.GetPresetCount() == 0)
 			{
-				Helper.DrawShaderPropertyWithErrorLabel(rect, prop, label, editor, $"Invalid Preset File: {presetFileName}");
+				Helper.DrawShaderPropertyWithErrorLabel(position, prop, label, editor, $"Invalid Preset File: {presetFileName}");
 				return;
 			}
 
@@ -82,9 +80,10 @@ namespace LWGUI
 				var presetNames = presetFile.GetPresets().Select((inPreset) => new GUIContent(inPreset.presetName)).ToArray();
 				if (EditorGUI.showMixedValue)
 					index = -1;
-				else
-					Helper.AdaptiveFieldWidth(EditorStyles.popup, presetNames[index]);
-				int newIndex = EditorGUI.Popup(rect, label, index, presetNames);
+				var oldLabelWidth = EditorGUIUtility.labelWidth;
+				// EditorGUIUtility.labelWidth = 0f;
+				int newIndex = EditorGUI.Popup(position, label, index, presetNames);
+				EditorGUIUtility.labelWidth = oldLabelWidth;
 				if (Helper.EndChangeCheck(metaDatas, prop))
 				{
 					prop.floatValue = newIndex;

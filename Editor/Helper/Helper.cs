@@ -251,6 +251,24 @@ namespace LWGUI
 
 		#region Draw GUI for Materials
 
+		/// <summary>
+		///   <para>The width in pixels reserved for labels of Editor GUI controls.</para>
+		/// </summary>
+		public static float labelWidth => Mathf.Max(ReflectionHelper.EditorGUIUtility_contextWidth * labelWidthPercentage - EditorGUIUtility.fieldWidth, 120f);
+
+		public static float labelWidthPercentage = 0.45f;
+		
+		/// <summary>
+		/// Set the GUI Widths that users can adjust.  
+		/// labelWidth actually determines the label and field width of most GUIs.  
+		/// fieldWidth only affects the calculation of labelWidth and a few GUIs (e.g., Texture preview width).
+		/// </summary>
+		public static void SetAdjustableGUIWidths()
+		{
+			EditorGUIUtility.fieldWidth = 64f;
+			EditorGUIUtility.labelWidth = labelWidth;
+		}
+
 		public static void DrawSplitLine()
 		{
 			var rect = EditorGUILayout.GetControlRect(true, 1);

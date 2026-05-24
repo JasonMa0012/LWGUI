@@ -62,18 +62,23 @@ namespace LWGUI
 			var count = cProps.Count;
 			var colorArray = cProps.ToArray();
 
-			EditorGUI.PrefixLabel(position, label);
+			int controlId = GUIUtility.GetControlID(FocusType.Keyboard, position);
+			var fieldRect = EditorGUI.PrefixLabel(position, controlId, label);
+			
+			var spacing = 2f;
+			var colorWidth = (fieldRect.width - spacing * (count - 1)) / count;
+			
+			var indentLevel = EditorGUI.indentLevel;
+			EditorGUI.indentLevel = 0;
 
 			for (int i = 0; i < count; i++)
 			{
 				EditorGUI.BeginChangeCheck();
 				var cProp = colorArray[i];
 				EditorGUI.showMixedValue = cProp.hasMixedValue;
-				var r = new Rect(position);
-				var interval = 13 * i * (-0.25f + EditorGUI.indentLevel * 1.25f);
-				var w = EditorGUIUtility.fieldWidth * (0.8f + EditorGUI.indentLevel * 0.2f);
-				r.xMin += r.width - w * (i + 1) + interval;
-				r.xMax -= w * i - interval;
+				var r = new Rect(fieldRect);
+				r.xMin = fieldRect.xMin + i * (colorWidth + spacing);
+				r.width = colorWidth;
 
 				var src = cProp.colorValue;
 				var isHdr = (colorArray[i].GetPropertyFlags() & ShaderPropertyFlags.HDR) != ShaderPropertyFlags.None;
@@ -83,7 +88,8 @@ namespace LWGUI
 					cProp.colorValue = dst;
 				}
 			}
-
+			
+			EditorGUI.indentLevel = indentLevel;
 			EditorGUI.showMixedValue = false;
 		}
 	}

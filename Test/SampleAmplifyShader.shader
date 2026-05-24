@@ -40,6 +40,11 @@ Shader "New Amplify Shader"
 		[Sub(Condition)][ShowIf(_Toggle, Equal, 1)] _ShowIfTrue1( "Show If True (1)", Float ) = 0
 		[Sub(Condition)][ActiveIf(And, _Toggle, Equal, 1)] _ActiveIfTrue1( "Active If True (1)", Float ) = 0
 		[SubToggle(Condition)][PassSwitch(UniversalForwardOnly)] _PassSwitch( "Pass Switch", Float ) = 1
+		[Title(Out of Group)] _Float0( "Float 0", Float ) = 0
+		_Float1( "Float 1", Range( 0, 1 ) ) = 0
+		_Vector0( "Vector 0", Vector ) = ( 0, 0, 0, 0 )
+		_Color0( "Color 0", Color ) = ( 0, 0, 0, 0 )
+		_TextureSample0( "Texture Sample 0", 2D ) = "white" {}
 
 
 		//_TessPhongStrength( "Tess Phong Strength", Range( 0, 1 ) ) = 0.5
@@ -307,40 +312,44 @@ Shader "New Amplify Shader"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
+			float4 _ColorG;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color;
-			float4 _ColorG;
 			float4 _Channel;
-			float _Max;
+			float4 _Color0;
+			float _NumericGroup;
+			float _Min;
+			float _Float0;
+			float _Title;
+			float _AppearanceDecoratorsGroup;
 			float _TooltipSample;
-			float _ActiveIfTrue1;
-			float _ShowIfTrue1;
-			float _Hidden;
 			float _ReadOnly;
 			float _Toggle;
-			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
-			float _AppearanceDecoratorsGroup;
-			float _Title;
-			float _VectorGroup;
-			float _RampAtlasIndexer;
-			float _Min;
-			float _Float;
+			float _ShowIfFalse0;
+			float _ShowIfTrue1;
+			float _ActiveIfTrue1;
+			float _PassSwitch;
+			float _HelpboxSample;
+			float _MinMaxSlider;
+			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
+			float _Float1;
 			float _SubIntRange;
-			float _MinMaxSlider;
-			float _HelpboxSample;
-			float _NumericGroup;
-			float _KWEnum;
-			float _SubKeywordEnum;
-			float _Preset;
-			float _float1;
-			float _EnumGroup;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
 			float _RampGroup;
+			float _EnumGroup;
+			float _float1;
+			float _Preset;
+			float _SubKeywordEnum;
+			float _KWEnum;
 			float _SubEnum;
-			float _PassSwitch;
+			float _Float;
+			float _Max;
 			float _AlphaClip;
 			float _Cutoff;
 			#ifdef ASE_TESSELLATION
@@ -355,6 +364,7 @@ Shader "New Amplify Shader"
 
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
+			sampler2D _TextureSample0;
 
 
 			
@@ -674,40 +684,44 @@ Shader "New Amplify Shader"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
+			float4 _ColorG;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color;
-			float4 _ColorG;
 			float4 _Channel;
-			float _Max;
+			float4 _Color0;
+			float _NumericGroup;
+			float _Min;
+			float _Float0;
+			float _Title;
+			float _AppearanceDecoratorsGroup;
 			float _TooltipSample;
-			float _ActiveIfTrue1;
-			float _ShowIfTrue1;
-			float _Hidden;
 			float _ReadOnly;
 			float _Toggle;
-			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
-			float _AppearanceDecoratorsGroup;
-			float _Title;
-			float _VectorGroup;
-			float _RampAtlasIndexer;
-			float _Min;
-			float _Float;
+			float _ShowIfFalse0;
+			float _ShowIfTrue1;
+			float _ActiveIfTrue1;
+			float _PassSwitch;
+			float _HelpboxSample;
+			float _MinMaxSlider;
+			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
+			float _Float1;
 			float _SubIntRange;
-			float _MinMaxSlider;
-			float _HelpboxSample;
-			float _NumericGroup;
-			float _KWEnum;
-			float _SubKeywordEnum;
-			float _Preset;
-			float _float1;
-			float _EnumGroup;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
 			float _RampGroup;
+			float _EnumGroup;
+			float _float1;
+			float _Preset;
+			float _SubKeywordEnum;
+			float _KWEnum;
 			float _SubEnum;
-			float _PassSwitch;
+			float _Float;
+			float _Max;
 			float _AlphaClip;
 			float _Cutoff;
 			#ifdef ASE_TESSELLATION
@@ -722,6 +736,7 @@ Shader "New Amplify Shader"
 
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
+			sampler2D _TextureSample0;
 
 
 			
@@ -969,40 +984,44 @@ Shader "New Amplify Shader"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
+			float4 _ColorG;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color;
-			float4 _ColorG;
 			float4 _Channel;
-			float _Max;
+			float4 _Color0;
+			float _NumericGroup;
+			float _Min;
+			float _Float0;
+			float _Title;
+			float _AppearanceDecoratorsGroup;
 			float _TooltipSample;
-			float _ActiveIfTrue1;
-			float _ShowIfTrue1;
-			float _Hidden;
 			float _ReadOnly;
 			float _Toggle;
-			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
-			float _AppearanceDecoratorsGroup;
-			float _Title;
-			float _VectorGroup;
-			float _RampAtlasIndexer;
-			float _Min;
-			float _Float;
+			float _ShowIfFalse0;
+			float _ShowIfTrue1;
+			float _ActiveIfTrue1;
+			float _PassSwitch;
+			float _HelpboxSample;
+			float _MinMaxSlider;
+			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
+			float _Float1;
 			float _SubIntRange;
-			float _MinMaxSlider;
-			float _HelpboxSample;
-			float _NumericGroup;
-			float _KWEnum;
-			float _SubKeywordEnum;
-			float _Preset;
-			float _float1;
-			float _EnumGroup;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
 			float _RampGroup;
+			float _EnumGroup;
+			float _float1;
+			float _Preset;
+			float _SubKeywordEnum;
+			float _KWEnum;
 			float _SubEnum;
-			float _PassSwitch;
+			float _Float;
+			float _Max;
 			float _AlphaClip;
 			float _Cutoff;
 			#ifdef ASE_TESSELLATION
@@ -1017,6 +1036,7 @@ Shader "New Amplify Shader"
 
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
+			sampler2D _TextureSample0;
 
 
 			
@@ -1245,40 +1265,44 @@ Shader "New Amplify Shader"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
+			float4 _ColorG;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color;
-			float4 _ColorG;
 			float4 _Channel;
-			float _Max;
+			float4 _Color0;
+			float _NumericGroup;
+			float _Min;
+			float _Float0;
+			float _Title;
+			float _AppearanceDecoratorsGroup;
 			float _TooltipSample;
-			float _ActiveIfTrue1;
-			float _ShowIfTrue1;
-			float _Hidden;
 			float _ReadOnly;
 			float _Toggle;
-			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
-			float _AppearanceDecoratorsGroup;
-			float _Title;
-			float _VectorGroup;
-			float _RampAtlasIndexer;
-			float _Min;
-			float _Float;
+			float _ShowIfFalse0;
+			float _ShowIfTrue1;
+			float _ActiveIfTrue1;
+			float _PassSwitch;
+			float _HelpboxSample;
+			float _MinMaxSlider;
+			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
+			float _Float1;
 			float _SubIntRange;
-			float _MinMaxSlider;
-			float _HelpboxSample;
-			float _NumericGroup;
-			float _KWEnum;
-			float _SubKeywordEnum;
-			float _Preset;
-			float _float1;
-			float _EnumGroup;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
 			float _RampGroup;
+			float _EnumGroup;
+			float _float1;
+			float _Preset;
+			float _SubKeywordEnum;
+			float _KWEnum;
 			float _SubEnum;
-			float _PassSwitch;
+			float _Float;
+			float _Max;
 			float _AlphaClip;
 			float _Cutoff;
 			#ifdef ASE_TESSELLATION
@@ -1293,6 +1317,7 @@ Shader "New Amplify Shader"
 
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
+			sampler2D _TextureSample0;
 
 
 			
@@ -1516,40 +1541,44 @@ Shader "New Amplify Shader"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
+			float4 _ColorG;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color;
-			float4 _ColorG;
 			float4 _Channel;
-			float _Max;
+			float4 _Color0;
+			float _NumericGroup;
+			float _Min;
+			float _Float0;
+			float _Title;
+			float _AppearanceDecoratorsGroup;
 			float _TooltipSample;
-			float _ActiveIfTrue1;
-			float _ShowIfTrue1;
-			float _Hidden;
 			float _ReadOnly;
 			float _Toggle;
-			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
-			float _AppearanceDecoratorsGroup;
-			float _Title;
-			float _VectorGroup;
-			float _RampAtlasIndexer;
-			float _Min;
-			float _Float;
+			float _ShowIfFalse0;
+			float _ShowIfTrue1;
+			float _ActiveIfTrue1;
+			float _PassSwitch;
+			float _HelpboxSample;
+			float _MinMaxSlider;
+			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
+			float _Float1;
 			float _SubIntRange;
-			float _MinMaxSlider;
-			float _HelpboxSample;
-			float _NumericGroup;
-			float _KWEnum;
-			float _SubKeywordEnum;
-			float _Preset;
-			float _float1;
-			float _EnumGroup;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
 			float _RampGroup;
+			float _EnumGroup;
+			float _float1;
+			float _Preset;
+			float _SubKeywordEnum;
+			float _KWEnum;
 			float _SubEnum;
-			float _PassSwitch;
+			float _Float;
+			float _Max;
 			float _AlphaClip;
 			float _Cutoff;
 			#ifdef ASE_TESSELLATION
@@ -1564,6 +1593,7 @@ Shader "New Amplify Shader"
 
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
+			sampler2D _TextureSample0;
 
 
 			
@@ -1806,40 +1836,44 @@ Shader "New Amplify Shader"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
+			float4 _ColorG;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color;
-			float4 _ColorG;
 			float4 _Channel;
-			float _Max;
+			float4 _Color0;
+			float _NumericGroup;
+			float _Min;
+			float _Float0;
+			float _Title;
+			float _AppearanceDecoratorsGroup;
 			float _TooltipSample;
-			float _ActiveIfTrue1;
-			float _ShowIfTrue1;
-			float _Hidden;
 			float _ReadOnly;
 			float _Toggle;
-			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
-			float _AppearanceDecoratorsGroup;
-			float _Title;
-			float _VectorGroup;
-			float _RampAtlasIndexer;
-			float _Min;
-			float _Float;
+			float _ShowIfFalse0;
+			float _ShowIfTrue1;
+			float _ActiveIfTrue1;
+			float _PassSwitch;
+			float _HelpboxSample;
+			float _MinMaxSlider;
+			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
+			float _Float1;
 			float _SubIntRange;
-			float _MinMaxSlider;
-			float _HelpboxSample;
-			float _NumericGroup;
-			float _KWEnum;
-			float _SubKeywordEnum;
-			float _Preset;
-			float _float1;
-			float _EnumGroup;
+			float _VectorGroup;
+			float _RampAtlasIndexer;
 			float _RampGroup;
+			float _EnumGroup;
+			float _float1;
+			float _Preset;
+			float _SubKeywordEnum;
+			float _KWEnum;
 			float _SubEnum;
-			float _PassSwitch;
+			float _Float;
+			float _Max;
 			float _AlphaClip;
 			float _Cutoff;
 			#ifdef ASE_TESSELLATION
@@ -1854,6 +1888,7 @@ Shader "New Amplify Shader"
 
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
+			sampler2D _TextureSample0;
 
 
 			
@@ -2085,6 +2120,11 @@ Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, 
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;34;-800,1968;Inherit;False;Property;_TooltipSample;Multilingual Tooltip#Hello, world#你好, 世界!#안녕, 세계!#;28;0;Create;False;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;TooltipDecorator;string s1,string s2,string s3;3;Tooltip 1;Tooltip 2;Tooltip 3;3;s1;Tooltip 1;s2;Tooltip 2;s3;Tooltip 3;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;33;-800,1696;Inherit;False;Property;_AppearanceDecoratorsGroup;====== Appearance Decorators Group ======;25;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState;3;Appearance;;on;3;group;Appearance;keyword;;defaultFoldingState;on;1;HelpURLDecorator;string s1,string s2,string s3;3;github.com;JasonMa0012;LWGUI;3;s1;github.com;s2;JasonMa0012;s3;LWGUI;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;36;-800,1808;Inherit;False;Property;_Title;Title;26;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;TitleDecorator;string group,string header;2;Appearance;Title;2;group;Appearance;header;Title;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;48;-832,3152;Inherit;False;Property;_Float0;Float 0;37;0;Create;True;0;0;0;True;0;False;0;1;TitleDecorator;string header;1;Out of Group;1;header;Out of Group;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.Vector4Node, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;50;-832,3312;Inherit;False;Property;_Vector0;Vector 0;39;0;Create;True;0;0;0;True;0;False;0;0;0,0,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;51;-832,3232;Inherit;False;Property;_Float1;Float 1;38;0;Create;True;0;0;0;True;0;False;0;0;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;49;-832,3680;Inherit;True;Property;_TextureSample0;Texture Sample 0;41;0;Create;True;0;0;0;True;0;False;0;0;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;False;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;52;-832,3488;Inherit;False;Property;_Color0;Color 0;40;0;Create;True;0;0;0;True;0;False;0;0;0,0,0,0;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;0;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ExtraPrePass;0;0;ExtraPrePass;6;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;0;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;2;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;3;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;True;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;False;True;1;LightMode=DepthOnly;False;False;0;;0;0;Standard;0;False;0
@@ -2097,4 +2137,4 @@ Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Versi
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;1;16,16;Float;False;True;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;Forward;0;1;Forward;10;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;1;LightMode=UniversalForwardOnly;False;False;0;;0;0;Standard;27;Surface;0;0;  Keep Alpha;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;0;0;  Use Shadow Threshold;0;0;Forward Only;0;0;Cast Shadows;1;0;Receive Shadows;2;0;Receive SSAO;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;Meta Pass;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position;1;0;0;10;False;True;True;True;False;False;True;True;True;False;False;;False;0
 WireConnection;1;2;24;0
 ASEEND*/
-//CHKSM=77E80FB033CBDA894BC558F7FFC981F36C5938EA
+//CHKSM=EE0B2D8604C08B62E67DF2CED850D23AB725EB47

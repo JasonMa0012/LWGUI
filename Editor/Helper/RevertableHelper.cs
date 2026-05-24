@@ -1,4 +1,4 @@
-﻿// Copyright (c) Jason Ma
+// Copyright (c) Jason Ma
 
 using System;
 using System.Linq;
@@ -22,7 +22,7 @@ namespace LWGUI
 
 		public static Rect IndentRect(Rect rect)
 		{
-			rect.xMax -= RevertableHelper.revertButtonWidth;
+			rect.xMax -= revertButtonWidth;
 			return rect;
 		}
 
@@ -46,30 +46,30 @@ namespace LWGUI
 
 		public static void InitRevertableGUIWidths()
 		{
-			EditorGUIUtility.fieldWidth += RevertableHelper.revertButtonWidth;
-			EditorGUIUtility.labelWidth -= RevertableHelper.revertButtonWidth;
-			RevertableHelper.fieldWidth = EditorGUIUtility.fieldWidth;
-			RevertableHelper.labelWidth = EditorGUIUtility.labelWidth;
+			// EditorGUIUtility.fieldWidth += revertButtonWidth;
+			// EditorGUIUtility.labelWidth -= revertButtonWidth;
+			// fieldWidth = EditorGUIUtility.fieldWidth;
+			// labelWidth = EditorGUIUtility.labelWidth;
 		}
 
 		public static void SetRevertableGUIWidths()
 		{
-			EditorGUIUtility.fieldWidth = RevertableHelper.fieldWidth;
-			EditorGUIUtility.labelWidth = RevertableHelper.labelWidth;
+			// EditorGUIUtility.fieldWidth = fieldWidth;
+			// EditorGUIUtility.labelWidth = labelWidth;
 		}
 
-		public static void FixGUIWidthMismatch(ShaderPropertyType propType, MaterialEditor materialEditor)
+		public static void FixGUIWidthMismatch(ShaderPropertyType propType, MaterialEditor materialEditor, float labelWidth = 64f)
 		{
-			switch (propType)
-			{
-				case ShaderPropertyType.Texture:
-				case ShaderPropertyType.Range:
-					materialEditor.SetDefaultGUIWidths();
-					break;
-				default:
-					RevertableHelper.SetRevertableGUIWidths();
-					break;
-			}
+			// switch (propType)
+			// {
+			// 	case ShaderPropertyType.Texture:
+			// 	case ShaderPropertyType.Range:
+			// 		ReflectionHelper.SetDefaultGUIWidths(labelWidth);
+			// 		break;
+			// 	default:
+			// 		SetRevertableGUIWidths();
+			// 		break;
+			// }
 		}
 
 		#endregion

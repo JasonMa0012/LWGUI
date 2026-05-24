@@ -284,7 +284,7 @@ namespace LWGUI
 			// Ramp buttons Rect
 			var buttonRect = new Rect(position);
 			{
-				EditorGUIUtility.labelWidth = 0;
+				// EditorGUIUtility.labelWidth = 0;
 				EditorGUI.indentLevel = 0;
 				buttonRect.yMin = buttonRect.yMax - EditorGUIUtility.singleLineHeight;
 				buttonRect = MaterialEditor.GetRectAfterLabelWidth(buttonRect);

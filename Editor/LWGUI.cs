@@ -70,7 +70,7 @@ namespace LWGUI
 			// Draw Properties
 			{
 				// move fields left to make rect for Revert Button
-				editor.SetDefaultGUIWidths();
+				Helper.SetAdjustableGUIWidths();
 				RevertableHelper.InitRevertableGUIWidths();
 
 				// start drawing properties
@@ -119,7 +119,7 @@ namespace LWGUI
 					EditorGUI.indentLevel = indentLevel;
 				}
 
-				editor.SetDefaultGUIWidths();
+				Helper.SetAdjustableGUIWidths();
 			}
 
 
@@ -170,7 +170,7 @@ namespace LWGUI
 
 			var label = new GUIContent(propStaticData.displayName, MetaDataHelper.GetPropertyTooltip(propStaticData, propDynamicData));
 			var height = metaDatas.perInspectorData.materialEditor.GetPropertyHeight(prop, label.text);
-			var rect = EditorGUILayout.GetControlRect(true, height);
+			var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
 
 			var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
 
@@ -185,7 +185,7 @@ namespace LWGUI
 				propStaticData.isExpanding = EditorGUI.Foldout(rect, propStaticData.isExpanding, string.Empty);
 			
 			RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, metaDatas, propStaticData.isMain || propStaticData.isAdvancedHeaderProperty);
-			materialEditor.ShaderProperty(rect, prop, label);
+			materialEditor.LwguiShaderProperty(rect, prop, label);
 
 			Helper.EndProperty(metaDatas, prop);
 			GUI.enabled = enabled;

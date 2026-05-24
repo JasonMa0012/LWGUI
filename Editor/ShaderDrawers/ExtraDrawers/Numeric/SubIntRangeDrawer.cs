@@ -35,7 +35,7 @@ namespace LWGUI
 				EditorGUI.BeginChangeCheck();
 				EditorGUI.showMixedValue = prop.hasMixedValue;
 				float labelWidth = EditorGUIUtility.labelWidth;
-				EditorGUIUtility.labelWidth = 0.0f;
+				// EditorGUIUtility.labelWidth = 0.0f;
 				int num = EditorGUI.IntSlider(position, label, (int)prop.floatValue, (int)prop.rangeLimits.x, (int)prop.rangeLimits.y);
 				EditorGUI.showMixedValue = false;
 				EditorGUIUtility.labelWidth = labelWidth;

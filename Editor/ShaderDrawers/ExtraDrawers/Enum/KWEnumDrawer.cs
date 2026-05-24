@@ -113,8 +113,6 @@ namespace LWGUI
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 
-			var rect = position;
-
 			string[] keyWords = GetKeywords(prop);
 			int index = Array.IndexOf(_values, prop.floatValue);
 			if (index < 0)
@@ -123,8 +121,10 @@ namespace LWGUI
 				return;
 			}
 
-			Helper.AdaptiveFieldWidth(EditorStyles.popup, _names[index]);
-			int newIndex = EditorGUI.Popup(rect, label, index, _names);
+			var oldLabelWidth = EditorGUIUtility.labelWidth;
+			// EditorGUIUtility.labelWidth = 0f;
+			int newIndex = EditorGUI.Popup(position, label, index, _names);
+			EditorGUIUtility.labelWidth = oldLabelWidth;
 			EditorGUI.showMixedValue = false;
 			if (Helper.EndChangeCheck(metaDatas, prop))
 			{

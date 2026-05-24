@@ -123,7 +123,7 @@ namespace LWGUI
 			
 			var labelWidth = EditorGUIUtility.labelWidth;
 			var indentLevel = EditorGUI.indentLevel;
-			EditorGUIUtility.labelWidth = 0;
+			// EditorGUIUtility.labelWidth = 0;
 			EditorGUI.indentLevel = 0;
 			
 			var fieldRect = MaterialEditor.GetRectAfterLabelWidth(position);

@@ -73,7 +73,7 @@ namespace LWGUI
 			// define draw area
 			Rect controlRect = position; // this is the full length rect area
 			var w = EditorGUIUtility.labelWidth;
-			EditorGUIUtility.labelWidth = 0;
+			// EditorGUIUtility.labelWidth = 0;
 			Rect inputRect = MaterialEditor.GetRectAfterLabelWidth(controlRect); // this is the remaining rect area after label's area
 
 			// draw label

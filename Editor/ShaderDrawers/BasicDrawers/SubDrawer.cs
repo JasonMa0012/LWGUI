@@ -68,8 +68,7 @@ namespace LWGUI
 		// Draws a custom style property
 		public virtual void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			RevertableHelper.FixGUIWidthMismatch(prop.GetPropertyType(), editor);
-			editor.DefaultShaderPropertyInternal(position, prop, label);
+			editor.LwguiDefaultShaderPropertyInternal(position, prop, label);
 		}
 	}
 }
