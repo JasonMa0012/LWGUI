@@ -19,17 +19,19 @@ namespace LWGUI
 
     public class DisplayModeData
     {
-        public bool showAllAdvancedProperties;
-        public bool showAllHiddenProperties;
-        public bool showOnlyModifiedProperties;
-        public bool showOnlyModifiedGroups;
+        public bool  showAllAdvancedProperties;
+        public bool  showAllHiddenProperties;
+        public bool  showOnlyModifiedProperties;
+        public bool  showOnlyModifiedGroups;
+        public float labelWidthPercentage = Helper.DefaultLabelWidthPercentage;
 
         public int advancedCount;
         public int hiddenCount;
 
         public bool IsDefaultDisplayMode()
         {
-            return !(showAllAdvancedProperties || showAllHiddenProperties || showOnlyModifiedProperties || showOnlyModifiedGroups);
+            return !(showAllAdvancedProperties || showAllHiddenProperties || showOnlyModifiedProperties || showOnlyModifiedGroups
+                     || !Mathf.Approximately(labelWidthPercentage, Helper.DefaultLabelWidthPercentage));
         }
     }
 
@@ -205,6 +207,8 @@ namespace LWGUI
 
             // Build Display Mode Data
             {
+                displayModeData.labelWidthPercentage = Helper.GetLabelWidthPercentage(shaderUID);
+                
                 PropertyStaticData lastPropData = null;
                 PropertyStaticData lastHeaderPropData = null;
                 for (int i = 0; i < props.Length; i++)

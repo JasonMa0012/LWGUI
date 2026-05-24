@@ -243,22 +243,23 @@ namespace LWGUI
 
 		#region Draw GUI for Materials
 
-		/// <summary>
-		///   <para>The width in pixels reserved for labels of Editor GUI controls.</para>
-		/// </summary>
-		public static float labelWidth => Mathf.Max(ReflectionHelper.EditorGUIUtility_contextWidth * labelWidthPercentage - EditorGUIUtility.fieldWidth, 120f);
+		public const float DefaultLabelWidthPercentage = 0.5f;
 
-		public static float labelWidthPercentage = 0.45f;
+		public static string GetLabelWidthPreferenceKey(string shaderUID) => $"LWGUI/{shaderUID}/LabelWidthPercentage";
+		
+		public static float GetLabelWidthPercentage(string shaderUID) => EditorPrefs.GetFloat(GetLabelWidthPreferenceKey(shaderUID), DefaultLabelWidthPercentage);
+
+		public static void SetLabelWidthPercentage(string shaderUID, float percentage) => EditorPrefs.SetFloat(GetLabelWidthPreferenceKey(shaderUID), percentage);
 		
 		/// <summary>
 		/// Set the GUI Widths that users can adjust.  
 		/// labelWidth actually determines the label and field width of most GUIs.  
 		/// fieldWidth only affects the calculation of labelWidth and a few GUIs (e.g., Texture preview width).
 		/// </summary>
-		public static void SetAdjustableGUIWidths()
+		public static void SetAdjustableGUIWidths(float labelWidthPercentage)
 		{
 			EditorGUIUtility.fieldWidth = 64f;
-			EditorGUIUtility.labelWidth = labelWidth;
+			EditorGUIUtility.labelWidth = Mathf.Max(ReflectionHelper.EditorGUIUtility_contextWidth * labelWidthPercentage - EditorGUIUtility.fieldWidth, 120f);
 		}
 
 		public static void DrawSplitLine()

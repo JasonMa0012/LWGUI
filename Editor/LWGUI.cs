@@ -69,7 +69,7 @@ namespace LWGUI
 			//-----------------------------------------------------------------------------
 			// Draw Properties
 			{
-				Helper.SetAdjustableGUIWidths();
+				Helper.SetAdjustableGUIWidths(metaDatas.perShaderData.displayModeData.labelWidthPercentage);
 
 				// start drawing properties
 				foreach (var prop in props)
@@ -113,7 +113,7 @@ namespace LWGUI
 					DrawProperty(prop);
 
 					EditorGUI.indentLevel = indentLevel;
-					Helper.SetAdjustableGUIWidths();
+					Helper.SetAdjustableGUIWidths(metaDatas.perShaderData.displayModeData.labelWidthPercentage);
 				}
 			}
 

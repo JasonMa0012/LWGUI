@@ -1,6 +1,7 @@
 // Copyright (c) Jason Ma
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -45,7 +46,6 @@ namespace LWGUI
         private const string _iconCopyGUID       = "9cdef444d18d2ce4abb6bbc4fed4d109";
         private const string _iconPasteGUID      = "8e7a78d02e4c3574998524a0842a8ccb";
         private const string _iconSelectGUID     = "6f44e40b24300974eb607293e4224ecc";
-        private const string _iconCheckoutGUID   = "72488141525eaa8499e65e52755cb6d0";
         private const string _iconExpandGUID     = "2382450e7f4ddb94c9180d6634c41378";
         private const string _iconCollapseGUID   = "929b6e5dfacc42b429d715a3e1ca2b57";
         private const string _iconStatsGUID      = "88909414120107547a673b8fcddc5236";
@@ -54,7 +54,6 @@ namespace LWGUI
         private const string _iconCopyTooltip       = "Copy Material Properties";
         private const string _iconPasteTooltip      = "Paste Material Properties\n\nRight-click to paste values by type.";
         private const string _iconSelectTooltip     = "Select the Material Asset\n\nUsed to jump from a Runtime Material Instance to a Material Asset.";
-        private const string _iconCheckoutTooltip   = "Checkout selected Material Assets";
         private const string _iconExpandTooltip     = "Expand All Groups";
         private const string _iconCollapseTooltip   = "Collapse All Groups";
         private const string _iconStatsTooltip      = "Display Shader Performance Stats";
@@ -72,7 +71,6 @@ namespace LWGUI
         private static GUIContent _guiContentCopy       => _guiContentCopyCache = _guiContentCopyCache ?? new GUIContent("", AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath(_iconCopyGUID)), _iconCopyTooltip);
         private static GUIContent _guiContentPaste      => _guiContentPasteCache = _guiContentPasteCache ?? new GUIContent("", AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath(_iconPasteGUID)), _iconPasteTooltip);
         private static GUIContent _guiContentSelect     => _guiContentSelectCache = _guiContentSelectCache ?? new GUIContent("", AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath(_iconSelectGUID)), _iconSelectTooltip);
-        private static GUIContent _guiContentChechout   => _guiContentCheckoutCache = _guiContentCheckoutCache ?? new GUIContent("", AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath(_iconCheckoutGUID)), _iconCheckoutTooltip);
         private static GUIContent _guiContentExpand     => _guiContentExpandCache = _guiContentExpandCache ?? new GUIContent("", AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath(_iconExpandGUID)), _iconExpandTooltip);
         private static GUIContent _guiContentCollapse   => _guiContentCollapseCache = _guiContentCollapseCache ?? new GUIContent("", AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath(_iconCollapseGUID)), _iconCollapseTooltip);
         private static GUIContent _guiContentStats      => _guiContentStatsCache = _guiContentStatsCache ?? new GUIContent("", AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GUIDToAssetPath(_iconStatsGUID)), _iconStatsTooltip);
@@ -134,14 +132,6 @@ namespace LWGUI
                 }
             }
 
-            //----------------------------------------------------------------------------------------------------------------
-            // Checkout
-            buttonRect.x += buttonRectOffset;
-            toolBarRect.xMin += buttonRectOffset;
-            if (GUI.Button(buttonRect, _guiContentChechout, GUIStyles.iconButton))
-            {
-                VersionControlHelper.Checkout(metaDatas.GetMaterialEditor().targets);
-            }
 
             //----------------------------------------------------------------------------------------------------------------
             // Expand
@@ -195,29 +185,32 @@ namespace LWGUI
                     GUI.color = Color.yellow;
                 if (GUI.Button(buttonRect, _guiContentVisibility, GUIStyles.iconButton))
                 {
-                    // Build Display Mode Menu Items
-                    var displayModeMenus = new[]
-                    {
-                        $"Show All Advanced Properties				({displayModeData.advancedCount} - {perShaderData.propStaticDatas.Count})",
-                        $"Show All Hidden Properties				({displayModeData.hiddenCount} - {perShaderData.propStaticDatas.Count})",
-                        $"Show Only Modified Properties				({perMaterialData.modifiedCount} - {perShaderData.propStaticDatas.Count})",
-                        $"Show Only Modified Properties by Group	({perMaterialData.modifiedCount} - {perShaderData.propStaticDatas.Count})",
-                    };
-                    var enabled = new[] { true, true, true, true };
-                    var separator = new bool[4];
-                    var selected = new[]
-                    {
-                        displayModeData.showAllAdvancedProperties ? 0 : -1,
-                        displayModeData.showAllHiddenProperties ? 1 : -1,
-                        displayModeData.showOnlyModifiedProperties ? 2 : -1,
-                        displayModeData.showOnlyModifiedGroups ? 3 : -1,
-                    };
+                    var menu = new GenericMenu();
+                    menu.AddItem(new GUIContent($"Show All Advanced Properties\t\t          ({displayModeData.advancedCount}/{perShaderData.propStaticDatas.Count})"), displayModeData.showAllAdvancedProperties,   OnSwitchDisplayMode, 0);
+                    menu.AddItem(new GUIContent($"Show All Hidden Properties\t\t            ({displayModeData.hiddenCount}  /{perShaderData.propStaticDatas.Count})"), displayModeData.showAllHiddenProperties,     OnSwitchDisplayMode, 1);
+                    menu.AddItem(new GUIContent($"Show Only Modified Properties\t\t         ({perMaterialData.modifiedCount}/{perShaderData.propStaticDatas.Count})"), displayModeData.showOnlyModifiedProperties,  OnSwitchDisplayMode, 2);
+                    menu.AddItem(new GUIContent($"Show Only Modified Properties by Group\t  ({perMaterialData.modifiedCount}/{perShaderData.propStaticDatas.Count})"), displayModeData.showOnlyModifiedGroups,      OnSwitchDisplayMode, 3);
+                    
+                    menu.AddSeparator("");
 
-
-                    // Click Event
-                    void OnSwitchDisplayMode(object data, string[] options, int selectedIndex)
+                    // Label Width: 30%-70%
+                    for (int i = 0; i <= 8; i++)
                     {
-                        switch (selectedIndex)
+                        float pct = 0.30f + i * 0.05f;
+                        string label = Mathf.Approximately(pct, Helper.DefaultLabelWidthPercentage) ? $"Label Width/{pct * 100:00}% (Default)" : $"Label Width/{pct * 100:00}%";
+                        menu.AddItem(new GUIContent(label), Mathf.Approximately(displayModeData.labelWidthPercentage, pct), () =>
+                        {
+                            displayModeData.labelWidthPercentage = pct;
+                            Helper.SetLabelWidthPercentage(metaDatas.GetShaderUID(), pct);
+                            MetaDataHelper.ForceUpdateAllMaterialsMetadataCache(shader);
+                        });
+                    }
+
+                    menu.ShowAsContext();
+                    
+                    void OnSwitchDisplayMode(object userData)
+                    {
+                        switch ((int)userData)
                         {
                             case 0: // Show All Advanced Properties
                                 displayModeData.showAllAdvancedProperties = !displayModeData.showAllAdvancedProperties;
@@ -238,9 +231,6 @@ namespace LWGUI
                                 break;
                         }
                     }
-
-                    ReflectionHelper.DisplayCustomMenuWithSeparators(new Rect(Event.current.mousePosition.x, Event.current.mousePosition.y, 0, 0),
-                        displayModeMenus, enabled, separator, selected, OnSwitchDisplayMode);
                 }
                 GUI.color = color;
             }
