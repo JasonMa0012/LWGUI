@@ -186,10 +186,10 @@ namespace LWGUI
                 if (GUI.Button(buttonRect, _guiContentVisibility, GUIStyles.iconButton))
                 {
                     var menu = new GenericMenu();
-                    menu.AddItem(new GUIContent($"Show All Advanced Properties\t\t          ({displayModeData.advancedCount}/{perShaderData.propStaticDatas.Count})"), displayModeData.showAllAdvancedProperties,   OnSwitchDisplayMode, 0);
-                    menu.AddItem(new GUIContent($"Show All Hidden Properties\t\t            ({displayModeData.hiddenCount}  /{perShaderData.propStaticDatas.Count})"), displayModeData.showAllHiddenProperties,     OnSwitchDisplayMode, 1);
-                    menu.AddItem(new GUIContent($"Show Only Modified Properties\t\t         ({perMaterialData.modifiedCount}/{perShaderData.propStaticDatas.Count})"), displayModeData.showOnlyModifiedProperties,  OnSwitchDisplayMode, 2);
-                    menu.AddItem(new GUIContent($"Show Only Modified Properties by Group\t  ({perMaterialData.modifiedCount}/{perShaderData.propStaticDatas.Count})"), displayModeData.showOnlyModifiedGroups,      OnSwitchDisplayMode, 3);
+                    menu.AddItem(new GUIContent($"Show All Advanced Properties\t\t({displayModeData.advancedCount} - {perShaderData.propStaticDatas.Count})"),            displayModeData.showAllAdvancedProperties,   OnSwitchDisplayMode, 0);
+                    menu.AddItem(new GUIContent($"Show All Hidden Properties\t\t({displayModeData.hiddenCount} - {perShaderData.propStaticDatas.Count})"),                displayModeData.showAllHiddenProperties,     OnSwitchDisplayMode, 1);
+                    menu.AddItem(new GUIContent($"Show Only Modified Properties\t\t({perMaterialData.modifiedCount} - {perShaderData.propStaticDatas.Count})"),           displayModeData.showOnlyModifiedProperties,  OnSwitchDisplayMode, 2);
+                    menu.AddItem(new GUIContent($"Show Only Modified Properties by Group\t({perMaterialData.modifiedCount} - {perShaderData.propStaticDatas.Count})"),    displayModeData.showOnlyModifiedGroups,      OnSwitchDisplayMode, 3);
                     
                     menu.AddSeparator("");
 
