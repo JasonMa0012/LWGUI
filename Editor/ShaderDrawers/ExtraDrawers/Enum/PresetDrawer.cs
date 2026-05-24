@@ -80,10 +80,7 @@ namespace LWGUI
 				var presetNames = presetFile.GetPresets().Select((inPreset) => new GUIContent(inPreset.presetName)).ToArray();
 				if (EditorGUI.showMixedValue)
 					index = -1;
-				var oldLabelWidth = EditorGUIUtility.labelWidth;
-				// EditorGUIUtility.labelWidth = 0f;
 				int newIndex = EditorGUI.Popup(position, label, index, presetNames);
-				EditorGUIUtility.labelWidth = oldLabelWidth;
 				if (Helper.EndChangeCheck(metaDatas, prop))
 				{
 					prop.floatValue = newIndex;

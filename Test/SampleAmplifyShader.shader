@@ -22,12 +22,15 @@ Shader "New Amplify Shader"
 		[Ramp(Ramp)] _Ramp( "Ramp", 2D ) = "white" {}
 		[RampAtlas(Ramp)] _RampAtlas( "Ramp Atlas", 2D ) = "white" {}
 		[RampAtlasIndexer(Ramp, _RampAtlas)] _RampAtlasIndexer( "Ramp Atlas Indexer", Float ) = 0
-		[Main(Vector, _, on, on)] _VectorGroup( "====== Vector Group ======", Float ) = 0
+		[Main(Vector, _, on, on)] _VectorTextureGroup( "====== Vector / Texture Group ======", Float ) = 0
 		[Color(Vector, _ColorG, _ColorB, _ColorA)] _Color( "Color", Color ) = ( 1, 0, 0, 1 )
 		[HideInInspector] _ColorG( "Color G", Color ) = ( 0, 1, 0, 1 )
 		[HideInInspector] _ColorB( "Color B", Color ) = ( 0, 0, 1, 1 )
 		[HideInInspector] _ColorA( "Color A", Color ) = ( 1, 1, 1, 1 )
 		[Channel(Vector)] _Channel( "Channel", Vector ) = ( 0, 1, 0, 0 )
+		[Tex(Vector, _Channel)] _TexwithChannel( "Tex with Channel", 2D ) = "white" {}
+		[Tex(Vector, _Range)] _TexwithRange( "Tex with Range", 2D ) = "white" {}
+		[Tex(Vector, _Float)] _TexwithFloat( "Tex with Float", 2D ) = "white" {}
 		[Main(Appearance, _, on)][HelpURL(github.com, JasonMa0012, LWGUI)] _AppearanceDecoratorsGroup( "====== Appearance Decorators Group ======", Float ) = 0
 		[Sub(Appearance)][Title(Appearance, Title)] _Title( "Title", Float ) = 0
 		[Sub(Appearance)][Helpbox(Helpbox 1, Helpbox 2, Helpbox 3)] _HelpboxSample( "Multilingual Helpbox%Hello, world!%你好, 世界!%안녕, 세계!%%", Float ) = 0
@@ -41,7 +44,7 @@ Shader "New Amplify Shader"
 		[Sub(Condition)][ActiveIf(And, _Toggle, Equal, 1)] _ActiveIfTrue1( "Active If True (1)", Float ) = 0
 		[SubToggle(Condition)][PassSwitch(UniversalForwardOnly)] _PassSwitch( "Pass Switch", Float ) = 1
 		[Title(Out of Group)] _Float0( "Float 0", Float ) = 0
-		_Float1( "Float 1", Range( 0, 1 ) ) = 0
+		_Range1( "Range 1", Range( 0, 1 ) ) = 0.5
 		_Vector0( "Vector 0", Vector ) = ( 0, 0, 0, 0 )
 		_Color0( "Color 0", Color ) = ( 0, 0, 0, 0 )
 		_TextureSample0( "Texture Sample 0", 2D ) = "white" {}
@@ -337,9 +340,9 @@ Shader "New Amplify Shader"
 			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
-			float _Float1;
+			float _Range1;
 			float _SubIntRange;
-			float _VectorGroup;
+			float _VectorTextureGroup;
 			float _RampAtlasIndexer;
 			float _RampGroup;
 			float _EnumGroup;
@@ -365,6 +368,9 @@ Shader "New Amplify Shader"
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
 			sampler2D _TextureSample0;
+			sampler2D _TexwithChannel;
+			sampler2D _TexwithRange;
+			sampler2D _TexwithFloat;
 
 
 			
@@ -709,9 +715,9 @@ Shader "New Amplify Shader"
 			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
-			float _Float1;
+			float _Range1;
 			float _SubIntRange;
-			float _VectorGroup;
+			float _VectorTextureGroup;
 			float _RampAtlasIndexer;
 			float _RampGroup;
 			float _EnumGroup;
@@ -737,6 +743,9 @@ Shader "New Amplify Shader"
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
 			sampler2D _TextureSample0;
+			sampler2D _TexwithChannel;
+			sampler2D _TexwithRange;
+			sampler2D _TexwithFloat;
 
 
 			
@@ -1009,9 +1018,9 @@ Shader "New Amplify Shader"
 			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
-			float _Float1;
+			float _Range1;
 			float _SubIntRange;
-			float _VectorGroup;
+			float _VectorTextureGroup;
 			float _RampAtlasIndexer;
 			float _RampGroup;
 			float _EnumGroup;
@@ -1037,6 +1046,9 @@ Shader "New Amplify Shader"
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
 			sampler2D _TextureSample0;
+			sampler2D _TexwithChannel;
+			sampler2D _TexwithRange;
+			sampler2D _TexwithFloat;
 
 
 			
@@ -1290,9 +1302,9 @@ Shader "New Amplify Shader"
 			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
-			float _Float1;
+			float _Range1;
 			float _SubIntRange;
-			float _VectorGroup;
+			float _VectorTextureGroup;
 			float _RampAtlasIndexer;
 			float _RampGroup;
 			float _EnumGroup;
@@ -1318,6 +1330,9 @@ Shader "New Amplify Shader"
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
 			sampler2D _TextureSample0;
+			sampler2D _TexwithChannel;
+			sampler2D _TexwithRange;
+			sampler2D _TexwithFloat;
 
 
 			
@@ -1566,9 +1581,9 @@ Shader "New Amplify Shader"
 			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
-			float _Float1;
+			float _Range1;
 			float _SubIntRange;
-			float _VectorGroup;
+			float _VectorTextureGroup;
 			float _RampAtlasIndexer;
 			float _RampGroup;
 			float _EnumGroup;
@@ -1594,6 +1609,9 @@ Shader "New Amplify Shader"
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
 			sampler2D _TextureSample0;
+			sampler2D _TexwithChannel;
+			sampler2D _TexwithRange;
+			sampler2D _TexwithFloat;
 
 
 			
@@ -1861,9 +1879,9 @@ Shader "New Amplify Shader"
 			float _Hidden;
 			float _Range;
 			float _SubPowerSlider;
-			float _Float1;
+			float _Range1;
 			float _SubIntRange;
-			float _VectorGroup;
+			float _VectorTextureGroup;
 			float _RampAtlasIndexer;
 			float _RampGroup;
 			float _EnumGroup;
@@ -1889,6 +1907,9 @@ Shader "New Amplify Shader"
 			sampler2D _Ramp;
 			sampler2D _RampAtlas;
 			sampler2D _TextureSample0;
+			sampler2D _TexwithChannel;
+			sampler2D _TexwithRange;
+			sampler2D _TexwithFloat;
 
 
 			
@@ -2083,16 +2104,15 @@ Shader "New Amplify Shader"
 }
 /*ASEBEGIN
 Version=20000
-Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;11;-848,896;Inherit;False;1186.222;639.5089;Vector Group;3;32;31;39;;1,1,1,1;0;0
-Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;41;-848,2320;Inherit;False;589.4493;699.1997;Condition Decorators Group;6;47;45;44;42;43;40;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;53;-864,3872;Inherit;False;628.9534;920.3547;Out of Group;5;52;49;51;50;48;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;11;-848,896;Inherit;False;1356.853;1478.783;Vector Group;5;32;31;54;55;56;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;41;-848,3088;Inherit;False;589.4493;699.1997;Condition Decorators Group;6;47;45;44;42;43;40;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;39;-800,1040;Inherit;False;1311.946;286.7615;Color and other Drawers will reference the names of other Properties. Currently, you must manually lock these Property names to prevent the auto-generated names from changing.;4;27;30;29;28;;1,1,1,1;0;0
-Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;10;-848,1648;Inherit;False;668.1052;615.8208;Appearance Decorators Group;6;37;33;36;35;34;46;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;10;-848,2416;Inherit;False;668.1052;615.8208;Appearance Decorators Group;6;37;33;36;35;34;46;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;12;-848,144;Inherit;False;557.5201;697.4403;Ramp Group;4;26;25;22;21;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;13;-848,-720;Inherit;False;663.2001;699.9999;Numeric Group;8;23;20;19;18;17;16;15;14;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;14;-512,-192;Inherit;False;Property;_Max;_Max;7;0;Create;True;0;0;0;True;0;False;0;1;HiddenDecorator;;0;0;1;0;-1;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;15;-512,-256;Inherit;False;Property;_Min;_Min;6;0;Create;True;0;0;0;True;0;False;0;1;HiddenDecorator;;0;0;-1;0;-1;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;16;-688,-592;Inherit;False;Property;_Float;Float;1;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;17;-784,-512;Inherit;False;Property;_Range;Range;2;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;18;-784,-432;Inherit;False;Property;_SubPowerSlider;Sub Power Slider;3;0;Create;True;0;0;0;True;0;False;1;SubPowerSliderDrawer;string group,float power;2;Numeric;5;2;group;Numeric;power;5;0;50;0;0;100;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;19;-784,-352;Inherit;False;Property;_SubIntRange;Sub Int Range;4;0;Create;True;0;0;0;True;0;False;1;SubIntRangeDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;-10;10;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;20;-784,-240;Inherit;False;Property;_MinMaxSlider;Min Max Slider;5;0;Create;True;0;0;0;True;0;False;1;MinMaxSliderDrawer;string group,string minPropName,string maxPropName;3;Numeric;_Min;_Max;3;group;Numeric;minPropName;_Min;maxPropName;_Max;0;0;0;-1;1;0;1;FLOAT;0
@@ -2102,29 +2122,34 @@ Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, 
 Node;AmplifyShaderEditor.FunctionNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;24;-784,16;Inherit;False;SampleAmplifyFunction_Enum;8;;4;47c66267a97c66a4f950ad83bd0e4064;0;0;1;FLOAT3;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;25;-784,192;Inherit;False;Property;_RampGroup;====== Ramp Group ======;15;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState,enum defaultToggleDisplayed;4;Ramp;;on;on;4;group;Ramp;keyword;;defaultFoldingState;on;defaultToggleDisplayed;on;0;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;26;-784,720;Inherit;False;Property;_RampAtlasIndexer;Ramp Atlas Indexer;18;0;Create;True;0;0;0;True;0;False;1;RampAtlasIndexerDrawer;string group,string rampAtlasPropName;2;Ramp;_RampAtlas;2;group;Ramp;rampAtlasPropName;_RampAtlas;0;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;32;-800,944;Inherit;False;Property;_VectorGroup;====== Vector Group ======;19;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState,enum defaultToggleDisplayed;4;Vector;;on;on;4;group;Vector;keyword;;defaultFoldingState;on;defaultToggleDisplayed;on;0;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.Vector4Node, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;31;-800,1360;Inherit;False;Property;_Channel;Channel;24;0;Create;True;0;0;0;True;0;False;1;ChannelDrawer;string group;1;Vector;1;group;Vector;0;0,1,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;27;-528,1104;Inherit;False;Property;_ColorG;Color G;21;1;[HideInInspector];Create;False;0;0;0;True;0;False;0;0;0,1,0,1;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;30;-736,1104;Inherit;False;Property;_Color;Color;20;0;Create;True;0;0;0;True;0;False;1;ColorDrawer;string group,string color2,string color3,string color4;4;Vector;_ColorG;_ColorB;_ColorA;4;group;Vector;color2;_ColorG;color3;_ColorB;color4;_ColorA;0;1,0,0,1;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;28;-320,1104;Inherit;False;Property;_ColorB;Color B;22;1;[HideInInspector];Create;False;0;0;0;True;0;False;0;0;0,0,1,1;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;29;-112,1104;Inherit;False;Property;_ColorA;Color A;23;1;[HideInInspector];Create;False;0;0;0;True;0;False;0;0;1,1,1,1;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;46;-800,2176;Inherit;False;Property;_Hidden;Hidden;30;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;HiddenDecorator;;0;0;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;35;-800,1888;Inherit;False;Property;_HelpboxSample;Multilingual Helpbox%Hello, world!%你好, 世界!%안녕, 세계!%%;27;0;Create;False;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;HelpboxDecorator;string s1,string s2,string s3;3;Helpbox 1;Helpbox 2;Helpbox 3;3;s1;Helpbox 1;s2;Helpbox 2;s3;Helpbox 3;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;47;-816,2880;Inherit;False;Property;_PassSwitch;Pass Switch;36;0;Create;True;0;0;0;True;0;False;1;SubToggleDrawer;string group;1;Condition;1;group;Condition;1;PassSwitchDecorator;passname lightModeName1;1;UniversalForwardOnly;1;lightModeName1;UniversalForwardOnly;1;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;45;-816,2784;Inherit;False;Property;_ActiveIfTrue1;Active If True (1);35;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Condition;1;group;Condition;1;ActiveIfDecorator;enum logicalOperator,string propNameOrKeyword,enum compareFunction,float value;4;;_Toggle;;1;3;propNameOrKeyword;_Toggle;comparisonMethod;;value;1;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;44;-816,2672;Inherit;False;Property;_ShowIfTrue1;Show If True (1);34;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Condition;1;group;Condition;1;ShowIfDecorator;string propNameOrKeyword,enum compareFunction,float value;3;_Toggle;;1;3;propNameOrKeyword;_Toggle;compareFunction;;value;1;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;43;-816,2576;Inherit;False;Property;_ShowIfFalse0;Show If False (0);33;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Condition;1;group;Condition;1;ShowIfDecorator;string propNameOrKeyword,enum compareFunction,float value;3;_Toggle;;;3;propNameOrKeyword;_Toggle;compareFunction;;value;;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;40;-816,2384;Inherit;False;Property;_ConditionDecoratorsGroup;====== Condition Decorators Group ======;31;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState;3;Condition;;on;3;group;Condition;keyword;;defaultFoldingState;on;0;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;42;-816,2480;Inherit;False;Property;_Toggle;Toggle;32;0;Create;False;0;0;0;True;0;False;1;SubToggleDrawer;string group;1;Condition;1;group;Condition;0;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;37;-800,2080;Inherit;False;Property;_ReadOnly;Read Only;29;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;ReadOnlyDecorator;;0;0;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;34;-800,1968;Inherit;False;Property;_TooltipSample;Multilingual Tooltip#Hello, world#你好, 世界!#안녕, 세계!#;28;0;Create;False;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;TooltipDecorator;string s1,string s2,string s3;3;Tooltip 1;Tooltip 2;Tooltip 3;3;s1;Tooltip 1;s2;Tooltip 2;s3;Tooltip 3;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;33;-800,1696;Inherit;False;Property;_AppearanceDecoratorsGroup;====== Appearance Decorators Group ======;25;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState;3;Appearance;;on;3;group;Appearance;keyword;;defaultFoldingState;on;1;HelpURLDecorator;string s1,string s2,string s3;3;github.com;JasonMa0012;LWGUI;3;s1;github.com;s2;JasonMa0012;s3;LWGUI;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;36;-800,1808;Inherit;False;Property;_Title;Title;26;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;TitleDecorator;string group,string header;2;Appearance;Title;2;group;Appearance;header;Title;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;48;-832,3152;Inherit;False;Property;_Float0;Float 0;37;0;Create;True;0;0;0;True;0;False;0;1;TitleDecorator;string header;1;Out of Group;1;header;Out of Group;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.Vector4Node, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;50;-832,3312;Inherit;False;Property;_Vector0;Vector 0;39;0;Create;True;0;0;0;True;0;False;0;0;0,0,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;51;-832,3232;Inherit;False;Property;_Float1;Float 1;38;0;Create;True;0;0;0;True;0;False;0;0;0;0;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;49;-832,3680;Inherit;True;Property;_TextureSample0;Texture Sample 0;41;0;Create;True;0;0;0;True;0;False;0;0;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;False;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;52;-832,3488;Inherit;False;Property;_Color0;Color 0;40;0;Create;True;0;0;0;True;0;False;0;0;0,0,0,0;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.Vector4Node, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;31;-800,1360;Inherit;False;Property;_Channel;Channel;24;0;Create;False;0;0;0;True;0;False;1;ChannelDrawer;string group;1;Vector;1;group;Vector;0;0,1,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;32;-800,944;Inherit;False;Property;_VectorTextureGroup;====== Vector / Texture Group ======;19;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState,enum defaultToggleDisplayed;4;Vector;;on;on;4;group;Vector;keyword;;defaultFoldingState;on;defaultToggleDisplayed;on;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;46;-800,2944;Inherit;False;Property;_Hidden;Hidden;33;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;HiddenDecorator;;0;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;35;-800,2656;Inherit;False;Property;_HelpboxSample;Multilingual Helpbox%Hello, world!%你好, 世界!%안녕, 세계!%%;30;0;Create;False;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;HelpboxDecorator;string s1,string s2,string s3;3;Helpbox 1;Helpbox 2;Helpbox 3;3;s1;Helpbox 1;s2;Helpbox 2;s3;Helpbox 3;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;47;-816,3648;Inherit;False;Property;_PassSwitch;Pass Switch;39;0;Create;True;0;0;0;True;0;False;1;SubToggleDrawer;string group;1;Condition;1;group;Condition;1;PassSwitchDecorator;passname lightModeName1;1;UniversalForwardOnly;1;lightModeName1;UniversalForwardOnly;1;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;45;-816,3552;Inherit;False;Property;_ActiveIfTrue1;Active If True (1);38;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Condition;1;group;Condition;1;ActiveIfDecorator;enum logicalOperator,string propNameOrKeyword,enum compareFunction,float value;4;;_Toggle;;1;3;propNameOrKeyword;_Toggle;comparisonMethod;;value;1;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;44;-816,3440;Inherit;False;Property;_ShowIfTrue1;Show If True (1);37;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Condition;1;group;Condition;1;ShowIfDecorator;string propNameOrKeyword,enum compareFunction,float value;3;_Toggle;;1;3;propNameOrKeyword;_Toggle;compareFunction;;value;1;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;43;-816,3344;Inherit;False;Property;_ShowIfFalse0;Show If False (0);36;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Condition;1;group;Condition;1;ShowIfDecorator;string propNameOrKeyword,enum compareFunction,float value;3;_Toggle;;;3;propNameOrKeyword;_Toggle;compareFunction;;value;;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;40;-816,3152;Inherit;False;Property;_ConditionDecoratorsGroup;====== Condition Decorators Group ======;34;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState;3;Condition;;on;3;group;Condition;keyword;;defaultFoldingState;on;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;42;-816,3248;Inherit;False;Property;_Toggle;Toggle;35;0;Create;False;0;0;0;True;0;False;1;SubToggleDrawer;string group;1;Condition;1;group;Condition;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;37;-800,2848;Inherit;False;Property;_ReadOnly;Read Only;32;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;ReadOnlyDecorator;;0;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;34;-800,2736;Inherit;False;Property;_TooltipSample;Multilingual Tooltip#Hello, world#你好, 世界!#안녕, 세계!#;31;0;Create;False;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;TooltipDecorator;string s1,string s2,string s3;3;Tooltip 1;Tooltip 2;Tooltip 3;3;s1;Tooltip 1;s2;Tooltip 2;s3;Tooltip 3;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;33;-800,2464;Inherit;False;Property;_AppearanceDecoratorsGroup;====== Appearance Decorators Group ======;28;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState;3;Appearance;;on;3;group;Appearance;keyword;;defaultFoldingState;on;1;HelpURLDecorator;string s1,string s2,string s3;3;github.com;JasonMa0012;LWGUI;3;s1;github.com;s2;JasonMa0012;s3;LWGUI;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;36;-800,2576;Inherit;False;Property;_Title;Title;29;0;Create;True;0;0;0;True;0;False;1;SubDrawer;string group;1;Appearance;1;group;Appearance;1;TitleDecorator;string group,string header;2;Appearance;Title;2;group;Appearance;header;Title;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.Vector4Node, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;50;-816,4112;Inherit;False;Property;_Vector0;Vector 0;42;0;Create;True;0;0;0;True;0;False;0;0;0,0,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;49;-816,4480;Inherit;True;Property;_TextureSample0;Texture Sample 0;44;0;Create;True;0;0;0;True;0;False;0;0;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;False;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;52;-816,4288;Inherit;False;Property;_Color0;Color 0;43;0;Create;True;0;0;0;True;0;False;0;0;0,0,0,0;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;48;-816,3952;Inherit;False;Property;_Float0;Float 0;40;0;Create;True;0;0;0;True;0;False;0;1;TitleDecorator;string header;1;Out of Group;1;header;Out of Group;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;54;-800,1552;Inherit;True;Property;_TexwithChannel;Tex with Channel;25;0;Create;True;0;0;0;True;0;False;1;TexDrawer;string group,string extraPropName;2;Vector;_Channel;2;group;Vector;extraPropName;_Channel;0;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;False;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;17;-784,-512;Inherit;False;Property;_Range;Range;2;0;Create;False;0;0;0;True;0;False;1;SubDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;55;-800,1776;Inherit;True;Property;_TexwithRange;Tex with Range;26;0;Create;True;0;0;0;True;0;False;1;TexDrawer;string group,string extraPropName;2;Vector;_Range;2;group;Vector;extraPropName;_Range;0;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;False;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;16;-784,-592;Inherit;False;Property;_Float;Float;1;0;Create;False;0;0;0;True;0;False;1;SubDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;56;-800,2000;Inherit;True;Property;_TexwithFloat;Tex with Float;27;0;Create;True;0;0;0;True;0;False;1;TexDrawer;string group,string extraPropName;2;Vector;_Float;2;group;Vector;extraPropName;_Float;0;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;False;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;51;-816,4032;Inherit;False;Property;_Range1;Range 1;41;0;Create;True;0;0;0;True;0;False;0;0;0.5;0;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;0;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ExtraPrePass;0;0;ExtraPrePass;6;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;0;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;2;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;3;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;True;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;False;True;1;LightMode=DepthOnly;False;False;0;;0;0;Standard;0;False;0
@@ -2137,4 +2162,4 @@ Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Versi
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;1;16,16;Float;False;True;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;Forward;0;1;Forward;10;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;1;LightMode=UniversalForwardOnly;False;False;0;;0;0;Standard;27;Surface;0;0;  Keep Alpha;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;0;0;  Use Shadow Threshold;0;0;Forward Only;0;0;Cast Shadows;1;0;Receive Shadows;2;0;Receive SSAO;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;Meta Pass;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position;1;0;0;10;False;True;True;True;False;False;True;True;True;False;False;;False;0
 WireConnection;1;2;24;0
 ASEEND*/
-//CHKSM=EE0B2D8604C08B62E67DF2CED850D23AB725EB47
+//CHKSM=C492B37C186B18B5D27A4564D96E4DE91D5806A2

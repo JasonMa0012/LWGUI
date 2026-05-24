@@ -121,10 +121,7 @@ namespace LWGUI
 				return;
 			}
 
-			var oldLabelWidth = EditorGUIUtility.labelWidth;
-			// EditorGUIUtility.labelWidth = 0f;
 			int newIndex = EditorGUI.Popup(position, label, index, _names);
-			EditorGUIUtility.labelWidth = oldLabelWidth;
 			EditorGUI.showMixedValue = false;
 			if (Helper.EndChangeCheck(metaDatas, prop))
 			{

@@ -69,9 +69,7 @@ namespace LWGUI
 			//-----------------------------------------------------------------------------
 			// Draw Properties
 			{
-				// move fields left to make rect for Revert Button
 				Helper.SetAdjustableGUIWidths();
-				RevertableHelper.InitRevertableGUIWidths();
 
 				// start drawing properties
 				foreach (var prop in props)
@@ -107,7 +105,6 @@ namespace LWGUI
 
 						if (!propStaticData.isExpanding)
 						{
-							RevertableHelper.SetRevertableGUIWidths();
 							EditorGUI.indentLevel = indentLevel;
 							continue;
 						}
@@ -115,11 +112,9 @@ namespace LWGUI
 
 					DrawProperty(prop);
 
-					RevertableHelper.SetRevertableGUIWidths();
 					EditorGUI.indentLevel = indentLevel;
+					Helper.SetAdjustableGUIWidths();
 				}
-
-				Helper.SetAdjustableGUIWidths();
 			}
 
 
@@ -148,12 +143,15 @@ namespace LWGUI
 		private void DrawAdvancedHeader(PropertyStaticData propStaticData, MaterialProperty prop)
 		{
 			EditorGUILayout.Space(3);
+			
 			var rect = EditorGUILayout.GetControlRect();
 			var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
 			var label = string.IsNullOrEmpty(propStaticData.advancedHeaderString) ? "Advanced" : propStaticData.advancedHeaderString;
+			
 			propStaticData.isExpanding = EditorGUI.Foldout(rect, propStaticData.isExpanding, label, EditorStyles.foldoutHeader);
 			if (Event.current.type == EventType.MouseDown && Event.current.button == 0 && rect.Contains(Event.current.mousePosition))
 				propStaticData.isExpanding = !propStaticData.isExpanding;
+			
 			RevertableHelper.DrawRevertableProperty(revertButtonRect, prop, metaDatas, true);
 			ContextMenuHelper.DoPropertyContextMenus(rect, prop, metaDatas);
 		}
@@ -171,7 +169,6 @@ namespace LWGUI
 			var label = new GUIContent(propStaticData.displayName, MetaDataHelper.GetPropertyTooltip(propStaticData, propDynamicData));
 			var height = metaDatas.perInspectorData.materialEditor.GetPropertyHeight(prop, label.text);
 			var rect = EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
-
 			var revertButtonRect = RevertableHelper.SplitRevertButtonRect(ref rect);
 
 			var enabled = GUI.enabled;
@@ -180,7 +177,6 @@ namespace LWGUI
 			Helper.BeginProperty(rect, prop, metaDatas);
 			ContextMenuHelper.DoPropertyContextMenus(rect, prop, metaDatas);
 			
-			RevertableHelper.FixGUIWidthMismatch(prop.GetPropertyType(), materialEditor);
 			if (propStaticData.isAdvancedHeaderProperty)
 				propStaticData.isExpanding = EditorGUI.Foldout(rect, propStaticData.isExpanding, string.Empty);
 			

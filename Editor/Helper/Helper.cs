@@ -1,4 +1,4 @@
-﻿// Copyright (c) Jason Ma
+// Copyright (c) Jason Ma
 
 using System;
 using System.Collections.Generic;
@@ -152,14 +152,6 @@ namespace LWGUI
 			}
 			return k;
 		}
-
-		public static void AdaptiveFieldWidth(GUIStyle style, GUIContent content)
-		{
-			var extraTextWidth = Mathf.Max(0, style.CalcSize(content).x - (EditorGUIUtility.fieldWidth - RevertableHelper.revertButtonWidth));
-			EditorGUIUtility.labelWidth -= extraTextWidth;
-			EditorGUIUtility.fieldWidth += extraTextWidth;
-		}
-
 
 		#endregion
 

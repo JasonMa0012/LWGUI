@@ -14,8 +14,6 @@ namespace LWGUI
 	public class RevertableHelper
 	{
 		public static readonly float revertButtonWidth = 15f;
-		public static          float fieldWidth;
-		public static          float labelWidth;
 
 
 		#region GUI Setting
@@ -42,34 +40,6 @@ namespace LWGUI
 											revertButtonWidth - 2f,
 											revertButtonWidth - 3f);
 			return revertButtonRect;
-		}
-
-		public static void InitRevertableGUIWidths()
-		{
-			// EditorGUIUtility.fieldWidth += revertButtonWidth;
-			// EditorGUIUtility.labelWidth -= revertButtonWidth;
-			// fieldWidth = EditorGUIUtility.fieldWidth;
-			// labelWidth = EditorGUIUtility.labelWidth;
-		}
-
-		public static void SetRevertableGUIWidths()
-		{
-			// EditorGUIUtility.fieldWidth = fieldWidth;
-			// EditorGUIUtility.labelWidth = labelWidth;
-		}
-
-		public static void FixGUIWidthMismatch(ShaderPropertyType propType, MaterialEditor materialEditor, float labelWidth = 64f)
-		{
-			// switch (propType)
-			// {
-			// 	case ShaderPropertyType.Texture:
-			// 	case ShaderPropertyType.Range:
-			// 		ReflectionHelper.SetDefaultGUIWidths(labelWidth);
-			// 		break;
-			// 	default:
-			// 		SetRevertableGUIWidths();
-			// 		break;
-			// }
 		}
 
 		#endregion

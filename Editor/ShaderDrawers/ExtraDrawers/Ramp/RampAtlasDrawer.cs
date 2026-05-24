@@ -121,9 +121,7 @@ namespace LWGUI
 		{
 			EditorGUI.PrefixLabel(position, label);
 			
-			var labelWidth = EditorGUIUtility.labelWidth;
 			var indentLevel = EditorGUI.indentLevel;
-			// EditorGUIUtility.labelWidth = 0;
 			EditorGUI.indentLevel = 0;
 			
 			var fieldRect = MaterialEditor.GetRectAfterLabelWidth(position);
@@ -160,7 +158,6 @@ namespace LWGUI
 				prop.textureValue.filterMode = filter;
 			}
 
-			EditorGUIUtility.labelWidth = labelWidth;
 			EditorGUI.indentLevel = indentLevel;
 		}
 	}

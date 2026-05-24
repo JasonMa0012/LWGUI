@@ -249,7 +249,6 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			var labelWidth = EditorGUIUtility.labelWidth;
 			var indentLevel = EditorGUI.indentLevel;
 
 			OnRampPropUpdate(position, prop, label, editor);
@@ -284,7 +283,6 @@ namespace LWGUI
 			// Ramp buttons Rect
 			var buttonRect = new Rect(position);
 			{
-				// EditorGUIUtility.labelWidth = 0;
 				EditorGUI.indentLevel = 0;
 				buttonRect.yMin = buttonRect.yMax - EditorGUIUtility.singleLineHeight;
 				buttonRect = MaterialEditor.GetRectAfterLabelWidth(buttonRect);
@@ -369,7 +367,6 @@ namespace LWGUI
 			// Preview texture override (larger preview, hides texture name)
 			DrawPreviewTextureOverride(previewRect, rampFieldRect, prop, gradient);
 
-			EditorGUIUtility.labelWidth = labelWidth;
 			EditorGUI.indentLevel = indentLevel;
 		}
 	}
