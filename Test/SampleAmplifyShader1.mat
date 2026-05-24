@@ -41,6 +41,22 @@ Material:
         m_Texture: {fileID: 2800000, guid: 1522a7c4f7317044ab912724c1594427, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TextureSample0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TexwithChannel:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TexwithFloat:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TexwithRange:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -78,6 +94,7 @@ Material:
     - _RampAtlasIndexer: 0
     - _RampGroup: 0
     - _Range: 0
+    - _Range1: 0.5
     - _ReadOnly: 0
     - _ReceiveShadows: 1
     - _Show: 0
@@ -95,6 +112,7 @@ Material:
     - _TooltipSample: 0
     - _TooltipandHelpboxSample: 0
     - _VectorGroup: 0
+    - _VectorTextureGroup: 0
     - __dirty: 1
     - _float1: -0.05
     m_Colors:
@@ -110,4 +128,5 @@ Material:
     - _ColorB: {r: 0, g: 0, b: 1, a: 1}
     - _ColorG: {r: 0, g: 1, b: 0, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Vector0: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

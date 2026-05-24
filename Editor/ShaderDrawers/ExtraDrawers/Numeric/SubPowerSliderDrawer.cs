@@ -50,7 +50,6 @@ namespace LWGUI
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			RevertableHelper.FixGUIWidthMismatch(prop.GetPropertyType(), editor);
 			EditorGUI.showMixedValue = prop.hasMixedValue;
 			var rect = position;
 			var oldValue = prop.floatValue;

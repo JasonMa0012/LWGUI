@@ -1,4 +1,4 @@
-﻿// Copyright (c) Jason Ma
+// Copyright (c) Jason Ma
 // Per Shader > Per Material > Per Inspector
 
 using System.Collections.Generic;

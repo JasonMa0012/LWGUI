@@ -51,16 +51,82 @@ namespace LWGUI
         private static readonly Type MaterialEditor_Type = typeof(MaterialEditor);
         private static readonly PropertyInfo MaterialEditor_RendererForAnimationMode_Property = MaterialEditor_Type.GetProperty("rendererForAnimationMode", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo MaterialEditor_TexturePropertyBody_Method = MaterialEditor_Type.GetMethod("TexturePropertyBody", BindingFlags.NonPublic | BindingFlags.Instance);
-
-
-        public static float DoPowerRangeProperty(Rect position, MaterialProperty prop, GUIContent label, float power)
+        
+        /// <summary>
+        /// Override Vector/Range behavior to match its width with other GUIs
+        /// </summary>
+        public static void LwguiShaderProperty(this MaterialEditor editor, Rect position, MaterialProperty prop, GUIContent label, int labelIndent = 0)
         {
-            return MaterialEditor.DoPowerRangeProperty(position, prop, label, power);
+            editor.BeginAnimatedCheck(position, prop);
+            EditorGUI.indentLevel += labelIndent;
+            using (new EditorGUI.DisabledScope((prop.flags & MaterialProperty.PropFlags.PerRendererData) != 0))
+                editor.LwguiShaderPropertyInternal(position, prop, label);
+            EditorGUI.indentLevel -= labelIndent;
+            editor.EndAnimatedCheck();
         }
 
-        public static void DefaultShaderPropertyInternal(this MaterialEditor editor, Rect position, MaterialProperty prop, GUIContent label)
+        /// <summary>
+        /// Override Vector/Range behavior to match its width with other GUIs
+        /// </summary>
+        public static void LwguiShaderPropertyInternal(this MaterialEditor editor, Rect position, MaterialProperty prop, GUIContent label)
         {
-            editor.DefaultShaderPropertyInternal(position, prop, label);
+            MaterialPropertyHandler handler = MaterialPropertyHandler.GetHandler(((Material) editor.target).shader, prop.name);
+            if (handler != null)
+            {
+                handler.OnGUI(ref position, prop, label.text != null ? label : new GUIContent(prop.displayName), editor);
+                if (handler.propertyDrawer != null)
+                    return;
+            }
+            editor.LwguiDefaultShaderPropertyInternal(position, prop, label);
+        }
+
+        /// <summary>
+        /// Override Vector/Range behavior to match its width with other GUIs
+        /// </summary>
+        public static void LwguiDefaultShaderPropertyInternal(this MaterialEditor editor, Rect position, MaterialProperty prop, GUIContent label)
+        {
+            switch (prop.type)
+            {
+                case MaterialProperty.PropType.Vector:
+                    VectorPropertyInternal(position, prop, label);
+                    break;
+                case MaterialProperty.PropType.Range:
+                    DoPowerRangeProperty(position, prop, label);
+                    break;
+                default:
+                    editor.DefaultShaderPropertyInternal(position, prop, label);
+                    break;
+            }
+        }
+
+        public static Vector4 VectorPropertyInternal(in Rect position, in MaterialProperty prop, in GUIContent label)
+        {
+            MaterialEditor.BeginProperty(position, prop);
+            EditorGUI.BeginChangeCheck();
+            // float labelWidth = EditorGUIUtility.labelWidth;
+            // EditorGUIUtility.labelWidth = 0.0f;
+            Vector4 vector4 = EditorGUI.Vector4Field(position, label, prop.vectorValue);
+            // EditorGUIUtility.labelWidth = labelWidth;
+            if (EditorGUI.EndChangeCheck())
+                prop.vectorValue = vector4;
+            MaterialEditor.EndProperty();
+            return prop.vectorValue;
+        }
+        
+        public static float DoPowerRangeProperty(Rect position, MaterialProperty prop, GUIContent label, float power = 1.0f)
+        {
+            MaterialEditor.BeginProperty(position, prop);
+            EditorGUI.BeginChangeCheck();
+            // float labelWidth = EditorGUIUtility.labelWidth;
+            // EditorGUIUtility.labelWidth = 0.0f;
+            bool flag = (double) prop.rangeLimits.x > (double) prop.rangeLimits.y;
+            float sliderValue = Mathf.Clamp(prop.floatValue, flag ? prop.rangeLimits.y : prop.rangeLimits.x, flag ? prop.rangeLimits.x : prop.rangeLimits.y);
+            float num = EditorGUI.PowerSlider(position, label, sliderValue, prop.rangeLimits.x, prop.rangeLimits.y, power);
+            // EditorGUIUtility.labelWidth = labelWidth;
+            if (EditorGUI.EndChangeCheck())
+                prop.floatValue = num;
+            MaterialEditor.EndProperty();
+            return prop.floatValue;
         }
 
         public static List<Renderer> GetMeshRenderersByMaterialEditor(this MaterialEditor materialEditor)
@@ -105,6 +171,12 @@ namespace LWGUI
         #region EditorGUI
 
         public static float EditorGUI_Indent => EditorGUI.indentLevel;
+
+        #endregion
+        
+        #region EditorGUIUtility
+
+        public static float EditorGUIUtility_contextWidth => EditorGUIUtility.contextWidth;
 
         #endregion
         

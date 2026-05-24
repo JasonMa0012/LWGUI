@@ -64,23 +64,18 @@ namespace LWGUI
 			var rect = position;
 
 			MaterialProperty extraProp = metaDatas.GetProperty(_extraPropName);
-			if (extraProp != null
-			 // && (
-				// 	extraProp.type == MaterialProperty.PropType.Color
-				//  || extraProp.type == MaterialProperty.PropType.Vector
-				// )
-			)
+			if (extraProp != null)
 			{
 				var i = EditorGUI.indentLevel;
 				EditorGUI.indentLevel = 0;
-
-				var extraRect = MaterialEditor.GetRightAlignedFieldRect(rect);
-				extraRect.height = rect.height;
+				
+				var extraRect = MaterialEditor.GetRectAfterLabelWidth(rect);
+				extraRect.xMin += 2f;
 
 				if (extraProp.GetPropertyType() == ShaderPropertyType.Vector)
 					_channelDrawer.OnGUI(extraRect, extraProp, GUIContent.none, editor);
 				else
-					editor.ShaderProperty(extraRect, extraProp, GUIContent.none);
+					editor.LwguiShaderProperty(extraRect, extraProp, GUIContent.none);
 
 				EditorGUI.indentLevel = i;
 			}

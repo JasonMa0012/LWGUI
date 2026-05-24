@@ -1,4 +1,4 @@
-﻿// Copyright (c) Jason Ma
+// Copyright (c) Jason Ma
 
 using System;
 using System.Linq;
@@ -14,15 +14,13 @@ namespace LWGUI
 	public class RevertableHelper
 	{
 		public static readonly float revertButtonWidth = 15f;
-		public static          float fieldWidth;
-		public static          float labelWidth;
 
 
 		#region GUI Setting
 
 		public static Rect IndentRect(Rect rect)
 		{
-			rect.xMax -= RevertableHelper.revertButtonWidth;
+			rect.xMax -= revertButtonWidth;
 			return rect;
 		}
 
@@ -42,34 +40,6 @@ namespace LWGUI
 											revertButtonWidth - 2f,
 											revertButtonWidth - 3f);
 			return revertButtonRect;
-		}
-
-		public static void InitRevertableGUIWidths()
-		{
-			EditorGUIUtility.fieldWidth += RevertableHelper.revertButtonWidth;
-			EditorGUIUtility.labelWidth -= RevertableHelper.revertButtonWidth;
-			RevertableHelper.fieldWidth = EditorGUIUtility.fieldWidth;
-			RevertableHelper.labelWidth = EditorGUIUtility.labelWidth;
-		}
-
-		public static void SetRevertableGUIWidths()
-		{
-			EditorGUIUtility.fieldWidth = RevertableHelper.fieldWidth;
-			EditorGUIUtility.labelWidth = RevertableHelper.labelWidth;
-		}
-
-		public static void FixGUIWidthMismatch(ShaderPropertyType propType, MaterialEditor materialEditor)
-		{
-			switch (propType)
-			{
-				case ShaderPropertyType.Texture:
-				case ShaderPropertyType.Range:
-					materialEditor.SetDefaultGUIWidths();
-					break;
-				default:
-					RevertableHelper.SetRevertableGUIWidths();
-					break;
-			}
 		}
 
 		#endregion
