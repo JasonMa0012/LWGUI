@@ -1,4 +1,4 @@
-﻿// Copyright (c) Jason Ma
+// Copyright (c) Jason Ma
 
 using System.Collections.Generic;
 using UnityEngine;
@@ -32,6 +32,9 @@ namespace LWGUI
         public List<string> buttonDisplayNames = new();
         public List<string> buttonCommands = new();
         public List<float> buttonDisplayNameWidths = new();
+
+        // Label
+        public float labelWidth = 0f;
 
         // HelpURLDecorator
         public string helpURL = string.Empty;

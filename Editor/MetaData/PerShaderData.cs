@@ -252,6 +252,19 @@ namespace LWGUI
                     lastPropData = propStaticData;
                 }
             }
+
+            // Calculate Label Width
+            {
+                foreach (var prop in props)
+                {
+                    var propStaticData = propStaticDatas[prop.name];
+                    if (propStaticData.isMain || string.IsNullOrEmpty(propStaticData.displayName))
+                        continue;
+
+                    propStaticData.labelWidth = Mathf.Max(propStaticData.labelWidth, 
+                        EditorStyles.label.CalcSize(new GUIContent(propStaticData.displayName)).x);
+                }
+            }
         }
 
         public PropertyStaticData GetPropStaticData(string propName)

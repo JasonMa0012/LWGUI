@@ -110,6 +110,13 @@ namespace LWGUI
 						}
 					}
 
+					if (propStaticData.labelWidth > 0)
+					{
+						var indent = ReflectionHelper.EditorGUI_indent;
+						if (propStaticData.labelWidth > EditorGUIUtility.labelWidth - indent)
+							EditorGUIUtility.labelWidth = propStaticData.labelWidth + indent;
+					}
+
 					DrawProperty(prop);
 
 					EditorGUI.indentLevel = indentLevel;
