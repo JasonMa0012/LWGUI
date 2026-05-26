@@ -291,14 +291,17 @@ namespace LWGUI
 				label.text += $" ({ currentIndex } - NULL)";
 			}
 
+			var labelWidth = EditorStyles.label.CalcSize(label).x;
+			var indent = ReflectionHelper.EditorGUI_indent;
+			if (labelWidth > EditorGUIUtility.labelWidth - indent)
+				EditorGUIUtility.labelWidth = labelWidth + indent;
+
 			// Handle Mixed Value
 			_rampAtlasSOHasMixedValue = rampAtlasProp.hasMixedValue;
 			var showMixedValue = EditorGUI.showMixedValue;
 			EditorGUI.showMixedValue = prop.hasMixedValue || _rampAtlasSOHasMixedValue;
-
 			
 			base.DrawProp(position, prop, label, editor);
-			
 			
 			// Clear
 			_rampAtlasProp = null;

@@ -170,19 +170,13 @@ namespace LWGUI
 
         #region EditorGUI
 
-        public static float EditorGUI_Indent => EditorGUI.indentLevel;
+        public static float EditorGUI_indent => EditorGUI.indentLevel * 15f;
 
         #endregion
         
         #region EditorGUIUtility
 
         public static float EditorGUIUtility_contextWidth => EditorGUIUtility.contextWidth;
-
-        #endregion
-        
-        #region EditorGUILayout
-
-        public static float EditorGUILayout_kLabelFloatMinW => EditorGUILayout.kLabelFloatMinW;
 
         #endregion
 
