@@ -18,10 +18,10 @@ description: "提交工作区改动并发布新版本。流程：版本号校验
 
 ### Step 1: 版本号校验
 
-确认 `package.json` 中的 `version` 高于最新已发布的 git tag：
+确认 `package.json` 中的 `version` 高于最新已发布的 git tag（按日期排序，仅查询发布分支上的 tag）：
 
 ```bash
-git tag --sort=-v:refname | head -1
+git tag --sort=-creatordate --merged 1.x | Select-Object -First 1
 ```
 
 如果版本号未递增，提示用户修改 `package.json` 中的版本号后再继续。
@@ -82,11 +82,17 @@ mcp_github_merge_pull_request(
 
 ### Step 5: 审查上一个已发布版本之后的所有改动
 
-获取上一个 tag 到当前 `1.x` 的提交列表和差异：
+先获取上一个 tag 的提交日期：
 
 ```
-mcp_github_list_commits(owner="JasonMa0012", repo="LWGUI", sha="1.x", since="<PREVIOUS_TAG_DATE>")
-mcp_github_get_commit(owner="JasonMa0012", repo="LWGUI", sha="<PREVIOUS_TAG>...1.x")
+mcp_github_get_tag(owner="JasonMa0012", repo="LWGUI", tag="<PREVIOUS_TAG>")
+mcp_github_get_commit(owner="JasonMa0012", repo="LWGUI", sha="<返回的commit.sha>")
+```
+
+再用 `since` 参数获取该日期之后 `1.x` 上的所有提交：
+
+```
+mcp_github_list_commits(owner="JasonMa0012", repo="LWGUI", sha="1.x", since="<返回的commit.date>")
 ```
 
 仔细审查改动，查找：
