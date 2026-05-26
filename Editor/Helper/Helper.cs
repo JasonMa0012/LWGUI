@@ -121,7 +121,7 @@ namespace LWGUI
 
 		public static float GetCurrentPropertyLayoutWidth()
 		{
-			return ReflectionHelper.EditorGUILayout_kLabelFloatMinW - ReflectionHelper.EditorGUI_Indent - RevertableHelper.revertButtonWidth - 2;
+			return ReflectionHelper.EditorGUIUtility_contextWidth - ReflectionHelper.EditorGUI_indent - RevertableHelper.revertButtonWidth - 2;
 		}
 
 		#endregion
@@ -277,13 +277,15 @@ namespace LWGUI
 			var helpboxStr = propertyStaticData.helpboxMessages;
 			if (!string.IsNullOrEmpty(helpboxStr))
 			{
+				// Automatically calculate the Rect required for text
 				var content = new GUIContent(helpboxStr, _helpboxIcon);
-				var textWidth = GetCurrentPropertyLayoutWidth();
-				var textHeight = GUIStyles.helpbox.CalcHeight(content, textWidth);
-				var helpboxRect = EditorGUI.IndentedRect(EditorGUILayout.GetControlRect(true, textHeight));
-				helpboxRect.xMax -= RevertableHelper.revertButtonWidth;
+				EditorGUILayout.BeginHorizontal();
+				GUILayout.Space(ReflectionHelper.EditorGUI_indent);
+				var helpboxRect = GUILayoutUtility.GetRect(content, GUIStyles.helpbox);
+				GUILayout.Space(RevertableHelper.revertButtonWidth);
+				EditorGUILayout.EndHorizontal();
+				
 				GUI.Label(helpboxRect, content, GUIStyles.helpbox);
-				// EditorGUI.HelpBox(helpboxRect, helpboxStr, MessageType.Info);
 			}
 		}
 

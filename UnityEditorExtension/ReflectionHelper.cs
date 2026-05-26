@@ -170,22 +170,13 @@ namespace LWGUI
 
         #region EditorGUI
 
-        public static float EditorGUI_Indent => EditorGUI.indentLevel;
-
-        private static readonly PropertyInfo EditorGUI_indent_Property = typeof(EditorGUI).GetProperty("indent", BindingFlags.Static | BindingFlags.NonPublic);
-        public static float EditorGUI_indent => (float)EditorGUI_indent_Property.GetValue(null);
+        public static float EditorGUI_indent => EditorGUI.indentLevel * 15f;
 
         #endregion
         
         #region EditorGUIUtility
 
         public static float EditorGUIUtility_contextWidth => EditorGUIUtility.contextWidth;
-
-        #endregion
-        
-        #region EditorGUILayout
-
-        public static float EditorGUILayout_kLabelFloatMinW => EditorGUILayout.kLabelFloatMinW;
 
         #endregion
 
