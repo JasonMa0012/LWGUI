@@ -1,3 +1,4 @@
+// Copyright (c) Jason Ma
 Shader "Hidden"
 {
 	Properties

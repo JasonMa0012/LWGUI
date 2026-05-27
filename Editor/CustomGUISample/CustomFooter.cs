@@ -1,3 +1,4 @@
+// Copyright (c) Jason Ma
 using UnityEngine;
 using UnityEditor;
 

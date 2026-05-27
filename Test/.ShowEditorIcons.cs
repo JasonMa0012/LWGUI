@@ -1,4 +1,5 @@
-﻿#if UNITY_EDITOR && UNITY_2018_1_OR_NEWER
+// Copyright (c) Jason Ma
+#if UNITY_EDITOR && UNITY_2018_1_OR_NEWER
 
 using UnityEngine;
 using UnityEditor;

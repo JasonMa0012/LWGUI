@@ -1,3 +1,4 @@
+// Copyright (c) Jason Ma
 // Made with Amplify Shader Editor v2.0.0
 // Available at the Unity Asset Store - http://u3d.as/y3X 
 Shader "New Amplify Shader"

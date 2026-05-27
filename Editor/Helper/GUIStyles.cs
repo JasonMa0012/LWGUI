@@ -1,3 +1,4 @@
+// Copyright (c) Jason Ma
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
