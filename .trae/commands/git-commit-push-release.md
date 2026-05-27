@@ -26,12 +26,12 @@ git tag --sort=-creatordate --merged 1.x | Select-Object -First 1
 
 如果版本号未递增，提示用户修改 `package.json` 中的版本号后再继续。
 
-### Step 2: 审查工作区改动
+### Step 2: 审查已暂存的改动
 
-以只读模式审查所有暂存/未暂存的改动：
+以只读模式审查已暂存（Staged）的改动，忽略 Unstaged 文件：
 
 ```bash
-git diff HEAD
+git diff --cached
 ```
 
 评估代码质量，重点关注：
@@ -49,10 +49,9 @@ git diff HEAD
 
 类型：`Add` / `Fix` / `Optimize` / `Change` / `Remove`
 
-然后执行：
+仅提交已 Staged 的文件，不额外 `git add`：
 
 ```bash
-git add -A
 git commit -m "<message>"
 git push origin dev
 ```
