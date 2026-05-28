@@ -1,4 +1,4 @@
-﻿// Copyright (c) Jason Ma
+// Copyright (c) Jason Ma
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -31,6 +31,10 @@ namespace LWGUI
 				var preset = AssetDatabase.LoadAssetAtPath<LwguiShaderPropertyPreset>(AssetDatabase.GUIDToAssetPath(GUID));
 				AddPreset(preset);
 			}
+
+			if (GUIDs.Length == 0)
+				Debug.LogWarning("LWGUI: No ShaderPropertyPreset found! If you have created presets, try reimporting LWGUI.");
+
 			_isInitComplete = true;
 		}
 
@@ -54,7 +58,7 @@ namespace LWGUI
 			if (!_loadedPresets.ContainsKey(presetFileName) || !_loadedPresets[presetFileName])
 			{
 				if (!BuildPipeline.isBuildingPlayer)
-					Debug.LogError("LWGUI: Invalid ShaderPropertyPreset path: ‘" + presetFileName + "’ !");
+					Debug.LogError("LWGUI: Invalid ShaderPropertyPreset path: ‘" + presetFileName + "’ ! If the preset file exists, try reimporting LWGUI.");
 				return null;
 			}
 

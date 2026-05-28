@@ -71,7 +71,7 @@ namespace LWGUI
 			var presetFile = PresetHelper.GetPresetAsset(presetFileName);
 			if (!presetFile || presetFile.GetPresetCount() == 0)
 			{
-				Helper.DrawShaderPropertyWithErrorLabel(position, prop, label, editor, $"Invalid Preset File: {presetFileName}");
+				Helper.DrawShaderPropertyWithErrorLabel(position, prop, label, editor, $"Invalid Preset File: {presetFileName}. Try reimporting LWGUI.");
 				return;
 			}
 
