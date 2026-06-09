@@ -1,4 +1,5 @@
-﻿using System.Linq;
+// Copyright (c) Jason Ma
+using System.Linq;
 using UnityEngine;
 using UnityEditor;
 

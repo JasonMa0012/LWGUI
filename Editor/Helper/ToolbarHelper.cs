@@ -477,6 +477,10 @@ namespace LWGUI
                 SetShowCompilerSettingsEnabled(shaderUID, newShowCompilerSettings);
             if (newShowCompilerSettings)
             {
+                if (GUILayout.Button("Install FXC (Windows SDK)", GUILayout.ExpandWidth(false)))
+                {
+                    Application.OpenURL("https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/");
+                }
                 if (GUILayout.Button("Install Mali Offline Compiler", GUILayout.ExpandWidth(false)))
                 {
                     Application.OpenURL("https://developer.arm.com/documentation/101863/8-8/Using-Mali-Offline-Compiler/Install-Mali-Offline-Compiler");
@@ -547,7 +551,8 @@ namespace LWGUI
             }
             else
             {
-                Debug.LogError("LWGUI: Can NOT get Shader Compiler!");
+                DrawCompilerSettings(metaDatas);
+                EditorGUILayout.HelpBox("No shader compiler is available. Please install FXC (Windows SDK) or Mali Offline Compiler to view shader performance stats.", MessageType.Warning);
             }
 
             EditorGUIUtility.fieldWidth = fieldWidth;

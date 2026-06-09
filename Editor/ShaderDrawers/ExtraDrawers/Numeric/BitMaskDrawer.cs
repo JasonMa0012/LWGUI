@@ -47,7 +47,7 @@ namespace LWGUI
 	{
 		public int bitCount = 8;
 		
-		public float maxHeight = EditorGUIUtility.singleLineHeight;
+		public float maxHeight = EditorGUIUtility.singleLineHeight * 2;
 
 		public List<GUIContent> buttonLables = new ();
 		
@@ -84,7 +84,7 @@ namespace LWGUI
 				buttonWidths.Add(Mathf.Max(_minButtonWidth, EditorStyles.miniButton.CalcSize(buttonLables[i]).x));
 
 				if (!string.IsNullOrEmpty(description))
-					maxHeight = EditorGUIUtility.singleLineHeight * 2;
+					maxHeight = EditorGUIUtility.singleLineHeight * 3;
 			}
 
 			for (int i = 0; i < bitCount; i++)
@@ -96,7 +96,7 @@ namespace LWGUI
 				else
 					buttonStyles.Add(new GUIStyle(EditorStyles.miniButton));
 					
-				buttonStyles[i].fixedHeight = maxHeight;
+				buttonStyles[i].fixedHeight = maxHeight - EditorGUIUtility.singleLineHeight;
 			}
 
 			totalButtonWidth = buttonWidths.Sum();
@@ -114,14 +114,17 @@ namespace LWGUI
 			int controlId = GUIUtility.GetControlID(_hint, FocusType.Keyboard, position);
 			var fieldRect = EditorGUI.PrefixLabel(position, controlId, label);
 			
-			// if (position.width < totalButtonWidth) 
-			// 	return;
+			var needSecondRow = totalButtonWidth > fieldRect.width;
+			var scale = needSecondRow ? position.width / totalButtonWidth : fieldRect.width / totalButtonWidth;
+			
+			if (needSecondRow)
+				fieldRect = new Rect(position.x + ReflectionHelper.EditorGUI_indent, position.y + EditorGUIUtility.singleLineHeight, position.width, maxHeight - EditorGUIUtility.singleLineHeight);
 
 			fieldRect.xMin = fieldRect.xMax;
 			
 			for (int i = 0; i < bitCount; i++)
 			{
-				fieldRect.xMin = fieldRect.xMax - buttonWidths[i];
+				fieldRect.xMin = fieldRect.xMax - buttonWidths[i] * scale;
 				var buttonLable = buttonLables[i];
 				var active = RuntimeHelper.IsBitEnabled((int)prop.GetNumericValue(), i);
 				var style = buttonStyles[i];

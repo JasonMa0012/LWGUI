@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEditor.Rendering;
@@ -31,12 +32,22 @@ namespace LWGUI.PerformanceMonitor.ShaderCompiler
 
         private static ShaderCompilerDefaultFxc _instance;
         public static  ShaderCompilerDefaultFxc instance => _instance ??= new ShaderCompilerDefaultFxc();
-        
+
+        private static int _isSupportCurrentPlatform = -1;
+
+        public static bool isSupportCurrentPlatform
+        {
+            get
+            {
 #if UNITY_STANDALONE_WIN
-        public static bool isSupportCurrentPlatform => true;
+                if (_isSupportCurrentPlatform == -1)
+                    _isSupportCurrentPlatform = !string.IsNullOrEmpty(_fxcAbsPath) ? 1 : 0;
+                return _isSupportCurrentPlatform == 1;
 #else
-        public static bool isSupportCurrentPlatform => false;
+                return false;
 #endif
+            }
+        }
 
         public static int priority => 0;
         
@@ -106,17 +117,46 @@ namespace LWGUI.PerformanceMonitor.ShaderCompiler
 
 
         private static string _cachedFxcPath;
+        private static bool   _fxcPathChecked;
 
         private static string _fxcAbsPath
         {
             get
             {
+                if (!_fxcPathChecked)
+                {
+                    _fxcPathChecked = true;
+                    _cachedFxcPath = FindFxcInWindowsSdk();
+                }
                 if (string.IsNullOrEmpty(_cachedFxcPath))
-                    _cachedFxcPath = IOHelper.GetAssetAbsPathFromGUID("994434336edc8a8469c9afcbb92c5936");
-                if (string.IsNullOrEmpty(_cachedFxcPath) || !File.Exists(_cachedFxcPath))
-                    Debug.LogError("LWGUI: Can not find fxc.exe!");
+                    Debug.LogError("LWGUI: Can not find fxc.exe! Please install Windows SDK.");
                 return _cachedFxcPath;
             }
+        }
+
+        private static string FindFxcInWindowsSdk()
+        {
+            var win10BinDir = @"C:\Program Files (x86)\Windows Kits\10\bin";
+            if (Directory.Exists(win10BinDir))
+            {
+                var versions = Directory.GetDirectories(win10BinDir);
+                Array.Sort(versions, (a, b) => string.Compare(b, a, StringComparison.OrdinalIgnoreCase));
+                foreach (var versionDir in versions)
+                {
+                    var fxc = Path.Combine(versionDir, "x64", "fxc.exe");
+                    if (File.Exists(fxc)) return fxc;
+                    fxc = Path.Combine(versionDir, "x86", "fxc.exe");
+                    if (File.Exists(fxc)) return fxc;
+                }
+            }
+
+            var win81X64 = @"C:\Program Files (x86)\Windows Kits\8.1\bin\x64\fxc.exe";
+            if (File.Exists(win81X64)) return win81X64;
+
+            var win81X86 = @"C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe";
+            if (File.Exists(win81X86)) return win81X86;
+
+            return null;
         }
 
         // https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/shader-model-5-assembly--directx-hlsl-

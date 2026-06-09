@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+// Copyright (c) Jason Ma
+using UnityEngine;
 using UnityEditor;
 
 namespace LWGUI.CustomGUISample

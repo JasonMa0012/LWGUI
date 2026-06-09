@@ -1,3 +1,4 @@
+// Copyright (c) Jason Ma
 #if UNITY_EDITOR
 
 using UnityEngine;

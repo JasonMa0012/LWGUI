@@ -317,10 +317,10 @@ Shader "New Amplify Shader"
 
 			CBUFFER_START(UnityPerMaterial)
 			float4 _Channel;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color0;
-			float4 _Vector0;
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
@@ -332,9 +332,9 @@ Shader "New Amplify Shader"
 			float _TooltipSample;
 			float _AppearanceDecoratorsGroup;
 			float _Title;
-			float _Float0;
 			float _Range;
-			float _Float;
+			float _Range1;
+			float _Float0;
 			float _ActiveIfTrue1;
 			float _PassSwitch;
 			float _VectorTextureGroup;
@@ -352,7 +352,7 @@ Shader "New Amplify Shader"
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Range1;
+			float _Float;
 			float _SubKeywordEnum;
 			float _BitMask;
 			float _AlphaClip;
@@ -693,10 +693,10 @@ Shader "New Amplify Shader"
 
 			CBUFFER_START(UnityPerMaterial)
 			float4 _Channel;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color0;
-			float4 _Vector0;
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
@@ -708,9 +708,9 @@ Shader "New Amplify Shader"
 			float _TooltipSample;
 			float _AppearanceDecoratorsGroup;
 			float _Title;
-			float _Float0;
 			float _Range;
-			float _Float;
+			float _Range1;
+			float _Float0;
 			float _ActiveIfTrue1;
 			float _PassSwitch;
 			float _VectorTextureGroup;
@@ -728,7 +728,7 @@ Shader "New Amplify Shader"
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Range1;
+			float _Float;
 			float _SubKeywordEnum;
 			float _BitMask;
 			float _AlphaClip;
@@ -997,10 +997,10 @@ Shader "New Amplify Shader"
 
 			CBUFFER_START(UnityPerMaterial)
 			float4 _Channel;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color0;
-			float4 _Vector0;
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
@@ -1012,9 +1012,9 @@ Shader "New Amplify Shader"
 			float _TooltipSample;
 			float _AppearanceDecoratorsGroup;
 			float _Title;
-			float _Float0;
 			float _Range;
-			float _Float;
+			float _Range1;
+			float _Float0;
 			float _ActiveIfTrue1;
 			float _PassSwitch;
 			float _VectorTextureGroup;
@@ -1032,7 +1032,7 @@ Shader "New Amplify Shader"
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Range1;
+			float _Float;
 			float _SubKeywordEnum;
 			float _BitMask;
 			float _AlphaClip;
@@ -1282,10 +1282,10 @@ Shader "New Amplify Shader"
 
 			CBUFFER_START(UnityPerMaterial)
 			float4 _Channel;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color0;
-			float4 _Vector0;
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
@@ -1297,9 +1297,9 @@ Shader "New Amplify Shader"
 			float _TooltipSample;
 			float _AppearanceDecoratorsGroup;
 			float _Title;
-			float _Float0;
 			float _Range;
-			float _Float;
+			float _Range1;
+			float _Float0;
 			float _ActiveIfTrue1;
 			float _PassSwitch;
 			float _VectorTextureGroup;
@@ -1317,7 +1317,7 @@ Shader "New Amplify Shader"
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Range1;
+			float _Float;
 			float _SubKeywordEnum;
 			float _BitMask;
 			float _AlphaClip;
@@ -1562,10 +1562,10 @@ Shader "New Amplify Shader"
 
 			CBUFFER_START(UnityPerMaterial)
 			float4 _Channel;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color0;
-			float4 _Vector0;
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
@@ -1577,9 +1577,9 @@ Shader "New Amplify Shader"
 			float _TooltipSample;
 			float _AppearanceDecoratorsGroup;
 			float _Title;
-			float _Float0;
 			float _Range;
-			float _Float;
+			float _Range1;
+			float _Float0;
 			float _ActiveIfTrue1;
 			float _PassSwitch;
 			float _VectorTextureGroup;
@@ -1597,7 +1597,7 @@ Shader "New Amplify Shader"
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Range1;
+			float _Float;
 			float _SubKeywordEnum;
 			float _BitMask;
 			float _AlphaClip;
@@ -1861,10 +1861,10 @@ Shader "New Amplify Shader"
 
 			CBUFFER_START(UnityPerMaterial)
 			float4 _Channel;
+			float4 _Vector0;
 			float4 _ColorA;
 			float4 _ColorB;
 			float4 _Color0;
-			float4 _Vector0;
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
@@ -1876,9 +1876,9 @@ Shader "New Amplify Shader"
 			float _TooltipSample;
 			float _AppearanceDecoratorsGroup;
 			float _Title;
-			float _Float0;
 			float _Range;
-			float _Float;
+			float _Range1;
+			float _Float0;
 			float _ActiveIfTrue1;
 			float _PassSwitch;
 			float _VectorTextureGroup;
@@ -1896,7 +1896,7 @@ Shader "New Amplify Shader"
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Range1;
+			float _Float;
 			float _SubKeywordEnum;
 			float _BitMask;
 			float _AlphaClip;
@@ -2125,7 +2125,6 @@ Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, 
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;20;-784,-240;Inherit;False;Property;_MinMaxSlider;Min Max Slider;5;0;Create;True;0;0;0;True;0;False;1;MinMaxSliderDrawer;string group,string minPropName,string maxPropName;3;Numeric;_Min;_Max;3;group;Numeric;minPropName;_Min;maxPropName;_Max;0;0;0;-1;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.TexturePropertyNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;21;-784,288;Inherit;True;Property;_Ramp;Ramp;17;0;Create;True;0;0;0;True;0;False;1;RampDrawer;string group;1;Ramp;1;group;Ramp;0;1522a7c4f7317044ab912724c1594427;1522a7c4f7317044ab912724c1594427;False;white;Auto;Texture2D;False;-1;0;2;SAMPLER2D;0;SAMPLERSTATE;1
 Node;AmplifyShaderEditor.TexturePropertyNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;22;-784,496;Inherit;True;Property;_RampAtlas;Ramp Atlas;18;0;Create;True;0;0;0;True;0;False;1;RampAtlasDrawer;string group;1;Ramp;1;group;Ramp;0;cfbe5a628e96c0d4bae3645ad922a368;cfbe5a628e96c0d4bae3645ad922a368;False;white;Auto;Texture2D;False;-1;0;2;SAMPLER2D;0;SAMPLERSTATE;1
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;23;-816,-672;Inherit;False;Property;_NumericGroup;====== Numeric Group ======;0;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState,enum defaultToggleDisplayed;4;Numeric;;on;off;4;group;Numeric;keyword;;defaultFoldingState;on;defaultToggleDisplayed;off;0;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.FunctionNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;24;-784,16;Inherit;False;SampleAmplifyFunction_Enum;9;;4;47c66267a97c66a4f950ad83bd0e4064;0;0;1;FLOAT3;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;25;-784,192;Inherit;False;Property;_RampGroup;====== Ramp Group ======;16;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState,enum defaultToggleDisplayed;4;Ramp;;on;on;4;group;Ramp;keyword;;defaultFoldingState;on;defaultToggleDisplayed;on;0;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;26;-784,720;Inherit;False;Property;_RampAtlasIndexer;Ramp Atlas Indexer;19;0;Create;True;0;0;0;True;0;False;1;RampAtlasIndexerDrawer;string group,string rampAtlasPropName;2;Ramp;_RampAtlas;2;group;Ramp;rampAtlasPropName;_RampAtlas;0;0;0;0;0;0;1;FLOAT;0
@@ -2157,6 +2156,7 @@ Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, 
 Node;AmplifyShaderEditor.Vector4Node, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;50;-816,4112;Inherit;False;Property;_Vector0;Vector 0;43;0;Create;True;0;0;0;True;0;False;0;0;0,0,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;48;-816,3952;Inherit;False;Property;_Float0;Float 0;41;0;Create;True;0;0;0;True;0;False;0;1;TitleDecorator;string header;1;Out of Group;1;header;Out of Group;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;16;-784,-592;Inherit;False;Property;_Float;Float;1;0;Create;False;0;0;0;True;0;False;1;SubDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;23;-816,-672;Inherit;False;Property;_NumericGroup;====== Numeric Group ======;0;0;Create;True;0;0;0;True;0;False;1;MainDrawer;string group,keyword keyword,enum defaultFoldingState,enum defaultToggleDisplayed;4;Numeric;;on;off;4;group;Numeric;keyword;;defaultFoldingState;on;defaultToggleDisplayed;off;0;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;57;-784,-112;Inherit;False;Property;_BitMask;Bit Mask;8;0;Create;True;0;0;0;True;0;False;1;BitMaskDrawer;string group;1;Numeric;1;group;Numeric;0;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;0;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ExtraPrePass;0;0;ExtraPrePass;6;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;0;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;2;0,0;Float;False;False;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
@@ -2170,4 +2170,4 @@ Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Versi
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;1;16,16;Float;False;True;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;Forward;0;1;Forward;10;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;1;LightMode=UniversalForwardOnly;False;False;0;;0;0;Standard;27;Surface;0;0;  Keep Alpha;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;0;0;  Use Shadow Threshold;0;0;Forward Only;0;0;Cast Shadows;1;0;Receive Shadows;2;0;Receive SSAO;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;Meta Pass;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position;1;0;0;10;False;True;True;True;False;False;True;True;True;False;False;;False;0
 WireConnection;1;2;24;0
 ASEEND*/
-//CHKSM=6BA2FBC567407477F5D1BAE9C719CFEB22306307
+//CHKSM=36FE0B7AD71692790E05DD385EEB8E972C762524
