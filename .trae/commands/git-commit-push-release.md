@@ -5,6 +5,16 @@ description: "提交工作区改动并发布新版本。流程：版本号校验
 
 # Git Commit, Push & Release
 
+## GitHub 操作方式
+
+本流程使用 **Github仓库操作 Agent** (`github-repo-operator`) 与 GitHub 交互。Agent 内置了 GitHub MCP 工具，支持以下操作：
+- 获取仓库信息、分支、标签
+- 创建/合并 Pull Request
+- 列出提交记录
+- 操作 Issue 和 Release
+
+调用方式：使用 `Task` 工具，设置 `subagent_type="github-repo-operator"`，在 `query` 中描述需要执行的操作。
+
 ## 仓库信息
 
 | 项 | 值 |
@@ -58,41 +68,35 @@ git push origin dev
 
 ### Step 4: 创建 PR 并合并到 1.x
 
-通过 GitHub MCP 工具：
+通过 **Github仓库操作 Agent** (`github-repo-operator`) 执行以下操作：
 
-```
-mcp_github_create_pull_request(
-    owner="JasonMa0012", repo="LWGUI",
-    title="Release <version>",
-    head="dev", base="1.x",
-    body="Release version <version>"
-)
-```
+1. 创建 PR：
+   ```
+   使用 Task 工具，subagent_type="github-repo-operator"
+   请求: 创建 PR，owner="JasonMa0012", repo="LWGUI", title="Release <version>", head="dev", base="1.x", body="Release version <version>"
+   ```
 
-然后合并 PR：
-
-```
-mcp_github_merge_pull_request(
-    owner="JasonMa0012", repo="LWGUI",
-    pullNumber=<PR_NUMBER>,
-    merge_method="merge"
-)
-```
+2. 合并 PR：
+   ```
+   使用 Task 工具，subagent_type="github-repo-operator"
+   请求: 合并 PR，owner="JasonMa0012", repo="LWGUI", pullNumber=<PR_NUMBER>, merge_method="merge"
+   ```
 
 ### Step 5: 审查上一个已发布版本之后的所有改动
 
-先获取上一个 tag 的提交日期：
+通过 **Github仓库操作 Agent** (`github-repo-operator`) 执行：
 
-```
-mcp_github_get_tag(owner="JasonMa0012", repo="LWGUI", tag="<PREVIOUS_TAG>")
-mcp_github_get_commit(owner="JasonMa0012", repo="LWGUI", sha="<返回的commit.sha>")
-```
+1. 获取上一个 tag 对应的提交日期：
+   ```
+   使用 Task 工具，subagent_type="github-repo-operator"
+   请求: 获取 tag 信息，owner="JasonMa0012", repo="LWGUI", tag="<PREVIOUS_TAG>"
+   ```
 
-再用 `since` 参数获取该日期之后 `1.x` 上的所有提交：
-
-```
-mcp_github_list_commits(owner="JasonMa0012", repo="LWGUI", sha="1.x", since="<返回的commit.date>")
-```
+2. 获取该日期之后 `1.x` 上的所有提交：
+   ```
+   使用 Task 工具，subagent_type="github-repo-operator"
+   请求: 列出提交，owner="JasonMa0012", repo="LWGUI", sha="1.x", since="<commit.date>"
+   ```
 
 仔细审查改动，查找：
 - **潜在 BUG**：空引用、Undo 记录缺失、GUI 状态不一致、属性类型不匹配
@@ -122,4 +126,4 @@ Version: x.x.x
 - 按 Add > Optimize > Change > Fix > Remove 排序
 - 末尾附 Full Changelog 对比链接
 
-> 注意：MCP 不支持创建 Release，需用户手动在 GitHub 发布页面创建。
+> 注意：当前 GitHub MCP 工具不支持创建 Release，需用户手动在 GitHub 发布页面创建。
