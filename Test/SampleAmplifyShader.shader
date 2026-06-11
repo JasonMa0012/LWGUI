@@ -1,4 +1,4 @@
-// Made with Amplify Shader Editor v2.0.0
+// Made with Amplify Shader Editor v1.9.9.10
 // Available at the Unity Asset Store - http://u3d.as/y3X 
 Shader "New Amplify Shader"
 {
@@ -227,7 +227,7 @@ Shader "New Amplify Shader"
 			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
-			#define ASE_VERSION 20000
+			#define ASE_VERSION 19910
 			#define ASE_SRP_VERSION 140012
 
 
@@ -324,7 +324,6 @@ Shader "New Amplify Shader"
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
-			float _ShowIfTrue1;
 			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
 			float _Toggle;
@@ -335,25 +334,26 @@ Shader "New Amplify Shader"
 			float _Range;
 			float _Range1;
 			float _Float0;
+			float _Float;
+			float _ShowIfTrue1;
 			float _ActiveIfTrue1;
-			float _PassSwitch;
-			float _VectorTextureGroup;
 			float _Hidden;
+			float _HelpboxSample;
 			float _Min;
 			float _SubPowerSlider;
 			float _SubIntRange;
 			float _MinMaxSlider;
-			float _NumericGroup;
 			float _SubEnum;
-			float _HelpboxSample;
 			float _KWEnum;
-			float _Preset;
+			float _PassSwitch;
+			float _SubKeywordEnum;
 			float _float1;
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Float;
-			float _SubKeywordEnum;
+			float _VectorTextureGroup;
+			float _NumericGroup;
+			float _Preset;
 			float _BitMask;
 			float _AlphaClip;
 			float _Cutoff;
@@ -636,7 +636,7 @@ Shader "New Amplify Shader"
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
-			#define ASE_VERSION 20000
+			#define ASE_VERSION 19910
 			#define ASE_SRP_VERSION 140012
 
 
@@ -700,7 +700,6 @@ Shader "New Amplify Shader"
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
-			float _ShowIfTrue1;
 			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
 			float _Toggle;
@@ -711,25 +710,26 @@ Shader "New Amplify Shader"
 			float _Range;
 			float _Range1;
 			float _Float0;
+			float _Float;
+			float _ShowIfTrue1;
 			float _ActiveIfTrue1;
-			float _PassSwitch;
-			float _VectorTextureGroup;
 			float _Hidden;
+			float _HelpboxSample;
 			float _Min;
 			float _SubPowerSlider;
 			float _SubIntRange;
 			float _MinMaxSlider;
-			float _NumericGroup;
 			float _SubEnum;
-			float _HelpboxSample;
 			float _KWEnum;
-			float _Preset;
+			float _PassSwitch;
+			float _SubKeywordEnum;
 			float _float1;
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Float;
-			float _SubKeywordEnum;
+			float _VectorTextureGroup;
+			float _NumericGroup;
+			float _Preset;
 			float _BitMask;
 			float _AlphaClip;
 			float _Cutoff;
@@ -944,7 +944,7 @@ Shader "New Amplify Shader"
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
-			#define ASE_VERSION 20000
+			#define ASE_VERSION 19910
 			#define ASE_SRP_VERSION 140012
 
 
@@ -1004,7 +1004,6 @@ Shader "New Amplify Shader"
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
-			float _ShowIfTrue1;
 			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
 			float _Toggle;
@@ -1015,25 +1014,26 @@ Shader "New Amplify Shader"
 			float _Range;
 			float _Range1;
 			float _Float0;
+			float _Float;
+			float _ShowIfTrue1;
 			float _ActiveIfTrue1;
-			float _PassSwitch;
-			float _VectorTextureGroup;
 			float _Hidden;
+			float _HelpboxSample;
 			float _Min;
 			float _SubPowerSlider;
 			float _SubIntRange;
 			float _MinMaxSlider;
-			float _NumericGroup;
 			float _SubEnum;
-			float _HelpboxSample;
 			float _KWEnum;
-			float _Preset;
+			float _PassSwitch;
+			float _SubKeywordEnum;
 			float _float1;
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Float;
-			float _SubKeywordEnum;
+			float _VectorTextureGroup;
+			float _NumericGroup;
+			float _Preset;
 			float _BitMask;
 			float _AlphaClip;
 			float _Cutoff;
@@ -1220,7 +1220,7 @@ Shader "New Amplify Shader"
 			
 
 			#define ASE_FOG 1
-			#define ASE_VERSION 20000
+			#define ASE_VERSION 19910
 			#define ASE_SRP_VERSION 140012
 
 
@@ -1289,7 +1289,6 @@ Shader "New Amplify Shader"
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
-			float _ShowIfTrue1;
 			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
 			float _Toggle;
@@ -1300,25 +1299,26 @@ Shader "New Amplify Shader"
 			float _Range;
 			float _Range1;
 			float _Float0;
+			float _Float;
+			float _ShowIfTrue1;
 			float _ActiveIfTrue1;
-			float _PassSwitch;
-			float _VectorTextureGroup;
 			float _Hidden;
+			float _HelpboxSample;
 			float _Min;
 			float _SubPowerSlider;
 			float _SubIntRange;
 			float _MinMaxSlider;
-			float _NumericGroup;
 			float _SubEnum;
-			float _HelpboxSample;
 			float _KWEnum;
-			float _Preset;
+			float _PassSwitch;
+			float _SubKeywordEnum;
 			float _float1;
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Float;
-			float _SubKeywordEnum;
+			float _VectorTextureGroup;
+			float _NumericGroup;
+			float _Preset;
 			float _BitMask;
 			float _AlphaClip;
 			float _Cutoff;
@@ -1495,7 +1495,7 @@ Shader "New Amplify Shader"
 			
 
 			#define ASE_FOG 1
-			#define ASE_VERSION 20000
+			#define ASE_VERSION 19910
 			#define ASE_SRP_VERSION 140012
 
 
@@ -1569,7 +1569,6 @@ Shader "New Amplify Shader"
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
-			float _ShowIfTrue1;
 			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
 			float _Toggle;
@@ -1580,25 +1579,26 @@ Shader "New Amplify Shader"
 			float _Range;
 			float _Range1;
 			float _Float0;
+			float _Float;
+			float _ShowIfTrue1;
 			float _ActiveIfTrue1;
-			float _PassSwitch;
-			float _VectorTextureGroup;
 			float _Hidden;
+			float _HelpboxSample;
 			float _Min;
 			float _SubPowerSlider;
 			float _SubIntRange;
 			float _MinMaxSlider;
-			float _NumericGroup;
 			float _SubEnum;
-			float _HelpboxSample;
 			float _KWEnum;
-			float _Preset;
+			float _PassSwitch;
+			float _SubKeywordEnum;
 			float _float1;
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Float;
-			float _SubKeywordEnum;
+			float _VectorTextureGroup;
+			float _NumericGroup;
+			float _Preset;
 			float _BitMask;
 			float _AlphaClip;
 			float _Cutoff;
@@ -1780,7 +1780,7 @@ Shader "New Amplify Shader"
         	#pragma multi_compile_instancing
         	#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
         	#define ASE_FOG 1
-        	#define ASE_VERSION 20000
+        	#define ASE_VERSION 19910
         	#define ASE_SRP_VERSION 140012
 
 
@@ -1868,7 +1868,6 @@ Shader "New Amplify Shader"
 			float4 _Color;
 			float4 _ColorG;
 			float _Max;
-			float _ShowIfTrue1;
 			float _ShowIfFalse0;
 			float _ConditionDecoratorsGroup;
 			float _Toggle;
@@ -1879,25 +1878,26 @@ Shader "New Amplify Shader"
 			float _Range;
 			float _Range1;
 			float _Float0;
+			float _Float;
+			float _ShowIfTrue1;
 			float _ActiveIfTrue1;
-			float _PassSwitch;
-			float _VectorTextureGroup;
 			float _Hidden;
+			float _HelpboxSample;
 			float _Min;
 			float _SubPowerSlider;
 			float _SubIntRange;
 			float _MinMaxSlider;
-			float _NumericGroup;
 			float _SubEnum;
-			float _HelpboxSample;
 			float _KWEnum;
-			float _Preset;
+			float _PassSwitch;
+			float _SubKeywordEnum;
 			float _float1;
 			float _EnumGroup;
 			float _RampGroup;
 			float _RampAtlasIndexer;
-			float _Float;
-			float _SubKeywordEnum;
+			float _VectorTextureGroup;
+			float _NumericGroup;
+			float _Preset;
 			float _BitMask;
 			float _AlphaClip;
 			float _Cutoff;
@@ -2110,7 +2110,7 @@ Shader "New Amplify Shader"
 	Fallback Off
 }
 /*ASEBEGIN
-Version=20000
+Version=19910
 Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;53;-864,3872;Inherit;False;628.9534;920.3547;Out of Group;5;52;49;51;50;48;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;11;-848,896;Inherit;False;1356.853;1478.783;Vector Group;5;32;31;54;55;56;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;41;-848,3088;Inherit;False;589.4493;699.1997;Condition Decorators Group;6;47;45;44;42;43;40;;1,1,1,1;0;0
@@ -2170,4 +2170,4 @@ Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Versi
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;1;16,16;Float;False;True;-1;3;LWGUI.LWGUI;0;19;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;Forward;0;1;Forward;10;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;1;LightMode=UniversalForwardOnly;False;False;0;;0;0;Standard;27;Surface;0;0;  Keep Alpha;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;0;0;  Use Shadow Threshold;0;0;Forward Only;0;0;Cast Shadows;1;0;Receive Shadows;2;0;Receive SSAO;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;Meta Pass;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position;1;0;0;10;False;True;True;True;False;False;True;True;True;False;False;;False;0
 WireConnection;1;2;24;0
 ASEEND*/
-//CHKSM=36FE0B7AD71692790E05DD385EEB8E972C762524
+//CHKSM=D84285AE63EA259136DA4314C5457E646687A710
