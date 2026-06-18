@@ -644,8 +644,6 @@ namespace LWGUI
 
 			if (EditorGUI.EndChangeCheck())
 			{
-				if (isEmpty && newValue == param.GetDefaultDisplayText())
-					newValue = "";
 				while (attributeData.parameters.Count <= paramIndex)
 					attributeData.parameters.Add("");
 				attributeData.parameters[paramIndex] = newValue;
@@ -682,6 +680,7 @@ namespace LWGUI
 			if (paramIndex >= attributeData.parameters.Count) return;
 
 			string value = attributeData.parameters[paramIndex];
+			bool wasError = attributeData.HasValidationError(paramIndex);
 
 			attributeData.SetValidationError(paramIndex, false);
 
@@ -693,7 +692,8 @@ namespace LWGUI
 			if (!result.isValid)
 			{
 				attributeData.SetValidationError(paramIndex, true);
-				Debug.LogError($"[LWGUI] Validation error in {attributeData.drawerTypeName}.{param.name}: {result.errorMessage}");
+				if (!wasError)
+					Debug.LogError($"[LWGUI] Validation error in {attributeData.drawerTypeName}.{param.name}: {result.errorMessage}");
 			}
 		}
 

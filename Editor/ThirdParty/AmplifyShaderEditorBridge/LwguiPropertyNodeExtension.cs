@@ -103,9 +103,10 @@ namespace LWGUI
 				JsonUtility.FromJsonOverwrite(
 					Encoding.UTF8.GetString( Convert.FromBase64String( token ) ), data );
 			}
-			catch ( Exception )
+			catch ( Exception e )
 			{
-				// Malformed token — keep defaults rather than break node load
+				Debug.LogWarning(
+					$"[LWGUI] Failed to parse ASE extension token for node '{node?.GetType().Name ?? "unknown"}': {e.Message}" );
 			}
 		}
 
@@ -135,8 +136,9 @@ namespace LWGUI
 				JsonUtility.FromJsonOverwrite(
 					Encoding.UTF8.GetString( Convert.FromBase64String( token ) ), data );
 			}
-			catch ( Exception )
+			catch ( Exception e )
 			{
+				Debug.LogWarning( $"[LWGUI] Failed to decode ASE extension token: {e.Message}" );
 			}
 		}
 
