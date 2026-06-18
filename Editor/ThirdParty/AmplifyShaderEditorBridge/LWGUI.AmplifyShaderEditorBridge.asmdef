@@ -1,0 +1,21 @@
+{
+    "name": "LWGUI.AmplifyShaderEditorBridge",
+    "rootNamespace": "LWGUI",
+    "references": [
+        "AmplifyShaderEditor",
+        "LWGUI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "LWGUI_ASE_INTEGRATION"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
