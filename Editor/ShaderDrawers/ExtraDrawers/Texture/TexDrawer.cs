@@ -40,6 +40,8 @@ namespace LWGUI
 		{
 			base.BuildStaticMetaData(inShader, inProp, inProps, inoutPropertyStaticData);
 			inoutPropertyStaticData.AddExtraProperty(_extraPropName);
+			inoutPropertyStaticData.labelWidth = Mathf.Max(inoutPropertyStaticData.labelWidth,
+				EditorStyles.label.CalcSize(new GUIContent(inoutPropertyStaticData.displayName)).x + 32f);
 		}
 
 		public override void GetDefaultValueDescription(Shader inShader, MaterialProperty inProp, MaterialProperty inDefaultProp, PerShaderData inPerShaderData, PerMaterialData inoutPerMaterialData)

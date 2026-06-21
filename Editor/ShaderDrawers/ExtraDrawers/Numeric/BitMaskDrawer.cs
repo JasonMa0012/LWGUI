@@ -105,20 +105,25 @@ namespace LWGUI
 		public override bool IsMatchPropType(ShaderPropertyType propType) 
 			=> propType is ShaderPropertyType.Float or ShaderPropertyType.Int;
 
-		protected override float GetVisibleHeight(MaterialProperty prop) { return maxHeight; }
+		protected override float GetVisibleHeight(MaterialProperty prop)
+		{
+			return string.IsNullOrEmpty(prop.displayName) ? EditorGUIUtility.singleLineHeight : maxHeight;
+		}
 
 		public override void DrawProp(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
-			label.tooltip += $"\nCurrent Value: { prop.GetNumericValue() }";
+			bool hasLabel = !string.IsNullOrEmpty(label.text);
+			if (hasLabel)
+				label.tooltip += $"\nCurrent Value: { prop.GetNumericValue() }";
 			
 			int controlId = GUIUtility.GetControlID(_hint, FocusType.Keyboard, position);
 			var fieldRect = EditorGUI.PrefixLabel(position, controlId, label);
 			
-			var needSecondRow = totalButtonWidth > fieldRect.width;
-			var scale = needSecondRow ? position.width / totalButtonWidth : fieldRect.width / totalButtonWidth;
+			var needSecondRow = hasLabel && totalButtonWidth > fieldRect.width;
+			var scale = needSecondRow ? (position.width - ReflectionHelper.EditorGUI_indent) / totalButtonWidth : fieldRect.width / totalButtonWidth;
 			
 			if (needSecondRow)
-				fieldRect = new Rect(position.x + ReflectionHelper.EditorGUI_indent, position.y + EditorGUIUtility.singleLineHeight, position.width, maxHeight - EditorGUIUtility.singleLineHeight);
+				fieldRect = new Rect(position.x + ReflectionHelper.EditorGUI_indent, position.y + EditorGUIUtility.singleLineHeight, position.width - ReflectionHelper.EditorGUI_indent, maxHeight - EditorGUIUtility.singleLineHeight);
 
 			fieldRect.xMin = fieldRect.xMax;
 			
