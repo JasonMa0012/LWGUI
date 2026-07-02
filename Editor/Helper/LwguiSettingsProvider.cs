@@ -28,7 +28,7 @@ namespace LWGUI
 
 		private static void DrawGUI( string searchContext )
 		{
-			var target = BuildTargetGroup.Standalone;
+			var target = EditorUserBuildSettings.selectedBuildTargetGroup;
 			PlayerSettings.GetScriptingDefineSymbolsForGroup( target, out string[] defines );
 			var definesList = defines.ToList();
 
@@ -36,6 +36,21 @@ namespace LWGUI
 
 			EditorGUILayout.Space();
 			EditorGUILayout.LabelField( "Third-Party Integration", EditorStyles.boldLabel );
+
+			if ( isEnabled )
+			{
+				EditorGUILayout.HelpBox(
+					"ASE Integration is enabled. LWGUI Drawer/Decorator attributes " +
+					"are available in Amplify Shader Editor property nodes.",
+					MessageType.Info );
+			}
+			else
+			{
+				EditorGUILayout.HelpBox(
+					"ASE Integration is disabled. Enable it to add LWGUI Drawer/Decorator " +
+					"selection to Amplify Shader Editor property nodes.",
+					MessageType.None );
+			}
 
 			EditorGUI.BeginChangeCheck();
 			bool newValue = EditorGUILayout.Toggle(
@@ -54,21 +69,6 @@ namespace LWGUI
 					definesList.Remove( Symbol );
 
 				PlayerSettings.SetScriptingDefineSymbolsForGroup( target, definesList.ToArray() );
-			}
-
-			if ( isEnabled )
-			{
-				EditorGUILayout.HelpBox(
-					"ASE Integration is enabled. LWGUI Drawer/Decorator attributes " +
-					"are available in Amplify Shader Editor property nodes.",
-					MessageType.Info );
-			}
-			else
-			{
-				EditorGUILayout.HelpBox(
-					"ASE Integration is disabled. Enable it to add LWGUI Drawer/Decorator " +
-					"selection to Amplify Shader Editor property nodes.",
-					MessageType.None );
 			}
 		}
 	}
