@@ -50,6 +50,15 @@ namespace LWGUI
 			{
 				GUIStyle baseStyle = UIUtils.InspectorPopdropdownStyle ?? EditorStyles.popup;
 				_lwguiPopupStyle = new GUIStyle(baseStyle);
+				// ASE's InspectorPopdropdownStyle is based on PopupCurveDropdown, whose text is drawn
+				// slightly higher than EditorGUILayout.LabelField. Shift it down to align both sides.
+				_lwguiPopupStyle.contentOffset = new Vector2(0, 2);
+				// The dropdown arrow is part of the background image and unaffected by contentOffset.
+				// Shift the background down by 3 pixels so the arrow aligns with the text.
+				RectOffset overflow = _lwguiPopupStyle.overflow;
+				overflow.top -= 3;
+				overflow.bottom += 3;
+				_lwguiPopupStyle.overflow = overflow;
 
 				if (!isProSkin)
 					_lwguiPopupStyle.normal.textColor = EditorStyles.popup.normal.textColor;
@@ -787,6 +796,23 @@ namespace LWGUI
 
 		#region Private Implementation - Decorator UI
 
+		private static bool DrawDecoratorPopupButton(Rect rect, string text, GUIStyle style)
+		{
+			Color originalBackgroundColor = GUI.backgroundColor;
+			try
+			{
+				// Darken the dropdown background (and its arrow) in light theme for better contrast.
+				if (!EditorGUIUtility.isProSkin)
+					GUI.backgroundColor = new Color(0.5f, 0.5f, 0.5f);
+
+				return GUI.Button(rect, text, style);
+			}
+			finally
+			{
+				GUI.backgroundColor = originalBackgroundColor;
+			}
+		}
+
 		private static void DrawDecoratorElementUI(Rect rect, LwguiAttributeData decoratorData, int index, bool isActive, bool isFocused, Action onChanged, PropertyNode propertyNode = null)
 		{
 			decoratorData.ValidateAndRepair();
@@ -810,7 +836,7 @@ namespace LWGUI
 			EditorGUI.LabelField(typeLabelRect, "Type");
 
 			string displayName = string.IsNullOrEmpty(decoratorData.drawerTypeName) ? "Select Decorator..." : decoratorData.drawerTypeName;
-			if (GUI.Button(typeRect, displayName, popupStyle))
+			if (DrawDecoratorPopupButton(typeRect, displayName, popupStyle))
 				ShowDecoratorSelectionMenu(decoratorData, onChanged);
 
 			if (!string.IsNullOrEmpty(decoratorData.drawerTypeName))
@@ -828,7 +854,7 @@ namespace LWGUI
 					int totalCount = drawerInfo.constructors.Count;
 					string constructorDisplayName = $"({currentIndex} / {totalCount})";
 
-					if (GUI.Button(constructorRect, constructorDisplayName, popupStyle))
+					if (DrawDecoratorPopupButton(constructorRect, constructorDisplayName, popupStyle))
 					{
 						ShowConstructorSelectionMenu(decoratorData, drawerInfo, onChanged);
 					}

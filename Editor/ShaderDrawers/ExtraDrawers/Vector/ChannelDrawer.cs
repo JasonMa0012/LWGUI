@@ -53,6 +53,8 @@ namespace LWGUI
 
 		public override bool IsMatchPropType(ShaderPropertyType propType) { return propType == ShaderPropertyType.Vector; }
 
+		protected override float GetVisibleHeight(MaterialProperty prop) => EditorGUIUtility.singleLineHeight;
+
 		private static int GetChannelIndex(MaterialProperty prop)
 		{
 			int index = -1;

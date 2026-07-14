@@ -41,14 +41,16 @@ namespace LWGUI
 			{
 				EditorGUILayout.HelpBox(
 					"ASE Integration is enabled. LWGUI Drawer/Decorator attributes " +
-					"are available in Amplify Shader Editor property nodes.",
+					"are available in Amplify Shader Editor property nodes.\n" +
+					"Requires Amplify Shader Editor v1.9.9.10+.",
 					MessageType.Info );
 			}
 			else
 			{
 				EditorGUILayout.HelpBox(
 					"ASE Integration is disabled. Enable it to add LWGUI Drawer/Decorator " +
-					"selection to Amplify Shader Editor property nodes.",
+					"selection to Amplify Shader Editor property nodes.\n" +
+					"Requires Amplify Shader Editor v1.9.9.10+.",
 					MessageType.None );
 			}
 
