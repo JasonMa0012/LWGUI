@@ -32,7 +32,9 @@ namespace LWGUI
 		protected virtual float GetVisibleHeight(MaterialProperty prop)
 		{
 			var height = MaterialEditor.GetDefaultPropertyHeight(prop);
-			return prop.GetPropertyType() == ShaderPropertyType.Vector ? EditorGUIUtility.singleLineHeight : height;
+			if (prop.GetPropertyType() == ShaderPropertyType.Vector)
+				return string.IsNullOrEmpty(prop.displayName) ? EditorGUIUtility.singleLineHeight : EditorGUIUtility.singleLineHeight * 2;
+			return height;
 		}
 
 		public virtual void BuildStaticMetaData(Shader inShader, MaterialProperty inProp, MaterialProperty[] inProps, PropertyStaticData inoutPropertyStaticData)

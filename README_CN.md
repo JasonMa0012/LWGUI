@@ -15,11 +15,13 @@ LWGUI 已在诸多大型商业项目中长期验证:
 
 ![LWGUI](assets~/LWGUI.png)
 
-| ![image-20240716183800118](./assets~/image-20240716183800118.png)                                     | ![](assets~/Pasted%20image%2020250522183200.png)                  |
-| --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| 比UE更加强大的Gradient编辑器, 同时支持Shader和C#                                                    | **NEW: 使用Ramp Atlas在一个Texture中包含多个Ramp**        |
-| ![image-20250314160119094](./assets~/image-20250314160119094.png)                                     | ![image-20220926025611208](./assets~/image-20220926025611208.png) |
-| **NEW: Timeline中录制材质参数动画时, 自动捕获Toggle的Keyword更改, 以便运行时切换材质Keyword** | 功能丰富的工具栏                                                |
+| ![](assets~/Pasted%20image%2020260714225931.png)                                                                                         | ![](assets~/Pasted%20image%2020260714230034.png)                  |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **NEW: 现已支持在Amplify Shader Editor中可视化编辑LWGUI Attributes! <br/><br>你需要安装ASE v1.9.9.10+, 并启用`Project Settings > LWGUI > ASE Integration`** | 新的`SampleAmplifyShader`可以帮助你快速入门!                                 |
+| ![image-20240716183800118](./assets~/image-20240716183800118.png)                                                                        | ![](assets~/Pasted%20image%2020250522183200.png)                  |
+| 比UE更加强大的Gradient编辑器, 同时支持Shader和C#                                                                                                       | 使用Ramp Atlas在一个Texture中包含多个Ramp                                   |
+| ![image-20250314160119094](./assets~/image-20250314160119094.png)                                                                        | ![image-20220926025611208](./assets~/image-20220926025611208.png) |
+| Timeline中录制材质参数动画时, 自动捕获Toggle的Keyword更改, 以便运行时切换材质Keyword                                                                               | 功能丰富的工具栏                                                          |
 
 | With your sponsorship, I will update more actively. | 有你的赞助我会更加积极地更新                                                              |
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------- |
@@ -29,6 +31,8 @@ LWGUI 已在诸多大型商业项目中长期验证:
 * [LWGUI (Light Weight Shader GUI)](#lwgui-light-weight-shader-gui)
    * [安装](#安装)
    * [入门](#入门)
+      * [NEW: 在 Amplify Shader Editor 中使用](#new-在-amplify-shader-editor-中使用)
+      * [在代码编辑器中使用](#在代码编辑器中使用)
    * [Basic Drawers](#basic-drawers)
       * [Main &amp; Sub](#main--sub)
    * [Extra Drawers](#extra-drawers)
@@ -109,6 +113,20 @@ LWGUI 已在诸多大型商业项目中长期验证:
    - **对于Unity 2017, 请直接将Zip解压到Assets目录**
 
 ## 入门
+
+### NEW: 在 Amplify Shader Editor 中使用
+
+1. 安装ASE `v1.9.9.10 +`
+2. 启用: `Project Settings > LWGUI > ASE Integration` (此时ASE的默认Custom Editor会被替换为`LWGUI.LWGUI`)
+3. 新建或打开Amplify Shader, 创建或选中Parameter节点, 现在就可以编辑LWGUI Drawer和Decorator了:
+![](assets~/Pasted%20image%2020260714231511.png)
+- 每个Parameter节点只能有一个Drawer, 但是可以有多个Decorator
+- 所有可选的Drawer和Decorator的详细说明可以在下方找到
+- 你需要手动选择构造函数, 参数更少的构造函数意味着部分参数为默认值
+- 别忘了调整参数的顺序! 顺序会导致布局异常
+- 你可以查看生成的代码辅助解决问题
+
+### 在代码编辑器中使用
 
 1. 新建一个Shader或使用现有的Shader
 2. 在代码编辑器中打开Shader

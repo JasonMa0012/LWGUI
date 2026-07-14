@@ -15,11 +15,13 @@ It significantly shortens iteration cycles while improving collaboration between
 
 ![LWGUI](assets~/LWGUI.png)
 
-| ![image-20240716183800118](./assets~/image-20240716183800118.png)                                                                                                               | ![](assets~/Pasted%20image%2020250522183200.png)                         |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| A more powerful Gradient editor than UE, with support for both Shader and C#                                                                                                  | **NEW: Use Ramp Atlas to include multiple Ramps in one Texture** |
-| ![image-20250314160119094](./assets~/image-20250314160119094.png)                                                                                                               | ![image-20220926025611208](./assets~/image-20220926025611208.png)        |
-| **NEW: When recording material parameter animations in Timeline, automatically capture changes to Toggle's Keywords to enable switching material Keywords at runtime.** | Feature-rich toolbar                                                   |
+| ![](assets~/Pasted%20image%2020260714225931.png)                                                                                                                                    | ![](assets~/Pasted%20image%2020260714230034.png)                  |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **NEW: Now supports visual editing of LWGUI Attributes in Amplify Shader Editor! <br/> You need to install ASE v1.9.9.10+ and enable `Project Settings > LWGUI > ASE Integration`** | The new `SampleAmplifyShader` can help you get started quickly!   |
+| ![image-20240716183800118](./assets~/image-20240716183800118.png)                                                                                                                   | ![](assets~/Pasted%20image%2020250522183200.png)                  |
+| A more powerful Gradient editor than UE, with support for both Shader and C#                                                                                                        | Use Ramp Atlas to include multiple Ramps in one Texture           |
+| ![image-20250314160119094](./assets~/image-20250314160119094.png)                                                                                                                   | ![image-20220926025611208](./assets~/image-20220926025611208.png) |
+| When recording material parameter animations in Timeline, automatically capture changes to Toggle's Keywords to enable switching material Keywords at runtime.                      | Feature-rich toolbar                                              |
 
 | With your sponsorship, I will update more actively. | 有你的赞助我会更加积极地更新                                                              |
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------- |
@@ -29,6 +31,8 @@ It significantly shortens iteration cycles while improving collaboration between
 * [LWGUI (Light Weight Shader GUI)](#lwgui-light-weight-shader-gui)
    * [Installation](#installation)
    * [Getting Started](#getting-started)
+      * [NEW: Using in Amplify Shader Editor](#new-using-in-amplify-shader-editor)
+      * [Using in a Code Editor](#using-in-a-code-editor)
    * [Basic Drawers](#basic-drawers)
       * [Main &amp; Sub](#main--sub)
    * [Extra Drawers](#extra-drawers)
@@ -110,6 +114,20 @@ It significantly shortens iteration cycles while improving collaboration between
    - For Unity 2017, please extract the Zip directly to the Assets directory
 
 ## Getting Started
+
+### NEW: Using in Amplify Shader Editor
+
+1. Install ASE `v1.9.9.10 +`  
+2. Enable: `Project Settings > LWGUI > ASE Integration` (At this point, ASE's default Custom Editor will be replaced with `LWGUI.LWGUI`)  
+3. Create or open an Amplify Shader, create or select a Parameter node, and now you can edit LWGUI Drawers and Decorators:
+![](assets~/Pasted%20image%2020260714231511.png)
+- Each Parameter node can only have one Drawer, but can have multiple Decorators  
+- Detailed descriptions of all Drawers and Decorators can be found below  
+- You need to manually select the constructor, a constructor with fewer parameters means some parameters use default values  
+- Don't forget to adjust the order of parameters! Incorrect order can cause layout issues  
+- You can view the generated code to help solve problems
+
+### Using in a Code Editor
 
 1. Create a newer or use the existing Shader
 2. Open the Shader in the code editor

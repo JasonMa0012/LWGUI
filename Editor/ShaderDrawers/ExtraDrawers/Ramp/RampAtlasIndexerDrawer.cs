@@ -21,6 +21,12 @@ namespace LWGUI
 	/// Target Property Type: Float
 	/// </summary>
 	[LwguiDrawerCategory("Ramp")]
+	[LwguiDrawerParameterString("group", "")]
+	[LwguiDrawerParameterString("rampAtlasPropName", "")]
+	[LwguiDrawerParameterString("defaultRampName", "Ramp")]
+	[LwguiDrawerParameterEnum("colorSpace", 0, "sRGB", "Linear")]
+	[LwguiDrawerParameterEnum("viewChannelMask", 0, "RGBA", "RGB", "R", "G", "B", "A")]
+	[LwguiDrawerParameterEnum("timeRange", 0, "1", "24", "2400")]
 	public class RampAtlasIndexerDrawer : RampDrawer
 	{
 		public string rampAtlasPropName = string.Empty;
