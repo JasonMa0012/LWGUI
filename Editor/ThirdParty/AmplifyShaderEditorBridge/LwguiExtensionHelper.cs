@@ -627,7 +627,7 @@ namespace LWGUI
 			// Dropdown button overlaps the right edge of the text field.
 			// Handle its click before the TextField so the button takes click priority in the overlapping area.
 			GUIStyle dropdownStyle = UIUtils.InspectorPopdropdownFallback ?? GUI.skin.button;
-			bool dropdownClicked = GUI.Button(dropdownRect, GUIContent.none, dropdownStyle);
+			bool dropdownClicked = DrawDecoratorPopupButton(dropdownRect, dropdownStyle);
 
 			string currentValue = paramIndex < attributeData.parameters.Count ? attributeData.parameters[paramIndex] : "";
 			bool isEmpty = string.IsNullOrEmpty(currentValue);
@@ -662,8 +662,7 @@ namespace LWGUI
 			}
 
 			// Re-draw dropdown indicator on top of the TextField for correct visual layering
-			if (Event.current.type == EventType.Repaint)
-				dropdownStyle.Draw(dropdownRect, GUIContent.none, false, false, false, false);
+			DrawDarkenedDropdownIndicator(dropdownRect, dropdownStyle);
 
 			if (dropdownClicked)
 			{
@@ -798,6 +797,16 @@ namespace LWGUI
 
 		private static bool DrawDecoratorPopupButton(Rect rect, string text, GUIStyle style)
 		{
+			return DrawDecoratorPopupButton(rect, new GUIContent(text), style);
+		}
+
+		private static bool DrawDecoratorPopupButton(Rect rect, GUIStyle style)
+		{
+			return DrawDecoratorPopupButton(rect, GUIContent.none, style);
+		}
+
+		private static bool DrawDecoratorPopupButton(Rect rect, GUIContent content, GUIStyle style)
+		{
 			Color originalBackgroundColor = GUI.backgroundColor;
 			try
 			{
@@ -805,7 +814,27 @@ namespace LWGUI
 				if (!EditorGUIUtility.isProSkin)
 					GUI.backgroundColor = new Color(0.5f, 0.5f, 0.5f);
 
-				return GUI.Button(rect, text, style);
+				return GUI.Button(rect, content, style);
+			}
+			finally
+			{
+				GUI.backgroundColor = originalBackgroundColor;
+			}
+		}
+
+		private static void DrawDarkenedDropdownIndicator(Rect rect, GUIStyle style)
+		{
+			if (Event.current.type != EventType.Repaint)
+				return;
+
+			Color originalBackgroundColor = GUI.backgroundColor;
+			try
+			{
+				// Darken the dropdown indicator in light theme for better contrast.
+				if (!EditorGUIUtility.isProSkin)
+					GUI.backgroundColor = new Color(0.5f, 0.5f, 0.5f);
+
+				style.Draw(rect, GUIContent.none, false, false, false, false);
 			}
 			finally
 			{
