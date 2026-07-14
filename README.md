@@ -31,6 +31,8 @@ It significantly shortens iteration cycles while improving collaboration between
 * [LWGUI (Light Weight Shader GUI)](#lwgui-light-weight-shader-gui)
    * [Installation](#installation)
    * [Getting Started](#getting-started)
+      * [NEW: Using in Amplify Shader Editor](#new-using-in-amplify-shader-editor)
+      * [Using in a Code Editor](#using-in-a-code-editor)
    * [Basic Drawers](#basic-drawers)
       * [Main &amp; Sub](#main--sub)
    * [Extra Drawers](#extra-drawers)

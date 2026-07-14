@@ -31,6 +31,8 @@ LWGUI 已在诸多大型商业项目中长期验证:
 * [LWGUI (Light Weight Shader GUI)](#lwgui-light-weight-shader-gui)
    * [安装](#安装)
    * [入门](#入门)
+      * [NEW: 在 Amplify Shader Editor 中使用](#new-在-amplify-shader-editor-中使用)
+      * [在代码编辑器中使用](#在代码编辑器中使用)
    * [Basic Drawers](#basic-drawers)
       * [Main &amp; Sub](#main--sub)
    * [Extra Drawers](#extra-drawers)
